@@ -1,0 +1,7 @@
+Django>=6.0.5
+psycopg[binary]>=3.3.4
+python-dotenv>=1.2.2
+pillow>=12.2.0
+requests>=2.33.0
+whitenoise>=6.11.0
+gunicorn>=25.1.0
