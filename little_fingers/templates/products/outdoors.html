@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .listing-header {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+  }
+
+  .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: var(--spacing-lg);
+  }
+  @media (min-width: 768px) {
+      .bento-grid {
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
+  }
+
+  .bento-featured {
+      background-color: var(--white);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+  }
+  @media (min-width: 768px) {
+      .bento-featured {
+          grid-column: span 8 / span 8;
+          flex-direction: row;
+      }
+  }
+
+  .bento-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+  }
+  @media (min-width: 768px) {
+      .bento-sidebar { grid-column: span 4 / span 4; }
+  }
+
+  .bento-small-card {
+      background-color: var(--white);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+  }
+  @media (min-width: 768px) {
+      .bento-small-card { grid-column: span 4 / span 4; }
+  }
+
+  .featured-image-container {
+      flex: 1;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      position: relative;
+  }
+  .featured-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+  }
+  .bento-featured:hover .featured-image-container img {
+      transform: scale(1.05);
+  }
+
+  .price-sticker {
+      position: absolute;
+      padding: 8px 16px;
+      border-radius: var(--border-radius-full);
+      font-weight: bold;
+      z-index: 10;
+  }
+
+  .accessories-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xl);
+      align-items: center;
+      margin-top: var(--spacing-2xl);
+  }
+  @media (min-width: 768px) {
+      .accessories-section {
+          flex-direction: row;
+      }
+  }
+
+  .aspect-square { aspect-ratio: 1; }
+  .aspect-video { aspect-ratio: 16/9; }
+</style>
+
+<div class="container py-section relative">
+    <!-- Floating Doodles -->
+    <div style="position: absolute; top: 80px; right: 40px; color: var(--accent); opacity: 0.6;" class="hidden md-block">
+        <span class="material-symbols-outlined" style="font-size: 80px;">cloud</span>
+    </div>
+    <div style="position: absolute; top: 160px; left: 80px; color: var(--secondary); opacity: 0.6;" class="hidden md-block">
+        <span class="material-symbols-outlined" style="font-size: 60px;">cloud</span>
+    </div>
+
+    <!-- Hero Header -->
+    <section class="listing-header">
+        <h1 class="text-4xl md-text-5xl mb-sm" style="position: relative; display: inline-block;">
+            Great Outdoor Adventures
+            <span class="material-symbols-outlined text-primary hidden md-block" style="position: absolute; top: -32px; right: -48px; font-size: 60px;">wb_sunny</span>
+        </h1>
+        <p class="text-lg opacity-80 mb-lg" style="max-width: 600px;">
+            Built for heavy play and high spirits. Discover our safety-certified structures designed to transform any backyard into a playground.
+        </p>
+        <div class="flex justify-center gap-sm mt-md">
+            <span class="neo-border neo-shadow bg-accent text-white font-bold rotate-1" style="padding: 6px 16px; border-radius: var(--border-radius-full);">UV Protected</span>
+            <span class="neo-border neo-shadow bg-secondary text-dark font-bold rotate-2" style="padding: 6px 16px; border-radius: var(--border-radius-full);">Safety First</span>
+        </div>
+    </section>
+
+    <!-- Product Bento Grid -->
+    <section class="bento-grid">
+        <!-- Large Featured Card -->
+        <div class="bento-featured neo-border neo-shadow-hover group bg-light">
+            <div class="featured-image-container neo-border">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRN67D2rNti7R1uDc03r1NXa9axp38X10ABw70wwyrch-i9C_ymdgjVQ2WarhOLlUJyOyrowtl7dtr1kYfmJoHrgw3dQw7JMA4hiz7DoV38kYu122f2sW_74pCivU0yBqExM6ukuPNN0xHzCbvN8Y52IefTrNrD4tn5EF1Bul0r2cab6C_fLumN8JsAVZCKQ1pbW4mRV7i_N44TysJLoCMctVuKkIEVYJwoXkEVrE9pXpu57fjiqwY5JcBD3zbnHutl-p9tCB7xA" alt="Structure">
+                <div class="price-sticker neo-border neo-shadow bg-primary text-dark rotate-1" style="top: 16px; left: 16px; font-size: 1.25rem;">
+                    ₹2,49,900
+                </div>
+            </div>
+            <div style="flex: 1; display: flex; flex-col; justify-content: center;">
+                <span class="text-secondary font-bold text-sm uppercase mb-sm" style="letter-spacing: 0.1em;">Structure</span>
+                <h3 class="text-3xl mb-md">The Titan Explorer III</h3>
+                <p class="opacity-80 mb-lg font-body">Our flagship multi-level fort system with twin slides, climbing wall, and weather-sealed wood finish. Perfect for schools and active backyards.</p>
+                <div class="flex gap-sm mb-lg flex-wrap">
+                    <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: var(--border-radius-full);">Double Slide</span>
+                    <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: var(--border-radius-full);">Cedar Wood</span>
+                </div>
+                <button class="bounce-btn neo-border neo-shadow-hover bg-secondary" style="width: 100%;">Add to Quote</button>
+            </div>
+        </div>
+
+        <!-- Secondary Square Card -->
+        <div class="bento-sidebar bg-primary neo-border neo-shadow-hover wiggle text-dark" style="padding: var(--spacing-lg); border-radius: var(--border-radius-lg);">
+            <div class="aspect-square neo-border mb-md" style="border-radius: var(--border-radius-md); overflow: hidden;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5Wb2ZB1xygWLi6QuwAYBU5fLWqCvcDeRFcOff5zutSvLozSdiforSDyWPDfMaJXK_S2ORqlZ75arD0s_LQSS6gxZkf_MF6wwW4UjNFVSdhrA8AGRSVzBzG8BTV8j1aFnpS8i3hnW13Lr0CRvG09_P6hqrlnKoe-ifhcuRmHpLKBgKyiQB7YXTd58qiY3w4y7SryjyTUbNSOdMWzrDfwTIkuHSHeLCT7h-XMaUs74M8zQOxOQ1N_C9VOYbxNEmoHDVEmTHFyajnA" alt="Cloud Canopy" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div style="flex: 1;">
+                <div class="flex justify-between items-start mb-sm">
+                    <h3 class="text-2xl">Cloud Canopy Set</h3>
+                    <span class="bg-dark text-white font-bold text-sm" style="padding: 4px 8px; border-radius: 4px;">₹1,25,000</span>
+                </div>
+                <p class="opacity-80 mb-md">Modular shaded play area with integrated sandpit and seating.</p>
+            </div>
+            <button class="bg-white text-dark neo-border w-full py-3" style="border-radius: var(--border-radius-sm); font-weight: bold; padding: 12px;">Details</button>
+        </div>
+
+        <!-- Standard Grid Items -->
+        <div class="bento-small-card neo-border neo-shadow-hover bg-light group">
+            <div class="aspect-video neo-border mb-md" style="border-radius: var(--border-radius-sm); overflow: hidden; position: relative;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqUzX_uHdRefrfauprmsmJl-8ZPvC8_ZR8yJRZ2Fu1UhNcybmBR0JbjYRNv-UsboECyLATM3bi6Q2Z6ThomcvgMIJdXaugcQeGu-mIb2P6UCxxPK9hOmXlTyQYdWDjfpA8qXX6Z12XE6gcnj8axRNXJ0KQAYm5UlcGiUYc6N0FBW6PmioPW4zLBTP7pq8XbvA8yRy_K0uJ8bvWLRLGj3HoTdztd6v44LjLo3T9GqVUzoS_uCa_zrqgWEOGe-TGosSYMlgwXq9Edg" alt="Spiral Slide" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                <div class="bg-danger text-white neo-border font-black rotate-1" style="position: absolute; bottom: -8px; right: -8px; padding: 4px 12px; border-radius: var(--border-radius-sm);">₹45,000</div>
+            </div>
+            <h4 class="text-xl mb-xs">Sky-High Spiral Slide</h4>
+            <p class="opacity-80 text-sm">Reinforced 12ft spiral slide available in primary colors.</p>
+        </div>
+
+        <div class="bento-small-card neo-border neo-shadow-hover bg-light group">
+            <div class="aspect-video neo-border mb-md" style="border-radius: var(--border-radius-sm); overflow: hidden; position: relative;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6-rSHxHe89_FGsH6FPpW-rFS-NWNvLt7xM31CCbOkh08TEZzJhHZCQUOB4fohEibe87ZUVYqc7XorKa0wCWBqi4uenjWBuCeQphj8KexNFThmgvMG_xgSk4Cxxk9HEkO4U-_T7OhiTVUxkwSggC7L_pbHtDWRnbx-JJMMSlloZYszl8OD-AJypLJJmo7sihcawSHn9JTMG7uR1Rq8VsbB3TJopqjwMAqMkO9oTR29CTE8_j1e60JwVp_3tUGiy6JMyV8dEGNklA" alt="Duo-Swing" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                <div class="bg-accent text-white neo-border font-black rotate-2" style="position: absolute; bottom: -8px; right: -8px; padding: 4px 12px; border-radius: var(--border-radius-sm);">₹89,900</div>
+            </div>
+            <h4 class="text-xl mb-xs">Duo-Swing Classic</h4>
+            <p class="opacity-80 text-sm">Heavy-duty chains and ergonomic seats for maximum comfort.</p>
+        </div>
+
+        <div class="bento-small-card neo-border neo-shadow-hover bg-light group">
+            <div class="aspect-video neo-border mb-md" style="border-radius: var(--border-radius-sm); overflow: hidden; position: relative;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxt9-X3o3_hRN-hs-pccgdQ8utK0YVwj2ZTo0SzpHWdqe9C91NnzYLH2NKMb65cJ_Fu6Z2jimNM-2s9jjOgyGuwniDCOvSmdjLj5QAvZ2XJrq3HFGh3V1W2SS8rh0-3xQpz6Yl6YEMv8k99J6WlzJxVmE6zaSxuv_5LoyROE3saAo7F4GqrZ6wGPgbA1XuseT8fJGl9GHfym3n3RXPsunq6cAJHNJ5-9fRD5H2SieuS7KonnqYJp1LTiEqPXKgsc1ezfEj4gbDbQ" alt="Mountain Climber" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;">
+                <div class="bg-secondary text-dark neo-border font-black rotate-1" style="position: absolute; bottom: -8px; right: -8px; padding: 4px 12px; border-radius: var(--border-radius-sm);">₹32,000</div>
+            </div>
+            <h4 class="text-xl mb-xs">Mountain Climber Kit</h4>
+            <p class="opacity-80 text-sm">Customizable climbing rock wall kit for any vertical surface.</p>
+        </div>
+    </section>
+
+    <!-- Hand-drawn Divider -->
+    <div style="margin: var(--spacing-2xl) 0; border-bottom: var(--border-width) solid var(--neutral-dark); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; opacity: 0.3;"></div>
+
+    <!-- Accessories Section -->
+    <section class="accessories-section">
+        <div style="flex: 1;">
+            <h2 class="text-4xl mb-md">Complete the Set</h2>
+            <p class="text-lg opacity-80 mb-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--spacing-md);">
+                <li class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary">check_circle</span>
+                    <span class="font-bold text-xl">Impact-Resistant Matting</span>
+                </li>
+                <li class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary">check_circle</span>
+                    <span class="font-bold text-xl">Weatherproof Covers</span>
+                </li>
+                <li class="flex items-center gap-sm">
+                    <span class="material-symbols-outlined text-secondary">check_circle</span>
+                    <span class="font-bold text-xl">Custom Ground Anchors</span>
+                </li>
+            </ul>
+        </div>
+        <div class="grid grid-cols-2 gap-md" style="flex: 1;">
+            <div class="aspect-square neo-border neo-shadow bg-accent rotate-2 text-white flex flex-col justify-center items-center" style="padding: var(--spacing-md); border-radius: var(--border-radius-md);">
+                <span class="material-symbols-outlined text-5xl mb-sm">shield</span>
+                <div class="font-bold">Safety Gear</div>
+            </div>
+            <div class="aspect-square neo-border neo-shadow bg-primary -rotate-3 text-dark flex flex-col justify-center items-center" style="padding: var(--spacing-md); border-radius: var(--border-radius-md);">
+                <span class="material-symbols-outlined text-5xl mb-sm">construction</span>
+                <div class="font-bold">Tools</div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}

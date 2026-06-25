@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  /* Home specific styles */
+  .hero-section {
+      position: relative;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-2xl) var(--spacing-md);
+      background-color: #fffdf0;
+      overflow: hidden;
+  }
+  @media (min-width: 768px) {
+      .hero-section {
+          flex-direction: row;
+          padding: var(--spacing-2xl) var(--spacing-xl);
+      }
+  }
+
+  .hero-content {
+      flex: 1;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+  }
+
+  .tag-pill {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-md);
+      background-color: var(--secondary);
+      color: var(--neutral-dark);
+      border: var(--border-width) solid var(--neutral-dark);
+      border-radius: var(--border-radius-full);
+      font-weight: bold;
+      width: fit-content;
+  }
+
+  .hero-image-container {
+      flex: 1;
+      width: 100%;
+      height: 400px;
+      position: relative;
+      margin-top: var(--spacing-xl);
+  }
+  @media (min-width: 768px) {
+      .hero-image-container {
+          height: 600px;
+          margin-top: 0;
+      }
+  }
+
+  /* Category Strip */
+  .category-strip {
+      padding: var(--spacing-2xl) 0;
+      overflow: hidden;
+  }
+  
+  .category-cards {
+      display: flex;
+      gap: var(--spacing-lg);
+      overflow-x: auto;
+      padding: 0 var(--spacing-md) var(--spacing-lg);
+      scrollbar-width: none; /* Firefox */
+  }
+  .category-cards::-webkit-scrollbar {
+      display: none;
+  }
+  @media (min-width: 768px) {
+      .category-cards {
+          padding: 0 var(--spacing-xl) var(--spacing-lg);
+      }
+  }
+
+  .category-card {
+      min-width: 280px;
+      aspect-ratio: 4/5;
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+  }
+  @media (min-width: 768px) {
+      .category-card {
+          min-width: 320px;
+      }
+  }
+  
+  /* Trending Picks */
+  .trending-section {
+      padding: var(--spacing-2xl) 0;
+      background-color: #eef5f7;
+  }
+  
+  .product-card {
+      background-color: var(--white);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-md);
+  }
+  .product-card-image {
+      position: relative;
+      border-radius: var(--border-radius-sm);
+      overflow: hidden;
+      margin-bottom: var(--spacing-md);
+  }
+  .product-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+  }
+  .product-card:hover .product-card-image img {
+      transform: scale(1.05);
+  }
+  
+  /* Newsletter */
+  .newsletter-section {
+      padding: var(--spacing-2xl) var(--spacing-md);
+      text-align: center;
+      background-color: var(--primary);
+      border-top: var(--border-width) solid var(--neutral-dark);
+      border-bottom: var(--border-width) solid var(--neutral-dark);
+  }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="tag-pill -rotate-2">
+            PLAYFUL LEARNING
+        </div>
+        <h1 class="text-4xl md-text-5xl">
+            Where <span class="text-primary scribble-underline">Play</span> Meets<br>
+            <span class="text-secondary">Learning</span> & Adventure
+        </h1>
+        <p class="text-lg opacity-80" style="max-width: 600px;">
+            High-quality playground equipment and educational furniture designed to spark creativity in every little explorer.
+        </p>
+        <div class="flex gap-md" style="flex-wrap: wrap; margin-top: var(--spacing-md);">
+            <button class="bounce-btn neo-border neo-shadow bg-primary text-dark">
+                Shop the Collection
+                <span class="material-symbols-outlined">shopping_bag</span>
+            </button>
+            <button class="bounce-btn neo-border neo-shadow bg-white text-dark">
+                View Catalog
+            </button>
+        </div>
+    </div>
+    <div class="hero-image-container">
+        <!-- Decorative Doodles -->
+        <div style="position: absolute; top: -40px; right: -40px; color: var(--primary); opacity: 0.5;">
+            <span class="material-symbols-outlined" style="font-size: 120px;">star</span>
+        </div>
+        <div style="position: absolute; bottom: -40px; left: 0; color: var(--accent); opacity: 0.5;">
+            <span class="material-symbols-outlined" style="font-size: 80px;">cloud</span>
+        </div>
+    </div>
+</section>
+
+<!-- Category Strip -->
+<section class="category-strip">
+    <div class="container flex justify-between items-end mb-section">
+        <div>
+            <h2 class="text-3xl">Browse by Playzone</h2>
+            <p class="opacity-80">Find the perfect match for your space</p>
+        </div>
+        <div class="flex gap-sm">
+            <button class="neo-border" style="padding: 12px; border-radius: var(--border-radius-full);"><span class="material-symbols-outlined">chevron_left</span></button>
+            <button class="neo-border" style="padding: 12px; border-radius: var(--border-radius-full);"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+    </div>
+    <div class="category-cards">
+        <!-- Indoor Card -->
+        <div class="category-card neo-border neo-shadow-hover wiggle bg-primary">
+            <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined" style="font-size: 40px;">home</span>
+                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                    <span class="material-symbols-outlined">arrow_outward</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-2xl mb-2">INDOORS</h3>
+                <p class="text-sm">Furniture, Soft Play, and Creative Corners.</p>
+            </div>
+        </div>
+        <!-- Outdoor Card -->
+        <div class="category-card neo-border neo-shadow-hover wiggle rotate-1 bg-secondary">
+            <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined" style="font-size: 40px;">park</span>
+                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                    <span class="material-symbols-outlined">arrow_outward</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-2xl mb-2">OUTDOORS</h3>
+                <p class="text-sm">Slides, Swings, and Jungle Gyms.</p>
+            </div>
+        </div>
+        <!-- Parts Card -->
+        <div class="category-card neo-border neo-shadow-hover wiggle bg-accent">
+            <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined" style="font-size: 40px;">settings</span>
+                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                    <span class="material-symbols-outlined">arrow_outward</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-2xl mb-2">PARTS</h3>
+                <p class="text-sm">Replacement fittings and safety mats.</p>
+            </div>
+        </div>
+        <!-- RF Sports Card -->
+        <div class="category-card neo-border neo-shadow-hover wiggle -rotate-1 bg-danger text-white">
+            <div class="flex justify-between items-start">
+                <span class="material-symbols-outlined" style="font-size: 40px;">sports_basketball</span>
+                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                    <span class="material-symbols-outlined">arrow_outward</span>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-2xl mb-2">RF SPORTS</h3>
+                <p class="text-sm opacity-90">Competitive gear and court equipment.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trending Picks -->
+<section class="trending-section">
+    <div class="container mb-section flex items-center gap-md">
+        <span class="material-symbols-outlined text-primary" style="font-size: 40px;">rocket_launch</span>
+        <h2 class="text-3xl">Trending Picks</h2>
+    </div>
+    
+    <div class="container grid grid-cols-1 md-grid-cols-4 gap-lg">
+        <!-- Large Featured Item -->
+        <div class="product-card neo-border md-col-span-2 flex flex-col" style="grid-row: span 2 / span 2; padding: var(--spacing-lg);">
+            <div class="product-card-image" style="height: 320px;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmgwd8ItPytiOEgH8ZAfyKDsF03bddjDKSC3aIZIkkpITzNIVFZGxntDEvlEO2Adms7fRf2CmCNpPFnEeYsPvFUooL7I7VTz9z4TgPAbqp2-QUbi3Gk7mDJYvRG9yWL9sn99sExOjDuKHjNK0puqBgzAlZtafIczs3DCT1q_fllFPquqN5tzmVInG6MiIwgArADY6nBfED8t3valsE5YyiLpA1Gszd9SspSenPGlIEXUbGMM_wx59Nt15ZGZOeGHkVird08JkQXQ" alt="Slide">
+                <div class="rotate-3 neo-border neo-shadow bg-primary font-black" style="position: absolute; top: 16px; right: 16px; padding: 8px 16px;">
+                    ₹49,990
+                </div>
+            </div>
+            <div class="flex-col" style="flex: 1; display: flex; justify-content: flex-end;">
+                <div class="flex justify-between items-center mb-sm">
+                    <h3 class="text-2xl">The Everest Slide</h3>
+                    <div class="flex text-primary">
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                    </div>
+                </div>
+                <p class="opacity-80 mb-lg">Our most popular indoor-outdoor hybrid slide. Safety-first construction with extra-wide steps.</p>
+                <button class="bounce-btn neo-border neo-shadow-hover bg-secondary" style="width: 100%;">Add to Cart</button>
+            </div>
+        </div>
+        
+        <!-- Smaller Items -->
+        <div class="product-card neo-border">
+            <div class="product-card-image" style="aspect-ratio: 1;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM99WwRSUwbmb4KiD9E130azGtHa8KS4G0dqIf4GEvTMzRM5uRA8VusID3WlbTt3ZKTBxjad7QKAv6nJ-ocYd7fPinG-Yvru08UanII7jSAWk1hSgWMrtu7_OXPLhOp2pwAYhmXzowDjERXuBnUbDaRt06x70tkYq4R19NyyipTQpUnN4PjwcrlWhtnDFn24wSHocSHpmA1UJolAozmmHZVZ-cEMgvSfW5mk-mhNVgD269UEu4miCtzBvcuS-7EhRMwsY0-eOIRQ" alt="Blocks">
+                <div class="-rotate-2 neo-border bg-accent text-white font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
+                    ₹12,000
+                </div>
+            </div>
+            <h4 class="font-bold">Creative Cubes</h4>
+            <p class="text-sm opacity-60">Soft Play Set</p>
+        </div>
+        
+        <div class="product-card neo-border">
+            <div class="product-card-image" style="aspect-ratio: 1;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdoEBjyYQfL9zkAM2aolISGHEORVLwUZkPdsKWDz8jQb2B0W10dUMT-E8nWUkhxzZyUVlMvQpd7v5_CTaVPrO94mCc-E1mbTD2xovvUJBoudNgW-AC_JlL4pqOz5_0IMO8_QzdvpyIU7_1hHHFrhjlUAd3TC--2I4tVSVmfNL3U1DffIOU3SUbai-7gKi9sOQOpF0FUbLgAVBrL2wTmDtDUHjq3SYPKT1yjCYs55b3CuRmW7trwCMT0yHL1SQ-Caf153C9DbUobg" alt="Hoop">
+                <div class="rotate-2 neo-border bg-secondary font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
+                    ₹24,500
+                </div>
+            </div>
+            <h4 class="font-bold">RF Junior Hoop</h4>
+            <p class="text-sm opacity-60">Sports Equipment</p>
+        </div>
+        
+        <div class="product-card neo-border">
+            <div class="product-card-image" style="aspect-ratio: 1;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWUDaatlwkp6odMOvw6EZvE6_cV3uUsFbahCmscUY8ITnlWm0xbNWOaXJ20t-cAujwGmXVTL8fYIwgSkVFlSIXzMLI8vEKVyzcX-ZMX764F_HfRd_VY3Jf2QZbBuBWFU606VBFR6EaTmuH0R1uP25Yk-3LqTQWq7fmcOEXQjYdeitaksREZUCOYsYKJpwVuVdBvRIRl0vbun6WRtzY_UdDsZQJf70HgJm50bQjHzw321g3JRUjXLleGAKw7jXgqZFBiCJSwQKopw" alt="Desk">
+                <div class="-rotate-1 neo-border bg-primary font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
+                    ₹31,000
+                </div>
+            </div>
+            <h4 class="font-bold">Study Buddy Desk</h4>
+            <p class="text-sm opacity-60">Indoors</p>
+        </div>
+        
+        <div class="product-card neo-border">
+            <div class="product-card-image" style="aspect-ratio: 1;">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClp2K96jzm9yhOjBpTfzQf17PVSUtGvjgJInM8G3l7hee7n4pCnj5AQn0UTgIZRB_pDMGsUNyMuxvSL_u5jfuXMfIcEzyjwk2-f0Yd9mErLiOHqvUMFrDHTaSW_uReTC9NtQeOUGbH_bqLNBvJVv02b58MIHPbYJvAf0oEz58CN3-VbB5mKT-psayTD3vuFalgf-9Y02noAEEhyjZsHfFwhEI1wouiuUs3vnJrGEw58iBTRnFj8RWM3LcAIrsorFJNlhiYyL_4PA" alt="Swing">
+                <div class="rotate-3 neo-border bg-danger text-white font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
+                    ₹8,500
+                </div>
+            </div>
+            <h4 class="font-bold">Pro-Grip Swing</h4>
+            <p class="text-sm opacity-60">Parts & Extras</p>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter / Community -->
+<section class="newsletter-section">
+    <div class="container" style="max-width: 700px; display: flex; flex-direction: column; gap: var(--spacing-md);">
+        <span class="material-symbols-outlined text-4xl text-dark">mail</span>
+        <h2 class="text-4xl">Join the Little Fingers Fam!</h2>
+        <p class="text-lg opacity-80 mb-lg">Sign up for play tips, new product drops, and exclusive discounts delivered to your inbox.</p>
+        <form class="flex flex-col gap-sm" style="margin-bottom: var(--spacing-sm);">
+            <div class="flex gap-sm" style="width: 100%;">
+                <input type="email" placeholder="Enter your email" class="neo-border" style="flex: 1; padding: 16px 24px; border-radius: var(--border-radius-full); outline: none;">
+                <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white">Subscribe</button>
+            </div>
+        </form>
+        <p class="text-sm opacity-80">No spam, just pure play. Promise!</p>
+    </div>
+</section>
+
+{% endblock %}
