@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Little Fingers | Where Play Meets Learning{% endblock %}</title>
+    
+    <!-- Design System CSS -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    
+    <!-- Inline styles for layout spacing where utility classes aren't enough -->
+    <style>
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: var(--neutral-light);
+            border-bottom: var(--border-width) solid var(--neutral-dark);
+            padding: var(--spacing-sm) 0;
+            box-shadow: 0px 4px 0px 0px var(--neutral-dark);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            padding: 0 20px;
+        }
+        @media (min-width: 768px) {
+            .header-content {
+                padding: 0 48px;
+            }
+        }
+
+        /* Responsive Navbar Rules */
+        .nav-links {
+            display: none;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+        @media (min-width: 768px) {
+            .nav-links {
+                display: flex;
+            }
+        }
+
+        .desktop-action {
+            display: none;
+        }
+        @media (min-width: 768px) {
+            .desktop-action {
+                display: inline-flex;
+            }
+        }
+
+        .mobile-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+        }
+        @media (min-width: 768px) {
+            .mobile-toggle {
+                display: none !important;
+            }
+        }
+
+        .nav-link {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--neutral-dark);
+            transition: transform 0.2s;
+        }
+        
+        .nav-link:hover {
+            transform: translate(-2px, -2px);
+        }
+
+        .nav-link.active {
+            color: var(--neutral-dark);
+            background-color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 2px solid var(--neutral-dark);
+            box-shadow: 2px 2px 0px 0px var(--neutral-dark);
+            text-decoration: none;
+        }
+
+        .footer {
+            background-color: var(--secondary);
+            border-top: var(--border-width) solid var(--neutral-dark);
+            padding: var(--spacing-xl) 0 var(--spacing-lg);
+            margin-top: var(--spacing-2xl);
+            position: relative;
+        }
+
+        .footer .grass-border {
+            position: absolute;
+            top: -20px;
+            left: 0;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="header-content">
+            <div class="flex items-center gap-md">
+                <a href="{% url 'home' %}" class="flex items-center gap-sm">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="Little Fingers" style="height: 38px;">
+                    <span class="font-heading font-black text-xl md-text-2xl text-primary" style="white-space: nowrap;">Little Fingers</span>
+                </a>
+            </div>
+            
+            <nav class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'indoors' %}" class="nav-link {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}">Indoors</a>
+                <a href="{% url 'outdoors' %}" class="nav-link {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}">Outdoors</a>
+                <a href="{% url 'parts' %}" class="nav-link {% if request.resolver_match.url_name == 'parts' %}active{% endif %}">Parts</a>
+                <a href="{% url 'rfsports' %}" class="nav-link {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}">RF Sports</a>
+            </nav>
+            
+            <div class="flex items-center gap-sm">
+                {% if request.session.is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="desktop-action neo-border {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary font-black{% else %}bg-secondary{% endif %} text-dark bounce-btn neo-shadow neo-shadow-hover text-sm" style="padding: 8px 16px;">
+                    Dashboard
+                </a>
+                <a href="{% url 'admin_logout' %}" class="desktop-action neo-border bg-danger text-white bounce-btn neo-shadow neo-shadow-hover text-sm" style="padding: 8px 16px;">
+                    Logout
+                </a>
+                {% else %}
+                <a href="{% url 'admin_login' %}" class="desktop-action neo-border {% if request.resolver_match.url_name == 'admin_login' %}bg-secondary{% else %}bg-primary{% endif %} text-dark bounce-btn neo-shadow neo-shadow-hover font-black" style="padding: 8px 20px;">
+                    Sign In
+                </a>
+                {% endif %}
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobileMenuBtn" class="mobile-toggle neo-border neo-shadow bg-primary text-dark font-black text-xl rounded" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+                    ☰
+                </button>
+            </div>
+
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobileDrawer" class="neo-border neo-shadow bg-white p-card" style="display: none; position: absolute; top: 100%; left: 0; right: 0; width: 100%; flex-direction: column; gap: 14px; z-index: 100; border-radius: 16px; margin-top: 12px; box-shadow: 6px 6px 0px #1A1A2E;">
+                <a href="{% url 'home' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'home' %}active{% endif %}">🌟 Home</a>
+                <a href="{% url 'indoors' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}">🏠 Indoors</a>
+                <a href="{% url 'outdoors' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}">🌳 Outdoors</a>
+                <a href="{% url 'parts' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'parts' %}active{% endif %}">🔧 Parts</a>
+                <a href="{% url 'rfsports' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}">🏀 RF Sports</a>
+                <div style="height: 2px; background: #1A1A2E; margin: 4px 0;"></div>
+                {% if request.session.is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="neo-border neo-shadow {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary{% else %}bg-secondary{% endif %} text-dark bounce-btn text-center block py-2 font-black uppercase">Admin Dashboard</a>
+                <a href="{% url 'admin_logout' %}" class="neo-border bg-danger text-white bounce-btn text-center block py-2 font-bold uppercase mt-1">Logout</a>
+                {% else %}
+                <a href="{% url 'admin_login' %}" class="neo-border neo-shadow {% if request.resolver_match.url_name == 'admin_login' %}bg-secondary{% else %}bg-primary{% endif %} text-dark bounce-btn text-center block py-2 font-black uppercase">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main style="min-height: 70vh;">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grass-border"></div>
+        <div class="container flex flex-col items-center justify-center gap-lg text-center text-dark">
+            <span class="font-heading font-black text-3xl">Little Fingers</span>
+            <div class="flex gap-md font-bold flex-wrap justify-center">
+                <a href="#" class="nav-link">Safety Certified</a>
+                <a href="#" class="nav-link">Fast Shipping</a>
+                <a href="#" class="nav-link">Privacy Policy</a>
+                <a href="#" class="nav-link">Contact Us</a>
+            </div>
+            <p class="font-body text-sm font-bold opacity-80">© 2026 Little Fingers. Built for Play.</p>
+        </div>
+    </footer>
+
+    <!-- FAB -->
+    <button class="bounce-btn neo-border neo-shadow neo-shadow-hover bg-accent text-white" 
+            style="position: fixed; bottom: 24px; right: 24px; z-index: 50; width: 56px; height: 56px; padding: 0; border-radius: 50%;">
+        <span class="material-symbols-outlined" style="font-size: 28px;">chat_bubble</span>
+    </button>
+
+    <script>
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileDrawer');
+            if (!drawer) return;
+            if (drawer.style.display === 'none' || drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                drawer.style.display = 'flex';
+            } else {
+                drawer.classList.add('hidden');
+                drawer.style.display = 'none';
+            }
+        }
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

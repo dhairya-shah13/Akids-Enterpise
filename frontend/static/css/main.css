@@ -157,6 +157,7 @@ button {
 .gap-sm { gap: var(--spacing-sm); }
 .gap-md { gap: var(--spacing-md); }
 .gap-lg { gap: var(--spacing-lg); }
+.flex-wrap { flex-wrap: wrap; }
 
 .grid { display: grid; }
 .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
@@ -194,6 +195,7 @@ button {
 .font-accent { font-family: var(--font-accent); }
 .font-bold { font-weight: 700; }
 .font-black { font-weight: 900; }
+.uppercase { text-transform: uppercase; }
 .text-sm { font-size: 0.875rem; }
 .text-md { font-size: 1rem; }
 .text-lg { font-size: 1.25rem; }
@@ -209,6 +211,15 @@ button {
 .py-section { padding-top: var(--spacing-2xl); padding-bottom: var(--spacing-2xl); }
 .mb-section { margin-bottom: var(--spacing-2xl); }
 .p-card { padding: var(--spacing-lg); }
+
+/* Spacing Helpers */
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.relative { position: relative; }
 
 /* Decorative */
 .scribble-underline {

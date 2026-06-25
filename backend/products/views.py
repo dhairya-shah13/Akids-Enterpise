@@ -1,0 +1,157 @@
+import os
+import uuid
+import requests
+from pathlib import Path
+from django.shortcuts import render, redirect
+from django.conf import settings
+from .models import Product
+
+def get_env_credentials():
+    env_email = "admin@gmail.com"
+    env_pass = "123456"
+    
+    possible_paths = [
+        settings.BASE_DIR / ".env",
+        settings.BASE_DIR.parent / ".env",
+    ]
+    for env_path in possible_paths:
+        if env_path.exists():
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("ADMIN_EMAIL="):
+                            env_email = line.split("=", 1)[1].strip('"\' ')
+                        elif line.startswith("ADMIN_PASSWORD="):
+                            env_pass = line.split("=", 1)[1].strip('"\' ')
+            except Exception:
+                pass
+            break
+    return env_email, env_pass
+
+def upload_photo_to_supabase(file_obj):
+    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
+    supabase_key = os.getenv("SUPABASE_KEY", "").strip()
+    bucket = os.getenv("SUPABASE_BUCKET", "products").strip()
+    
+    if supabase_url and supabase_key:
+        ext = file_obj.name.split('.')[-1] if '.' in file_obj.name else 'jpg'
+        filename = f"{uuid.uuid4().hex}.{ext}"
+        upload_url = f"{supabase_url}/storage/v1/object/{bucket}/{filename}"
+        
+        headers = {
+            "Authorization": f"Bearer {supabase_key}",
+            "apikey": supabase_key,
+            "Content-Type": getattr(file_obj, 'content_type', 'application/octet-stream'),
+        }
+        try:
+            resp = requests.post(upload_url, headers=headers, data=file_obj.read(), timeout=10)
+            if resp.status_code in (200, 201):
+                return f"{supabase_url}/storage/v1/object/public/{bucket}/{filename}"
+        except Exception:
+            pass
+    return None
+
+def seed_initial_products():
+    pass
+
+def login_view(request):
+    if request.session.get('is_admin'):
+        return redirect('admin_dashboard')
+        
+    error = None
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        env_email, env_pass = get_env_credentials()
+        
+        if email == env_email and password == env_pass:
+            request.session['is_admin'] = True
+            return redirect('admin_dashboard')
+        else:
+            error = "Invalid admin credentials. Please verify your .env file."
+            
+    return render(request, 'products/login.html', {'error': error})
+
+def logout_view(request):
+    request.session.flush()
+    return redirect('home')
+
+def admin_dashboard(request):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    products = Product.objects.all().order_by('-created_at')
+    
+    sales_data = {
+        'total_revenue': '₹28,45,000',
+        'total_orders': 142,
+        'active_quotes': 38,
+        'best_seller': 'The Everest Slide',
+        'monthly_sales': [
+            {'month': 'Jan', 'amount': '₹1,80,000', 'height': '45%'},
+            {'month': 'Feb', 'amount': '₹2,20,000', 'height': '55%'},
+            {'month': 'Mar', 'amount': '₹3,10,000', 'height': '78%'},
+            {'month': 'Apr', 'amount': '₹2,90,000', 'height': '72%'},
+            {'month': 'May', 'amount': '₹3,80,000', 'height': '95%'},
+            {'month': 'Jun', 'amount': '₹4,10,000', 'height': '100%'},
+        ]
+    }
+    
+    return render(request, 'products/admin_dashboard.html', {
+        'products': products,
+        'sales': sales_data,
+        'admin_email': get_env_credentials()[0]
+    })
+
+def add_product(request):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        category = request.POST.get('category', 'INDOORS').strip()
+        price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
+        description = request.POST.get('description', '').strip()
+        image_url = request.POST.get('image_url', '').strip()
+        photo = request.FILES.get('photo')
+        
+        saved_url = None
+        if photo:
+            saved_url = upload_photo_to_supabase(photo)
+            
+        if name and price:
+            if saved_url:
+                Product.objects.create(name=name, category=category, price=price, description=description, image_url=saved_url)
+            elif photo:
+                Product.objects.create(name=name, category=category, price=price, description=description, image_file=photo)
+            else:
+                if not image_url:
+                    image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
+                Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
+                
+    return redirect('admin_dashboard')
+
+def delete_product(request, pk):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        Product.objects.filter(pk=pk).delete()
+    return redirect('admin_dashboard')
+
+def category_listing(request, cat_code, template_name):
+    products = Product.objects.filter(category=cat_code).order_by('-created_at')
+    return render(request, template_name, {'products': products})
+
+def indoors_view(request):
+    return category_listing(request, 'INDOORS', 'products/listing.html')
+
+def outdoors_view(request):
+    return category_listing(request, 'OUTDOORS', 'products/outdoors.html')
+
+def parts_view(request):
+    return category_listing(request, 'PARTS', 'products/parts.html')
+
+def rfsports_view(request):
+    return category_listing(request, 'RFSPORTS', 'products/rfsports.html')

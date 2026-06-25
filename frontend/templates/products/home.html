@@ -60,23 +60,25 @@
   }
   
   .category-cards {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
       gap: var(--spacing-lg);
-      overflow-x: auto;
       padding: 0 var(--spacing-md) var(--spacing-lg);
-      scrollbar-width: none; /* Firefox */
   }
-  .category-cards::-webkit-scrollbar {
-      display: none;
-  }
-  @media (min-width: 768px) {
+  @media (min-width: 640px) {
       .category-cards {
+          grid-template-columns: repeat(2, 1fr);
+      }
+  }
+  @media (min-width: 1024px) {
+      .category-cards {
+          grid-template-columns: repeat(4, 1fr);
           padding: 0 var(--spacing-xl) var(--spacing-lg);
       }
   }
 
   .category-card {
-      min-width: 280px;
+      width: 100%;
       aspect-ratio: 4/5;
       padding: var(--spacing-lg);
       border-radius: var(--border-radius-md);
@@ -84,11 +86,7 @@
       flex-direction: column;
       justify-content: space-between;
       cursor: pointer;
-  }
-  @media (min-width: 768px) {
-      .category-card {
-          min-width: 320px;
-      }
+      text-decoration: none;
   }
   
   /* Trending Picks */
@@ -164,58 +162,52 @@
 
 <!-- Category Strip -->
 <section class="category-strip">
-    <div class="container flex justify-between items-end mb-section">
-        <div>
-            <h2 class="text-3xl">Browse by Playzone</h2>
-            <p class="opacity-80">Find the perfect match for your space</p>
-        </div>
-        <div class="flex gap-sm">
-            <button class="neo-border" style="padding: 12px; border-radius: var(--border-radius-full);"><span class="material-symbols-outlined">chevron_left</span></button>
-            <button class="neo-border" style="padding: 12px; border-radius: var(--border-radius-full);"><span class="material-symbols-outlined">chevron_right</span></button>
-        </div>
+    <div class="container mb-section">
+        <h2 class="text-3xl">Browse by Playzone</h2>
+        <p class="opacity-80">Find the perfect match for your space</p>
     </div>
     <div class="category-cards">
         <!-- Indoor Card -->
-        <div class="category-card neo-border neo-shadow-hover wiggle bg-primary">
+        <a href="{% url 'indoors' %}" class="category-card neo-border neo-shadow-hover wiggle bg-primary text-dark">
             <div class="flex justify-between items-start">
                 <span class="material-symbols-outlined" style="font-size: 40px;">home</span>
-                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
                     <span class="material-symbols-outlined">arrow_outward</span>
                 </div>
             </div>
             <div>
-                <h3 class="text-2xl mb-2">INDOORS</h3>
+                <h3 class="text-2xl mb-2 font-black">INDOORS</h3>
                 <p class="text-sm">Furniture, Soft Play, and Creative Corners.</p>
             </div>
-        </div>
+        </a>
         <!-- Outdoor Card -->
-        <div class="category-card neo-border neo-shadow-hover wiggle rotate-1 bg-secondary">
+        <a href="{% url 'outdoors' %}" class="category-card neo-border neo-shadow-hover wiggle rotate-1 bg-secondary text-dark">
             <div class="flex justify-between items-start">
                 <span class="material-symbols-outlined" style="font-size: 40px;">park</span>
-                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
                     <span class="material-symbols-outlined">arrow_outward</span>
                 </div>
             </div>
             <div>
-                <h3 class="text-2xl mb-2">OUTDOORS</h3>
+                <h3 class="text-2xl mb-2 font-black">OUTDOORS</h3>
                 <p class="text-sm">Slides, Swings, and Jungle Gyms.</p>
             </div>
-        </div>
+        </a>
         <!-- Parts Card -->
-        <div class="category-card neo-border neo-shadow-hover wiggle bg-accent">
+        <a href="{% url 'parts' %}" class="category-card neo-border neo-shadow-hover wiggle bg-accent text-white">
             <div class="flex justify-between items-start">
                 <span class="material-symbols-outlined" style="font-size: 40px;">settings</span>
-                <div class="bg-white neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
+                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
                     <span class="material-symbols-outlined">arrow_outward</span>
                 </div>
             </div>
             <div>
-                <h3 class="text-2xl mb-2">PARTS</h3>
-                <p class="text-sm">Replacement fittings and safety mats.</p>
+                <h3 class="text-2xl mb-2 font-black">PARTS</h3>
+                <p class="text-sm opacity-90">Replacement fittings and safety mats.</p>
             </div>
-        </div>
+        </a>
         <!-- RF Sports Card -->
-        <div class="category-card neo-border neo-shadow-hover wiggle -rotate-1 bg-danger text-white">
+        <a href="{% url 'rfsports' %}" class="category-card neo-border neo-shadow-hover wiggle -rotate-1 bg-danger text-white">
             <div class="flex justify-between items-start">
                 <span class="material-symbols-outlined" style="font-size: 40px;">sports_basketball</span>
                 <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
@@ -223,10 +215,10 @@
                 </div>
             </div>
             <div>
-                <h3 class="text-2xl mb-2">RF SPORTS</h3>
+                <h3 class="text-2xl mb-2 font-black">RF SPORTS</h3>
                 <p class="text-sm opacity-90">Competitive gear and court equipment.</p>
             </div>
-        </div>
+        </a>
     </div>
 </section>
 
@@ -316,9 +308,9 @@
         <h2 class="text-4xl">Join the Little Fingers Fam!</h2>
         <p class="text-lg opacity-80 mb-lg">Sign up for play tips, new product drops, and exclusive discounts delivered to your inbox.</p>
         <form class="flex flex-col gap-sm" style="margin-bottom: var(--spacing-sm);">
-            <div class="flex gap-sm" style="width: 100%;">
-                <input type="email" placeholder="Enter your email" class="neo-border" style="flex: 1; padding: 16px 24px; border-radius: var(--border-radius-full); outline: none;">
-                <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white">Subscribe</button>
+            <div class="flex gap-sm flex-wrap justify-center" style="width: 100%;">
+                <input type="email" placeholder="Enter your email" class="neo-border" style="flex: 1; min-width: 240px; padding: 16px 24px; border-radius: var(--border-radius-full); outline: none;">
+                <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white font-black px-6 py-4">Subscribe</button>
             </div>
         </form>
         <p class="text-sm opacity-80">No spam, just pure play. Promise!</p>

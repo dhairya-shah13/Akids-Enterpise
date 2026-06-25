@@ -163,85 +163,80 @@
         </div>
     </section>
 
-    <!-- Parts Grid -->
-    <section class="bento-grid mb-section">
-        <!-- Featured Repair Kit -->
-        <div class="bento-featured neo-border neo-shadow-hover">
-            <div class="featured-image-container neo-border">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo7V-GvDLzO7lIszrTife51MAPipziqQ-7yPAT7ae4PAGUudum6_YO5sSbDNQx6Dc6rEnNxeBLnjE5MDznbkjgki64nCRIKl1sGjCtyff9guXz_NurNAsgChZmX7EKAyi3HyGvMVqPv1gABUK-ABucP31UOjJLJOFaKp6jajcQYdgF6uvOtW_Q41mewCvE2wE64vdZUNrVM6uFVERvPZG4UB8fySPBnlDbUnJyCBO8XYBwPBNSWmJc1EEzlxhQLuNQTioniZElmw" alt="Repair Kit">
+    <!-- Neo-Brutalist Parts Grid (Dynamic) -->
+    <section class="bento-grid mb-section my-2xl" style="margin: 48px 0;">
+        <!-- Featured Repair Kit (Product 1) -->
+        {% if products.0 %}
+        <div class="bento-featured neo-border neo-shadow-hover bg-white flex flex-col justify-between p-card">
+            <div class="featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
+                <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" style="max-height: 420px; width: auto; max-width: 100%; object-fit: contain;">
             </div>
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                <span class="bg-primary text-dark font-bold text-sm uppercase mb-sm neo-border" style="padding: 4px 12px; border-radius: var(--border-radius-full); width: fit-content; box-shadow: 2px 2px 0 0 var(--neutral-dark);">Top Seller</span>
-                <h2 class="text-3xl mb-sm">Master Maintenance Kit</h2>
-                <p class="opacity-80 mb-lg">The complete package for annual playground checkups. Includes 50+ mixed bolts, weather-sealants, and a custom finger-safe wrench.</p>
+                <span class="bg-primary text-dark font-bold text-sm uppercase mb-sm neo-border" style="padding: 4px 12px; border-radius: 999px; width: fit-content; box-shadow: 2px 2px 0 0 #1A1A2E;">Top Seller</span>
+                <h2 class="text-3xl font-black mb-sm">{{ products.0.name }}</h2>
+                <p class="opacity-80 mb-lg">{{ products.0.description }}</p>
                 <div class="flex items-center justify-between mt-auto">
-                    <span class="text-2xl font-bold text-primary">₹8,900</span>
-                    <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white">Add to Cart</button>
+                    <span class="text-2xl font-black text-primary">₹{{ products.0.price }}</span>
+                    <button class="bounce-btn neo-border neo-shadow bg-dark text-white px-6 py-3 rounded-lg uppercase text-sm font-black">Add to Cart</button>
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Replacement Bolts -->
-        <div class="bento-small-card neo-border neo-shadow-hover bg-secondary -rotate-1">
+        <!-- Card 2 (Product 2) -->
+        {% if products.1 %}
+        <div class="bento-small-card neo-border neo-shadow-hover bg-secondary -rotate-1 flex flex-col justify-between p-card">
             <div>
-                <div class="icon-box neo-border">
-                    <span class="material-symbols-outlined text-secondary text-3xl">cut</span>
+                <div class="icon-box neo-border mb-sm" style="background: white; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined text-dark text-2xl">hardware</span>
                 </div>
-                <h3 class="text-2xl mb-xs">Grade-A Bolts</h3>
-                <p class="opacity-90 text-dark">Stainless steel, anti-pinch design. Sold in packs of 10.</p>
+                <h3 class="text-2xl font-black mb-xs">{{ products.1.name }}</h3>
+                <p class="opacity-90 text-dark text-sm">{{ products.1.description|truncatechars:60 }}</p>
             </div>
             <div class="flex items-center justify-between mt-lg">
-                <span class="text-xl font-bold text-dark">₹1,450</span>
+                <span class="text-xl font-black text-dark">₹{{ products.1.price }}</span>
                 <button class="neo-border bg-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span class="material-symbols-outlined">add</span>
+                    <span class="material-symbols-outlined font-black">add</span>
                 </button>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Articulated Joints -->
-        <div class="bento-small-card neo-border neo-shadow-hover bg-accent text-white rotate-1">
+        <!-- Card 3 (Product 3) -->
+        {% if products.2 %}
+        <div class="bento-small-card neo-border neo-shadow-hover bg-accent text-white rotate-1 flex flex-col justify-between p-card">
             <div>
-                <div class="icon-box neo-border">
-                    <span class="material-symbols-outlined text-accent text-3xl">hub</span>
+                <div class="icon-box neo-border mb-sm" style="background: white; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined text-accent text-2xl">hub</span>
                 </div>
-                <h3 class="text-2xl mb-xs">Flex-Joint V3</h3>
-                <p class="opacity-90">Polymer-coated articulated joints for indoor climbing frames.</p>
+                <h3 class="text-2xl font-black mb-xs">{{ products.2.name }}</h3>
+                <p class="opacity-90 text-sm">{{ products.2.description|truncatechars:60 }}</p>
             </div>
             <div class="flex items-center justify-between mt-lg">
-                <span class="text-xl font-bold">₹2,200</span>
+                <span class="text-xl font-black">₹{{ products.2.price }}</span>
                 <button class="neo-border bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span class="material-symbols-outlined">add</span>
+                    <span class="material-symbols-outlined font-black">add</span>
                 </button>
             </div>
         </div>
+        {% endif %}
 
-        <!-- Rubber Padding -->
-        <div class="bento-small-card neo-border neo-shadow-hover bg-light">
+        <!-- Remaining Parts (Products 4+) -->
+        {% for product in products|slice:"3:" %}
+        <div class="bento-small-card neo-border neo-shadow-hover {% if forloop.counter0|divisibleby:2 %}bg-light{% else %}bg-primary -rotate-1{% endif %} flex flex-col justify-between p-card">
             <div>
-                <div class="neo-border mb-md" style="width: 100%; height: 120px; border-radius: var(--border-radius-sm); overflow: hidden;">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD05_HEtRIF5YYKHKEqu8y3oCvFOikmd6R2MGDRFT4Yiuw62WwcaysQ8dcYNYTB4wc3C6xERQxWz2Mq1eNsUpCSMW2v5lIKimkTf5DFlHjiuimHqh4AuPJSBaZlIdBLI4E6eD2am-9yhCt06EwtDzBLTXH2ioYGuS8UrBUB4ZFbErfrj3ddZaC0GpM6otat4rF_wtrp4pQ04w1JNdchBiy0vlch_2X2MYLhpo6gqyCr4b3ABAxXvlEOLV7U1qbbOZptkrAGyUWnYA" alt="Rubber Padding" style="width: 100%; height: 100%; object-fit: cover;">
+                <div class="neo-border mb-md" style="width: 100%; min-height: 140px; max-height: 280px; border-radius: 8px; overflow: hidden; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                    <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 260px; width: auto; max-width: 100%; object-fit: contain;">
                 </div>
-                <h3 class="text-2xl mb-xs">Corner Guards</h3>
-                <p class="opacity-80 text-sm">Soft-impact silicone guards. Set of 4, vibrant blue.</p>
+                <h3 class="text-xl font-black mb-xs">{{ product.name }}</h3>
+                <p class="opacity-80 text-sm">{{ product.description|truncatechars:55 }}</p>
             </div>
             <div class="flex items-center justify-between mt-md">
-                <span class="text-xl font-bold">₹1,200</span>
-                <button class="bg-dark text-white px-4 py-2" style="border-radius: var(--border-radius-full); font-size: 0.875rem;">Select Color</button>
+                <span class="text-lg font-black">₹{{ product.price }}</span>
+                <button class="bg-dark text-white px-4 py-2 uppercase font-black" style="border-radius: 999px; font-size: 0.75rem;">Order Part</button>
             </div>
         </div>
-
-        <!-- Tiny Parts -->
-        <div class="bento-small-card neo-border neo-shadow-hover bg-primary -rotate-2">
-            <div class="flex justify-between items-start mb-xs">
-                <h3 class="text-2xl">Cap Plugs</h3>
-                <span class="material-symbols-outlined text-dark wiggle">fiber_manual_record</span>
-            </div>
-            <p class="text-dark opacity-90 text-sm mb-auto">Safety first! Colorful plugs to hide bolt heads.</p>
-            <div class="flex items-center justify-between mt-md">
-                <span class="text-xl font-bold text-dark">₹599</span>
-                <span class="bg-dark text-white text-xs" style="padding: 4px 8px; border-radius: 4px;">20 Pack</span>
-            </div>
-        </div>
+        {% endfor %}
     </section>
 
     <!-- Contact Section -->

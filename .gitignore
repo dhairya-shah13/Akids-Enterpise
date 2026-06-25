@@ -1,0 +1,47 @@
+# Environment variables and secrets
+.env
+*.env
+.env.*
+
+# SQLite & Databases
+*.sqlite3
+*.db
+db.sqlite3
+
+# Python cache & compiled bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+
+# Virtual Environments & Packaging
+venv/
+env/
+.venv/
+ENV/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django Media Uploads
+media/
+uploads/
+backend/media/
+
+# Logs & Debug
+*.log
+celerybeat-schedule
+
+# OS & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Frontend Dependencies & Builds
+node_modules/
+dist/
+build/
+.cache/
