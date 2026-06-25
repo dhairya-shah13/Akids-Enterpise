@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .listing-header {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      padding: var(--spacing-2xl) 0;
+  }
+
+  .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: var(--spacing-lg);
+  }
+  @media (min-width: 768px) {
+      .bento-grid {
+          grid-template-columns: repeat(12, minmax(0, 1fr));
+      }
+  }
+
+  .bento-featured {
+      background-color: var(--neutral-light);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+  }
+  @media (min-width: 768px) {
+      .bento-featured {
+          grid-column: span 8 / span 8;
+          flex-direction: row;
+      }
+  }
+
+  .bento-small-card {
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+  }
+  @media (min-width: 768px) {
+      .bento-small-card { grid-column: span 4 / span 4; }
+  }
+
+  .featured-image-container {
+      flex: 1;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+  }
+  .featured-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+  }
+
+  .icon-box {
+      width: 64px;
+      height: 64px;
+      background-color: var(--white);
+      border-radius: var(--border-radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--spacing-md);
+  }
+
+  .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+  }
+  @media (min-width: 768px) {
+      .search-section {
+          flex-direction: row;
+      }
+  }
+
+  .filter-pills {
+      display: flex;
+      gap: var(--spacing-sm);
+      overflow-x: auto;
+      padding-bottom: var(--spacing-xs);
+  }
+  .filter-pills::-webkit-scrollbar {
+      display: none;
+  }
+
+  .pill-active {
+      background-color: var(--secondary);
+      color: var(--neutral-dark);
+  }
+
+  .pill-inactive {
+      background-color: var(--white);
+      color: var(--neutral-dark);
+  }
+
+  .contact-section {
+      background-color: var(--neutral-light);
+      padding: var(--spacing-2xl);
+      border-radius: var(--border-radius-lg);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: var(--spacing-2xl);
+  }
+
+  @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+  }
+  .gear-rotate {
+      animation: spin-slow 4s linear infinite;
+  }
+  .gear-rotate:hover {
+      animation-duration: 2s;
+  }
+</style>
+
+<div class="container relative">
+    <!-- Header Section -->
+    <header class="listing-header">
+        <div style="position: absolute; top: 16px; left: 16px; opacity: 0.1; transform: rotate(-12deg); pointer-events: none;">
+            <span class="material-symbols-outlined" style="font-size: 120px;">settings</span>
+        </div>
+        <div style="position: absolute; top: 48px; right: -24px; opacity: 0.1; transform: rotate(45deg); pointer-events: none;" class="hidden md-block">
+            <span class="material-symbols-outlined" style="font-size: 80px;">build</span>
+        </div>
+        
+        <div class="bg-primary neo-border neo-shadow rotate-1 mb-md" style="padding: 16px; border-radius: var(--border-radius-md);">
+            <h1 class="text-4xl md-text-5xl text-dark">The Repair Shop</h1>
+        </div>
+        <p class="text-lg opacity-80" style="max-width: 600px;">
+            Keeping play alive. Genuine replacement parts, precision joints, and complete maintenance kits for every Little Fingers setup.
+        </p>
+        
+        <div class="flex gap-lg mt-md">
+            <span class="material-symbols-outlined text-secondary gear-rotate" style="font-size: 32px;">construction</span>
+            <span class="material-symbols-outlined text-primary gear-rotate" style="font-size: 32px; animation-direction: reverse;">architecture</span>
+            <span class="material-symbols-outlined text-danger gear-rotate" style="font-size: 32px;">handyman</span>
+        </div>
+    </header>
+
+    <!-- Search & Filter Bar -->
+    <section class="search-section">
+        <div style="flex-grow: 1; position: relative;">
+            <input type="text" placeholder="Search for bolts, joints, or kit names..." class="neo-border neo-shadow w-full bg-white" style="border-radius: var(--border-radius-full); padding: 16px 24px 16px 48px; outline: none; width: 100%;">
+            <span class="material-symbols-outlined" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); opacity: 0.5;">search</span>
+        </div>
+        <div class="filter-pills">
+            <button class="pill-active neo-border neo-shadow" style="padding: 8px 24px; border-radius: var(--border-radius-full); font-weight: bold; white-space: nowrap;">All Parts</button>
+            <button class="pill-inactive neo-border" style="padding: 8px 24px; border-radius: var(--border-radius-full); white-space: nowrap;">Hardware</button>
+            <button class="pill-inactive neo-border" style="padding: 8px 24px; border-radius: var(--border-radius-full); white-space: nowrap;">Connectors</button>
+            <button class="pill-inactive neo-border" style="padding: 8px 24px; border-radius: var(--border-radius-full); white-space: nowrap;">Kits</button>
+        </div>
+    </section>
+
+    <!-- Parts Grid -->
+    <section class="bento-grid mb-section">
+        <!-- Featured Repair Kit -->
+        <div class="bento-featured neo-border neo-shadow-hover">
+            <div class="featured-image-container neo-border">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo7V-GvDLzO7lIszrTife51MAPipziqQ-7yPAT7ae4PAGUudum6_YO5sSbDNQx6Dc6rEnNxeBLnjE5MDznbkjgki64nCRIKl1sGjCtyff9guXz_NurNAsgChZmX7EKAyi3HyGvMVqPv1gABUK-ABucP31UOjJLJOFaKp6jajcQYdgF6uvOtW_Q41mewCvE2wE64vdZUNrVM6uFVERvPZG4UB8fySPBnlDbUnJyCBO8XYBwPBNSWmJc1EEzlxhQLuNQTioniZElmw" alt="Repair Kit">
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <span class="bg-primary text-dark font-bold text-sm uppercase mb-sm neo-border" style="padding: 4px 12px; border-radius: var(--border-radius-full); width: fit-content; box-shadow: 2px 2px 0 0 var(--neutral-dark);">Top Seller</span>
+                <h2 class="text-3xl mb-sm">Master Maintenance Kit</h2>
+                <p class="opacity-80 mb-lg">The complete package for annual playground checkups. Includes 50+ mixed bolts, weather-sealants, and a custom finger-safe wrench.</p>
+                <div class="flex items-center justify-between mt-auto">
+                    <span class="text-2xl font-bold text-primary">₹8,900</span>
+                    <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Replacement Bolts -->
+        <div class="bento-small-card neo-border neo-shadow-hover bg-secondary -rotate-1">
+            <div>
+                <div class="icon-box neo-border">
+                    <span class="material-symbols-outlined text-secondary text-3xl">cut</span>
+                </div>
+                <h3 class="text-2xl mb-xs">Grade-A Bolts</h3>
+                <p class="opacity-90 text-dark">Stainless steel, anti-pinch design. Sold in packs of 10.</p>
+            </div>
+            <div class="flex items-center justify-between mt-lg">
+                <span class="text-xl font-bold text-dark">₹1,450</span>
+                <button class="neo-border bg-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined">add</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Articulated Joints -->
+        <div class="bento-small-card neo-border neo-shadow-hover bg-accent text-white rotate-1">
+            <div>
+                <div class="icon-box neo-border">
+                    <span class="material-symbols-outlined text-accent text-3xl">hub</span>
+                </div>
+                <h3 class="text-2xl mb-xs">Flex-Joint V3</h3>
+                <p class="opacity-90">Polymer-coated articulated joints for indoor climbing frames.</p>
+            </div>
+            <div class="flex items-center justify-between mt-lg">
+                <span class="text-xl font-bold">₹2,200</span>
+                <button class="neo-border bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined">add</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Rubber Padding -->
+        <div class="bento-small-card neo-border neo-shadow-hover bg-light">
+            <div>
+                <div class="neo-border mb-md" style="width: 100%; height: 120px; border-radius: var(--border-radius-sm); overflow: hidden;">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD05_HEtRIF5YYKHKEqu8y3oCvFOikmd6R2MGDRFT4Yiuw62WwcaysQ8dcYNYTB4wc3C6xERQxWz2Mq1eNsUpCSMW2v5lIKimkTf5DFlHjiuimHqh4AuPJSBaZlIdBLI4E6eD2am-9yhCt06EwtDzBLTXH2ioYGuS8UrBUB4ZFbErfrj3ddZaC0GpM6otat4rF_wtrp4pQ04w1JNdchBiy0vlch_2X2MYLhpo6gqyCr4b3ABAxXvlEOLV7U1qbbOZptkrAGyUWnYA" alt="Rubber Padding" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h3 class="text-2xl mb-xs">Corner Guards</h3>
+                <p class="opacity-80 text-sm">Soft-impact silicone guards. Set of 4, vibrant blue.</p>
+            </div>
+            <div class="flex items-center justify-between mt-md">
+                <span class="text-xl font-bold">₹1,200</span>
+                <button class="bg-dark text-white px-4 py-2" style="border-radius: var(--border-radius-full); font-size: 0.875rem;">Select Color</button>
+            </div>
+        </div>
+
+        <!-- Tiny Parts -->
+        <div class="bento-small-card neo-border neo-shadow-hover bg-primary -rotate-2">
+            <div class="flex justify-between items-start mb-xs">
+                <h3 class="text-2xl">Cap Plugs</h3>
+                <span class="material-symbols-outlined text-dark wiggle">fiber_manual_record</span>
+            </div>
+            <p class="text-dark opacity-90 text-sm mb-auto">Safety first! Colorful plugs to hide bolt heads.</p>
+            <div class="flex items-center justify-between mt-md">
+                <span class="text-xl font-bold text-dark">₹599</span>
+                <span class="bg-dark text-white text-xs" style="padding: 4px 8px; border-radius: 4px;">20 Pack</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section neo-border">
+        <div style="position: absolute; bottom: -40px; right: -40px; opacity: 0.05;">
+            <span class="material-symbols-outlined" style="font-size: 200px;">question_mark</span>
+        </div>
+        <h2 class="text-3xl mb-sm" style="position: relative; z-index: 10;">Can't find a specific bolt?</h2>
+        <p class="text-lg opacity-80 mb-lg" style="max-width: 600px; margin: 0 auto var(--spacing-lg); position: relative; z-index: 10;">
+            Our custom fabrication shop can match any vintage Little Fingers part. Just send us a photo of the joint!
+        </p>
+        <button class="bounce-btn neo-border neo-shadow-hover bg-danger text-white" style="position: relative; z-index: 10;">
+            Contact the Engineers
+        </button>
+    </section>
+</div>
+
+{% endblock %}

@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Little Fingers | Where Play Meets Learning{% endblock %}</title>
+    
+    <!-- Design System CSS -->
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    
+    <!-- Inline styles for layout spacing where utility classes aren't enough -->
+    <style>
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: var(--neutral-light);
+            border-bottom: var(--border-width) solid var(--neutral-dark);
+            padding: var(--spacing-sm) 0;
+            box-shadow: 0px 4px 0px 0px var(--neutral-dark);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .nav-link {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            color: var(--neutral-dark);
+            transition: transform 0.2s;
+        }
+        
+        .nav-link:hover {
+            transform: translate(-2px, -2px);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .footer {
+            background-color: var(--secondary);
+            border-top: var(--border-width) solid var(--neutral-dark);
+            padding: var(--spacing-xl) 0 var(--spacing-lg);
+            margin-top: var(--spacing-2xl);
+            position: relative;
+        }
+
+        .footer .grass-border {
+            position: absolute;
+            top: -20px;
+            left: 0;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="flex items-center gap-md">
+                <a href="{% url 'home' %}" class="flex items-center gap-sm">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="Little Fingers" style="height: 40px;">
+                    <span class="font-heading font-black text-2xl text-primary">Little Fingers</span>
+                </a>
+            </div>
+            
+            <nav class="nav-links hidden md-flex">
+                <a href="{% url 'indoors' %}" class="nav-link">Indoors</a>
+                <a href="{% url 'outdoors' %}" class="nav-link">Outdoors</a>
+                <a href="{% url 'parts' %}" class="nav-link">Parts</a>
+                <a href="{% url 'rfsports' %}" class="nav-link">RF Sports</a>
+            </nav>
+            
+            <div class="flex items-center gap-sm">
+                <button class="hidden md-block neo-border bg-primary text-dark bounce-btn neo-shadow neo-shadow-hover">
+                    Request Quote
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="grass-border"></div>
+        <div class="container flex flex-col items-center justify-center gap-lg text-center text-dark">
+            <span class="font-heading font-black text-3xl">Little Fingers</span>
+            <div class="flex gap-lg font-bold">
+                <a href="#" class="nav-link">Safety Certified</a>
+                <a href="#" class="nav-link">Fast Shipping</a>
+                <a href="#" class="nav-link">Privacy Policy</a>
+                <a href="#" class="nav-link">Contact Us</a>
+            </div>
+            <p class="font-body text-sm font-bold opacity-80">© 2026 Little Fingers. Built for Play.</p>
+        </div>
+    </footer>
+
+    <!-- FAB -->
+    <button class="bounce-btn neo-border neo-shadow neo-shadow-hover bg-accent text-white" 
+            style="position: fixed; bottom: 32px; right: 32px; z-index: 50; width: 64px; height: 64px; padding: 0;">
+        <span class="material-symbols-outlined" style="font-size: 32px;">chat_bubble</span>
+    </button>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
