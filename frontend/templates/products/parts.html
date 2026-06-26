@@ -168,16 +168,16 @@
         <!-- Featured Repair Kit (Product 1) -->
         {% if products.0 %}
         <div class="bento-featured neo-border neo-shadow-hover bg-white flex flex-col justify-between p-card">
-            <div class="featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
+            <a href="{% url 'product_detail' products.0.pk %}" class="block featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
                 <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" style="max-height: 420px; width: auto; max-width: 100%; object-fit: contain;">
-            </div>
+            </a>
             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
                 <span class="bg-primary text-dark font-bold text-sm uppercase mb-sm neo-border" style="padding: 4px 12px; border-radius: 999px; width: fit-content; box-shadow: 2px 2px 0 0 #1A1A2E;">Top Seller</span>
-                <h2 class="text-3xl font-black mb-sm">{{ products.0.name }}</h2>
+                <h2 class="text-3xl font-black mb-sm"><a href="{% url 'product_detail' products.0.pk %}" class="hover:underline text-dark">{{ products.0.name }}</a></h2>
                 <p class="opacity-80 mb-lg">{{ products.0.description }}</p>
                 <div class="flex items-center justify-between mt-auto">
                     <span class="text-2xl font-black text-primary">₹{{ products.0.price }}</span>
-                    <button class="bounce-btn neo-border neo-shadow bg-dark text-white px-6 py-3 rounded-lg uppercase text-sm font-black">Add to Cart</button>
+                    <a href="{% url 'product_detail' products.0.pk %}" class="bounce-btn neo-border neo-shadow bg-dark text-white px-6 py-3 rounded-lg uppercase text-sm font-black text-center block">View Details</a>
                 </div>
             </div>
         </div>
@@ -190,14 +190,14 @@
                 <div class="icon-box neo-border mb-sm" style="background: white; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <span class="material-symbols-outlined text-dark text-2xl">hardware</span>
                 </div>
-                <h3 class="text-2xl font-black mb-xs">{{ products.1.name }}</h3>
+                <h3 class="text-2xl font-black mb-xs"><a href="{% url 'product_detail' products.1.pk %}" class="hover:underline text-dark">{{ products.1.name }}</a></h3>
                 <p class="opacity-90 text-dark text-sm">{{ products.1.description|truncatechars:60 }}</p>
             </div>
             <div class="flex items-center justify-between mt-lg">
                 <span class="text-xl font-black text-dark">₹{{ products.1.price }}</span>
-                <button class="neo-border bg-white" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span class="material-symbols-outlined font-black">add</span>
-                </button>
+                <a href="{% url 'product_detail' products.1.pk %}" class="neo-border bg-white text-dark hover:bg-dark hover:text-white transition-colors" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined font-black">arrow_forward</span>
+                </a>
             </div>
         </div>
         {% endif %}
@@ -209,14 +209,14 @@
                 <div class="icon-box neo-border mb-sm" style="background: white; width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <span class="material-symbols-outlined text-accent text-2xl">hub</span>
                 </div>
-                <h3 class="text-2xl font-black mb-xs">{{ products.2.name }}</h3>
+                <h3 class="text-2xl font-black mb-xs"><a href="{% url 'product_detail' products.2.pk %}" class="hover:underline text-white">{{ products.2.name }}</a></h3>
                 <p class="opacity-90 text-sm">{{ products.2.description|truncatechars:60 }}</p>
             </div>
             <div class="flex items-center justify-between mt-lg">
                 <span class="text-xl font-black">₹{{ products.2.price }}</span>
-                <button class="neo-border bg-white text-dark" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                    <span class="material-symbols-outlined font-black">add</span>
-                </button>
+                <a href="{% url 'product_detail' products.2.pk %}" class="neo-border bg-white text-dark hover:bg-dark hover:text-white transition-colors" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <span class="material-symbols-outlined font-black">arrow_forward</span>
+                </a>
             </div>
         </div>
         {% endif %}
@@ -225,15 +225,15 @@
         {% for product in products|slice:"3:" %}
         <div class="bento-small-card neo-border neo-shadow-hover {% if forloop.counter0|divisibleby:2 %}bg-light{% else %}bg-primary -rotate-1{% endif %} flex flex-col justify-between p-card">
             <div>
-                <div class="neo-border mb-md" style="width: 100%; min-height: 140px; max-height: 280px; border-radius: 8px; overflow: hidden; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                <a href="{% url 'product_detail' product.pk %}" class="neo-border mb-md block" style="width: 100%; min-height: 140px; max-height: 280px; border-radius: 8px; overflow: hidden; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
                     <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 260px; width: auto; max-width: 100%; object-fit: contain;">
-                </div>
-                <h3 class="text-xl font-black mb-xs">{{ product.name }}</h3>
+                </a>
+                <h3 class="text-xl font-black mb-xs"><a href="{% url 'product_detail' product.pk %}" class="hover:underline {% if forloop.counter0|divisibleby:2 %}text-dark{% else %}text-white{% endif %}">{{ product.name }}</a></h3>
                 <p class="opacity-80 text-sm">{{ product.description|truncatechars:55 }}</p>
             </div>
             <div class="flex items-center justify-between mt-md">
                 <span class="text-lg font-black">₹{{ product.price }}</span>
-                <button class="bg-dark text-white px-4 py-2 uppercase font-black" style="border-radius: 999px; font-size: 0.75rem;">Order Part</button>
+                <a href="{% url 'product_detail' product.pk %}" class="bg-dark text-white px-4 py-2 uppercase font-black text-center block" style="border-radius: 999px; font-size: 0.75rem;">View Details</a>
             </div>
         </div>
         {% endfor %}

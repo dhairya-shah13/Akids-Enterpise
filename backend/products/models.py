@@ -10,9 +10,12 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
     price = models.DecimalField(max_digits=14, decimal_places=2)
+    discount_price = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     description = models.TextField()
     image_file = models.ImageField(upload_to='products/', null=True, blank=True)
     image_url = models.URLField(max_length=1000, null=True, blank=True)
+    sku = models.CharField(max_length=50, null=True, blank=True)
+    stock = models.IntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property

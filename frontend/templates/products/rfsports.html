@@ -84,18 +84,18 @@
                 {% for product in products %}
                 <div class="neo-border neo-shadow bg-white p-card flex flex-col justify-between group transition-all">
                     <div>
-                        <div style="min-height: 220px; max-height: 380px; border-radius: 12px; overflow: hidden; border: 2px solid #1A1A2E; margin-bottom: 16px; background-color: #FFF; display: flex; align-items: center; justify-content: center; padding: 12px;">
+                        <a href="{% url 'product_detail' product.pk %}" class="block" style="min-height: 220px; max-height: 380px; border-radius: 12px; overflow: hidden; border: 2px solid #1A1A2E; margin-bottom: 16px; background-color: #FFF; display: flex; align-items: center; justify-content: center; padding: 12px;">
                             <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 350px; width: auto; max-width: 100%; object-fit: contain;">
-                        </div>
+                        </a>
                         <div class="flex justify-between items-start mb-sm gap-xs">
-                            <h3 class="text-xl font-black">{{ product.name }}</h3>
+                            <h3 class="text-xl font-black"><a href="{% url 'product_detail' product.pk %}" class="hover:underline text-dark">{{ product.name }}</a></h3>
                             <span class="neo-border font-black bg-primary text-dark text-sm px-3 py-1" style="border-radius: 999px; white-space: nowrap;">₹{{ product.price }}</span>
                         </div>
                         <p class="text-sm opacity-80 mb-lg" style="line-height: 1.5;">{{ product.description }}</p>
                     </div>
-                    <button class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black w-full py-3 text-center uppercase text-sm" style="border-radius: 8px; letter-spacing: 0.5px;">
-                        Request Quote
-                    </button>
+                    <a href="{% url 'product_detail' product.pk %}" class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black w-full py-3 text-center uppercase text-sm block" style="border-radius: 8px; letter-spacing: 0.5px;">
+                        View Details
+                    </a>
                 </div>
                 {% endfor %}
             </div>

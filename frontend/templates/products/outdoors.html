@@ -125,21 +125,21 @@
         <!-- Large Featured Card (Product 1) -->
         {% if products.0 %}
         <div class="bento-featured neo-border neo-shadow-hover group bg-light flex flex-col justify-between">
-            <div class="featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; position: relative; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
+            <a href="{% url 'product_detail' products.0.pk %}" class="block featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; position: relative; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
                 <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" style="max-height: 420px; width: auto; max-width: 100%; object-fit: contain;">
                 <div class="price-sticker neo-border neo-shadow bg-primary text-dark rotate-1" style="position: absolute; top: 16px; left: 16px; font-size: 1.25rem; padding: 6px 16px; border-radius: 999px; font-weight: 900; z-index: 5;">
                     ₹{{ products.0.price }}
                 </div>
-            </div>
+            </a>
             <div class="flex flex-col justify-center" style="flex: 1;">
                 <span class="text-secondary font-bold text-sm uppercase mb-sm" style="letter-spacing: 0.1em;">{{ products.0.category }}</span>
-                <h3 class="text-3xl font-black mb-md">{{ products.0.name }}</h3>
+                <h3 class="text-3xl font-black mb-md"><a href="{% url 'product_detail' products.0.pk %}" class="hover:underline text-dark">{{ products.0.name }}</a></h3>
                 <p class="opacity-80 mb-lg font-body">{{ products.0.description }}</p>
                 <div class="flex gap-sm mb-lg flex-wrap">
                     <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: 999px;">UV Protected</span>
                     <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: 999px;">Safety First</span>
                 </div>
-                <button class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black py-3 rounded-lg uppercase" style="width: 100%;">Add to Quote</button>
+                <a href="{% url 'product_detail' products.0.pk %}" class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black py-3 rounded-lg uppercase text-center block" style="width: 100%;">View Details</a>
             </div>
         </div>
         {% endif %}
@@ -148,16 +148,16 @@
         {% if products.1 %}
         <div class="bento-sidebar bg-primary neo-border neo-shadow-hover wiggle text-dark flex flex-col justify-between" style="padding: 24px; border-radius: 24px;">
             <div>
-                <div class="neo-border mb-md" style="border-radius: 16px; overflow: hidden; min-height: 180px; max-height: 320px; width: 100%; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                <a href="{% url 'product_detail' products.1.pk %}" class="neo-border mb-md block" style="border-radius: 16px; overflow: hidden; min-height: 180px; max-height: 320px; width: 100%; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
                     <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" style="max-height: 300px; width: auto; max-width: 100%; object-fit: contain;">
-                </div>
+                </a>
                 <div class="flex justify-between items-start mb-sm gap-xs">
-                    <h3 class="text-2xl font-black">{{ products.1.name }}</h3>
+                    <h3 class="text-2xl font-black"><a href="{% url 'product_detail' products.1.pk %}" class="hover:underline text-dark">{{ products.1.name }}</a></h3>
                     <span class="bg-dark text-white font-bold text-sm" style="padding: 4px 8px; border-radius: 4px;">₹{{ products.1.price }}</span>
                 </div>
                 <p class="opacity-80 mb-md font-bold text-sm">{{ products.1.description|truncatechars:80 }}</p>
             </div>
-            <button class="bg-white text-dark neo-border w-full py-3 font-black uppercase" style="border-radius: 12px;">Details</button>
+            <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-dark neo-border w-full py-3 font-black uppercase text-center block" style="border-radius: 12px;">View Details</a>
         </div>
         {% endif %}
 
@@ -165,14 +165,14 @@
         {% for product in products|slice:"2:" %}
         <div class="bento-small-card neo-border neo-shadow-hover bg-light group flex flex-col justify-between p-card">
             <div>
-                <div class="neo-border mb-md" style="border-radius: 8px; overflow: hidden; position: relative; min-height: 180px; max-height: 320px; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
+                <a href="{% url 'product_detail' product.pk %}" class="neo-border mb-md block" style="border-radius: 8px; overflow: hidden; position: relative; min-height: 180px; max-height: 320px; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
                     <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 300px; width: auto; max-width: 100%; object-fit: contain;">
                     <div class="bg-danger text-white neo-border font-black rotate-1" style="position: absolute; bottom: 8px; right: 8px; padding: 4px 12px; border-radius: 6px; z-index: 5;">₹{{ product.price }}</div>
-                </div>
-                <h4 class="text-xl font-black mb-xs">{{ product.name }}</h4>
+                </a>
+                <h4 class="text-xl font-black mb-xs"><a href="{% url 'product_detail' product.pk %}" class="hover:underline text-dark">{{ product.name }}</a></h4>
                 <p class="opacity-80 text-sm mb-md">{{ product.description|truncatechars:65 }}</p>
             </div>
-            <button class="bounce-btn neo-border neo-shadow bg-white text-dark font-black w-full py-2 uppercase text-xs rounded">View Gear</button>
+            <a href="{% url 'product_detail' product.pk %}" class="bounce-btn neo-border neo-shadow bg-white text-dark font-black w-full py-2 uppercase text-xs rounded text-center block">View Gear</a>
         </div>
         {% endfor %}
     </section>
