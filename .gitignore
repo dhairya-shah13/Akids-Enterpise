@@ -24,11 +24,6 @@ ENV/
 .installed.cfg
 *.egg
 
-# Django Media Uploads
-media/
-uploads/
-backend/media/
-
 # Logs & Debug
 *.log
 celerybeat-schedule
