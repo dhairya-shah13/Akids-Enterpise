@@ -257,6 +257,10 @@ def delete_product(request, pk):
         Product.objects.filter(pk=pk).delete()
     return redirect('admin_dashboard')
 
+def home_view(request):
+    featured_products = Product.objects.all().order_by('-created_at')[:6]
+    return render(request, 'products/home.html', {'featured_products': featured_products})
+
 def category_listing(request, cat_code, template_name):
     products = Product.objects.filter(category=cat_code).order_by('-created_at')
     return render(request, template_name, {'products': products})
