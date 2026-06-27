@@ -77,7 +77,12 @@
 
             <div>
                 <label class="font-heading font-bold text-sm mb-sm block uppercase text-dark">Password</label>
-                <input type="password" name="password" placeholder="••••••••" required class="input-field neo-border">
+                <div style="position: relative;">
+                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required class="input-field neo-border" style="padding-right: 48px;">
+                    <button type="button" onclick="togglePassword('loginPassword', 'loginEyeIcon')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); opacity: 0.6; display: flex; align-items: center; justify-content: center;">
+                        <span id="loginEyeIcon" class="material-symbols-outlined">visibility</span>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase text-sm mt-sm" style="width: 100%; padding: 16px; border-radius: 999px; letter-spacing: 0.5px;">
@@ -85,8 +90,12 @@
             </button>
         </form>
 
-        <div class="mt-lg pt-md border-t text-center">
-            <p class="text-xs opacity-70">New to Little Fingers? Ask your school design consultant for account invitation access.</p>
+        <div class="mt-lg pt-md border-t text-center flex flex-col gap-sm items-center">
+            <p class="text-sm font-bold opacity-80">Don't have an account?</p>
+            <a href="{% url 'signup' %}" class="bounce-btn neo-border neo-shadow-hover bg-secondary text-dark font-black uppercase text-xs" style="padding: 10px 20px; border-radius: 999px;">
+                Sign Up
+            </a>
+            <p class="text-xs opacity-70 mt-sm">Admin access requires school invitation.</p>
         </div>
     </div>
 </section>

@@ -2,8 +2,10 @@ import os
 import uuid
 import requests
 from pathlib import Path
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 from .models import Product
 
 def get_env_credentials():
@@ -58,24 +60,136 @@ def seed_initial_products():
 def login_view(request):
     if request.session.get('is_admin'):
         return redirect('admin_dashboard')
+    if request.user.is_authenticated:
+        return redirect('cart')
         
     error = None
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
-        env_email, env_pass = get_env_credentials()
         
+        # 1. Check admin credentials first
+        env_email, env_pass = get_env_credentials()
         if email == env_email and password == env_pass:
             request.session['is_admin'] = True
             return redirect('admin_dashboard')
+            
+        # 2. Check regular user credentials
+        # We will use email as the username for regular authentication
+        user = authenticate(request, username=email, password=password)
+        if user is not None:
+            login(request, user)
+            next_url = request.GET.get('next', 'cart')
+            return redirect(next_url)
         else:
-            error = "Invalid admin credentials. Please verify your .env file."
+            error = "Invalid email or password."
             
     return render(request, 'products/login.html', {'error': error})
 
+def signup_view(request):
+    if request.session.get('is_admin'):
+        return redirect('admin_dashboard')
+    if request.user.is_authenticated:
+        return redirect('cart')
+        
+    error = None
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        username = request.POST.get('username', '').strip()
+        
+        if User.objects.filter(email=email).exists():
+            error = "A user with that email already exists."
+        elif User.objects.filter(username=username).exists():
+            error = "That username is already taken."
+        elif email and password and username:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            login(request, user)
+            return redirect('cart')
+        else:
+            error = "Please fill in all fields."
+            
+    return render(request, 'products/signup.html', {'error': error})
+
 def logout_view(request):
-    request.session.flush()
+    request.session.flush() # Flush admin session
+    logout(request) # Log out regular user
     return redirect('home')
+
+def get_cart_data(request):
+    cart = request.session.get('cart', {})
+    cart_items = []
+    subtotal = 0
+    for pk, quantity in cart.items():
+        try:
+            product = Product.objects.get(pk=pk)
+            price = product.discount_price if product.discount_price else product.price
+            total_price = price * quantity
+            subtotal += total_price
+            cart_items.append({
+                'product': product,
+                'quantity': quantity,
+                'total_price': total_price
+            })
+        except Product.DoesNotExist:
+            continue
+    return cart_items, subtotal
+
+def cart_view(request):
+    cart_items, subtotal = get_cart_data(request)
+    return render(request, 'products/cart.html', {
+        'cart_items': cart_items,
+        'subtotal': subtotal,
+        'total': subtotal
+    })
+
+def add_to_cart(request, pk):
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(pk=pk)
+            if product.stock <= 0:
+                return redirect('product_detail', pk=pk)
+            
+            quantity = int(request.POST.get('quantity', 1))
+            cart = request.session.get('cart', {})
+            cart[str(pk)] = cart.get(str(pk), 0) + quantity
+            
+            if cart[str(pk)] > product.stock:
+                cart[str(pk)] = product.stock
+                
+            request.session['cart'] = cart
+            request.session.modified = True
+        except (Product.DoesNotExist, ValueError):
+            pass
+    return redirect('cart')
+
+def remove_from_cart(request, pk):
+    if request.method == 'POST':
+        cart = request.session.get('cart', {})
+        if str(pk) in cart:
+            del cart[str(pk)]
+            request.session['cart'] = cart
+            request.session.modified = True
+    return redirect('cart')
+
+def update_cart(request, pk):
+    if request.method == 'POST':
+        try:
+            product = Product.objects.get(pk=pk)
+            quantity = int(request.POST.get('quantity', 1))
+            cart = request.session.get('cart', {})
+            
+            if quantity <= 0:
+                if str(pk) in cart:
+                    del cart[str(pk)]
+            else:
+                cart[str(pk)] = min(quantity, product.stock)
+                
+            request.session['cart'] = cart
+            request.session.modified = True
+        except (Product.DoesNotExist, ValueError):
+            pass
+    return redirect('cart')
 
 def admin_dashboard(request):
     if not request.session.get('is_admin'):
@@ -155,3 +269,15 @@ def parts_view(request):
 
 def rfsports_view(request):
     return category_listing(request, 'RFSPORTS', 'products/rfsports.html')
+
+def product_detail(request, pk):
+    try:
+        product = Product.objects.get(pk=pk)
+    except Product.DoesNotExist:
+        return render(request, '404.html', status=404)
+        
+    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).order_by('-created_at')[:3]
+    return render(request, 'products/product_detail.html', {
+        'product': product,
+        'related_products': related_products
+    })

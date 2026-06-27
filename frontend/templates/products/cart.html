@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart | Little Fingers{% endblock %}
+
+{% block content %}
+<style>
+    .cart-section {
+        padding: var(--spacing-2xl) var(--spacing-md);
+        min-height: 80vh;
+    }
+
+    .cart-item {
+        background-color: var(--white);
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        gap: var(--spacing-md);
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .cart-item img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border-radius: var(--border-radius-sm);
+        background-color: var(--neutral-light);
+        padding: 8px;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(26, 26, 46, 0.8);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-md);
+    }
+
+    .modal-overlay.hidden {
+        display: none !important;
+    }
+
+    .modal-content {
+        background-color: var(--white);
+        padding: var(--spacing-xl);
+        border-radius: var(--border-radius-lg);
+        max-width: 400px;
+        width: 100%;
+        position: relative;
+    }
+</style>
+
+<div class="container cart-section">
+    <div class="flex justify-between items-center mb-xl">
+        <h1 class="text-4xl font-black">Your Cart</h1>
+    </div>
+
+    <div class="grid md-grid-cols-12 gap-lg">
+        <!-- Cart Items -->
+        <div class="md-col-span-8 flex flex-col">
+            {% if cart_items %}
+                {% for item in cart_items %}
+                <div class="cart-item neo-border neo-shadow group">
+                    <a href="{% url 'product_detail' item.product.pk %}" class="shrink-0">
+                        <img src="{{ item.product.display_image }}" class="neo-border" alt="{{ item.product.name }}">
+                    </a>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-black mb-xs"><a href="{% url 'product_detail' item.product.pk %}" class="hover:underline text-dark">{{ item.product.name }}</a></h3>
+                        <p class="opacity-80 text-sm mb-sm">Category: {{ item.product.category }}</p>
+                        
+                        <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="flex items-center gap-xs m-0 mb-sm" style="max-width: 120px;">
+                            {% csrf_token %}
+                            <div class="flex items-center neo-border bg-white" style="border-radius: 999px; overflow: hidden;">
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="px-3 py-1 font-black text-lg bg-neutral-light hover:bg-primary transition-colors">-</button>
+                                <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-full text-center font-black text-sm outline-none bg-white" style="width: 40px;" readonly>
+                                <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="px-3 py-1 font-black text-lg bg-neutral-light hover:bg-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>+</button>
+                            </div>
+                        </form>
+                        
+                        <div class="font-bold text-lg">₹{{ item.total_price }}</div>
+                    </div>
+                    <form method="POST" action="{% url 'remove_from_cart' item.product.pk %}" class="m-0 self-center">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-danger text-white neo-border hover:bg-white hover:text-danger transition-colors" style="width: 40px; height: 40px; border-radius: var(--border-radius-full); display: flex; align-items: center; justify-content: center;" title="Remove item">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="neo-border neo-shadow bg-white p-xl text-center flex flex-col items-center justify-center gap-md" style="border-radius: var(--border-radius-lg); min-height: 300px;">
+                    <div class="bg-neutral-light neo-border rotate-2" style="padding: 24px; border-radius: var(--border-radius-full);">
+                        <span class="material-symbols-outlined text-4xl opacity-50">shopping_cart</span>
+                    </div>
+                    <h2 class="text-2xl font-black">Your cart is empty</h2>
+                    <p class="opacity-80 mb-md">Looks like you haven't added anything to your cart yet.</p>
+                    <a href="{% url 'home' %}" class="bounce-btn neo-border neo-shadow bg-primary text-dark font-black uppercase px-6 py-3" style="border-radius: 999px;">Start Shopping</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Order Summary -->
+        <div class="md-col-span-4">
+            <div class="neo-border neo-shadow bg-light p-card" style="border-radius: var(--border-radius-md);">
+                <h3 class="text-2xl font-black mb-md border-b pb-sm border-dark">Order Summary</h3>
+                <div class="flex justify-between mb-sm font-bold opacity-80">
+                    <span>Subtotal</span>
+                    <span>₹{{ subtotal|default:"0.00" }}</span>
+                </div>
+                <div class="flex justify-between mb-md font-bold opacity-80">
+                    <span>Shipping</span>
+                    <span>Calculated at checkout</span>
+                </div>
+                <div class="flex justify-between mb-lg font-black text-xl border-t pt-sm border-dark">
+                    <span>Total</span>
+                    <span>₹{{ total|default:"0.00" }}</span>
+                </div>
+                
+                <button id="checkoutBtn" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase text-lg w-full justify-center" {% if not cart_items %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                    Checkout <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Authentication Gating Modal -->
+<div id="authModal" class="modal-overlay hidden">
+    <div class="modal-content neo-border neo-shadow rotate-1">
+        <div class="bg-primary neo-border mb-md mx-auto flex items-center justify-center" style="width: 64px; height: 64px; border-radius: var(--border-radius-full);">
+            <span class="material-symbols-outlined text-dark" style="font-size: 32px;">lock</span>
+        </div>
+        <h2 class="text-2xl font-black text-center mb-sm">Login Required</h2>
+        <p class="text-center opacity-80 mb-lg">You must be logged in to proceed to checkout and secure your order.</p>
+        
+        <div class="flex flex-col gap-sm">
+            <a href="{% url 'admin_login' %}?next={% url 'cart' %}" class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black uppercase justify-center">
+                Go to Login
+            </a>
+            <button id="closeModalBtn" class="bounce-btn neo-border bg-white text-dark font-bold uppercase justify-center mt-sm">
+                Stay on Cart
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const authModal = document.getElementById('authModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        
+        // Check django auth state
+        const isAuthenticated = {% if request.user.is_authenticated or request.session.is_admin %}true{% else %}false{% endif %};
+
+        checkoutBtn.addEventListener('click', function() {
+            if (isAuthenticated) {
+                // In a real app, this would submit the order or go to payment page.
+                alert("Proceeding to secure checkout! (Mock Success)");
+            } else {
+                // Show modal
+                authModal.classList.remove('hidden');
+            }
+        });
+
+        closeModalBtn.addEventListener('click', function() {
+            authModal.classList.add('hidden');
+        });
+    });
+</script>
+{% endblock %}

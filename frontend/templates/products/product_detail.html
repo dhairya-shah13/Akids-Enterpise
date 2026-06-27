@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | Little Fingers{% endblock %}
+
+{% block content %}
+<style>
+    .product-detail-section {
+        padding: var(--spacing-2xl) var(--spacing-md);
+        min-height: 80vh;
+    }
+
+    .product-gallery {
+        background-color: var(--white);
+        border-radius: var(--border-radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-xl);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .product-gallery img {
+        width: 100%;
+        max-height: 600px;
+        object-fit: contain;
+        position: relative;
+        z-index: 10;
+        transition: transform 0.3s ease;
+    }
+
+    .product-gallery:hover img {
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+    }
+
+    .feature-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background-color: var(--white);
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="container product-detail-section">
+    <div class="grid md-grid-cols-12 gap-lg items-start">
+        <!-- Left: Product Image -->
+        <div style="grid-column: span 5 / span 5;">
+            <div class="product-gallery neo-border neo-shadow bg-light">
+                <!-- Decorative element -->
+                <div style="position: absolute; top: -40px; right: -40px; color: var(--primary); opacity: 0.2;" class="rotate-3">
+                    <span class="material-symbols-outlined" style="font-size: 200px;">toys</span>
+                </div>
+                
+                <img src="{{ product.display_image }}" alt="{{ product.name }}">
+            </div>
+            
+            <div class="grid md-grid-cols-12 gap-md mt-md">
+                <div style="grid-column: span 4 / span 4;" class="product-gallery neo-border" style="padding: 12px; cursor: pointer; background: white;">
+                    <img src="{{ product.display_image }}" alt="Thumbnail 1" style="max-height: 100px;">
+                </div>
+                <div style="grid-column: span 4 / span 4;" class="product-gallery neo-border" style="padding: 12px; cursor: pointer; background: var(--neutral-light); opacity: 0.7;">
+                    <img src="{{ product.display_image }}" alt="Thumbnail 2" style="max-height: 100px; filter: grayscale(100%);">
+                </div>
+                <div style="grid-column: span 4 / span 4;" class="product-gallery neo-border flex items-center justify-center bg-secondary" style="padding: 12px; cursor: pointer;">
+                    <span class="material-symbols-outlined text-4xl text-dark">play_circle</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Product Details -->
+        <div class="product-info" style="grid-column: span 7 / span 7;">
+            <div>
+                <div class="inline-block bg-primary text-dark neo-border rotate-1 font-black px-3 py-1 text-sm mb-md" style="border-radius: 999px;">
+                    {{ product.category }}
+                </div>
+                <h1 class="text-4xl md-text-5xl font-black mb-sm">{{ product.name }}</h1>
+                <div class="flex items-center gap-sm mb-md">
+                    <div class="flex text-accent">
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star</span>
+                        <span class="material-symbols-outlined">star_half</span>
+                    </div>
+                    <span class="font-bold opacity-80 text-sm">(42 Reviews)</span>
+                </div>
+                {% if product.discount_price %}
+                <div class="flex items-end gap-sm mb-lg">
+                    <h2 class="text-3xl font-black text-dark">₹{{ product.discount_price }}</h2>
+                    <h3 class="text-xl font-bold opacity-60" style="text-decoration: line-through;">₹{{ product.price }}</h3>
+                </div>
+                {% else %}
+                <h2 class="text-3xl font-black text-dark mb-lg">₹{{ product.price }}</h2>
+                {% endif %}
+                
+                <div class="flex gap-md mb-md opacity-80 font-bold text-sm">
+                    {% if product.sku %}<span>SKU: {{ product.sku }}</span>{% endif %}
+                    <span class="{% if product.stock > 0 %}text-primary{% else %}text-danger{% endif %}">
+                        {% if product.stock > 0 %}In Stock ({{ product.stock }}){% else %}Out of Stock{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="neo-border bg-white p-card rotate-1" style="border-radius: var(--border-radius-md);">
+                <h3 class="text-xl font-black mb-sm border-b pb-xs border-dark">Description</h3>
+                <p class="opacity-90 font-body leading-relaxed mb-md">
+                    {{ product.description }}
+                </p>
+                <p class="opacity-90 font-body leading-relaxed">
+                    Designed with the utmost care for early development, this piece encourages collaborative play, motor skill building, and imaginative exploration. Every edge is perfectly rounded, and the materials used are fully certified for child safety.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-md">
+                <form id="addCartForm" class="flex gap-sm m-0 w-full">
+                    {% csrf_token %}
+                    <input type="hidden" id="addCartUrl" value="{% url 'add_to_cart' product.pk %}">
+                    <div class="flex items-center neo-border bg-white" style="border-radius: 999px; overflow: hidden; max-width: 150px;">
+                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value>1)q.value--;" class="px-4 py-3 font-black text-xl bg-neutral-light hover:bg-primary transition-colors">-</button>
+                        <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-full text-center font-black text-lg outline-none bg-white" style="width: 50px;" readonly>
+                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value<{{ product.stock }})q.value++;" class="px-4 py-3 font-black text-xl bg-neutral-light hover:bg-primary transition-colors">+</button>
+                    </div>
+                    
+                    {% if product.stock > 0 %}
+                    <button type="button" onclick="submitCart()" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black text-lg flex-1 flex items-center justify-center gap-sm uppercase" style="border-radius: 999px;">
+                        <span class="material-symbols-outlined">shopping_cart</span> Add to Cart
+                    </button>
+                    {% else %}
+                    <button type="button" disabled class="neo-border bg-neutral-light text-dark opacity-60 font-black text-lg flex-1 flex items-center justify-center gap-sm uppercase" style="border-radius: 999px; cursor: not-allowed;">
+                        <span class="material-symbols-outlined">production_quantity_limits</span> Out of Stock
+                    </button>
+                    {% endif %}
+                </form>
+                
+                <button class="bounce-btn neo-border neo-shadow-hover bg-secondary text-dark font-black text-lg w-full flex items-center justify-center gap-sm uppercase" style="border-radius: 999px;">
+                    <span class="material-symbols-outlined">request_quote</span> Request Bulk Quote
+                </button>
+            </div>
+
+            <div class="flex flex-wrap gap-sm mt-md">
+                <div class="feature-pill neo-border">
+                    <span class="material-symbols-outlined text-primary">verified</span> Safety Certified
+                </div>
+                <div class="feature-pill neo-border">
+                    <span class="material-symbols-outlined text-secondary">local_shipping</span> Free Shipping
+                </div>
+                <div class="feature-pill neo-border">
+                    <span class="material-symbols-outlined text-accent">eco</span> Eco-Friendly
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="mt-2xl pt-xl border-t border-dark">
+        <h2 class="text-3xl font-black mb-lg">You May Also Like</h2>
+        <div class="grid md-grid-cols-3 gap-lg">
+            {% for rel_product in related_products %}
+            <div class="neo-border neo-shadow bg-white p-md rotate-1 hover:-rotate-1 transition-transform group" style="border-radius: var(--border-radius-lg);">
+                <a href="{% url 'product_detail' rel_product.pk %}" class="block neo-border mb-md bg-light flex items-center justify-center p-sm" style="height: 200px; border-radius: var(--border-radius-md);">
+                    <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" style="max-height: 100%; object-fit: contain;">
+                </a>
+                <h4 class="text-xl font-black mb-xs line-clamp-1"><a href="{% url 'product_detail' rel_product.pk %}" class="hover:underline text-dark">{{ rel_product.name }}</a></h4>
+                <div class="font-bold mb-md">
+                    {% if rel_product.discount_price %}
+                    <span>₹{{ rel_product.discount_price }}</span> <span class="opacity-60 line-through text-sm">₹{{ rel_product.price }}</span>
+                    {% else %}
+                    <span>₹{{ rel_product.price }}</span>
+                    {% endif %}
+                </div>
+                <a href="{% url 'product_detail' rel_product.pk %}" class="bounce-btn neo-border bg-secondary text-dark font-black text-sm uppercase w-full flex items-center justify-center py-2" style="border-radius: 999px;">View Item</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Toast Notification -->
+<div id="cartToast" class="neo-border neo-shadow bg-accent text-white font-black px-6 py-4 flex items-center gap-sm hidden" style="position: fixed; bottom: 24px; right: 24px; border-radius: var(--border-radius-md); z-index: 9999; transform: translateY(150%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    <span class="material-symbols-outlined">check_circle</span>
+    <span>Added to Cart!</span>
+</div>
+
+<script>
+    function submitCart() {
+        const url = document.getElementById('addCartUrl').value;
+        const formData = new FormData(document.getElementById('addCartForm'));
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(() => {
+            showToast();
+        });
+    }
+
+    function showToast() {
+        const toast = document.getElementById('cartToast');
+        toast.classList.remove('hidden');
+        // Small delay to allow display to apply before transform
+        setTimeout(() => {
+            toast.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => {
+            toast.style.transform = 'translateY(150%)';
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

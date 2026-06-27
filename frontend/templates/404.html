@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | Little Fingers{% endblock %}
+
+{% block content %}
+<div class="container flex flex-col items-center justify-center text-center" style="min-height: 70vh; padding: var(--spacing-2xl) var(--spacing-md);">
+    <div class="neo-border neo-shadow bg-accent rotate-2 mb-xl" style="padding: 32px; border-radius: var(--border-radius-full);">
+        <span class="material-symbols-outlined text-white" style="font-size: 80px;">search_off</span>
+    </div>
+    <h1 class="text-5xl font-black mb-md text-dark">Oops! 404</h1>
+    <p class="text-xl opacity-80 mb-xl max-w-lg mx-auto font-bold">We couldn't find the page or product you were looking for. It might have been moved or doesn't exist.</p>
+    <a href="{% url 'home' %}" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase" style="padding: 16px 32px; border-radius: 999px; font-size: 1.1rem;">
+        Back to Home <span class="material-symbols-outlined ml-2">home</span>
+    </a>
+</div>
+{% endblock %}
