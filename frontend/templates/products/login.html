@@ -3,100 +3,60 @@
 {% block title %}Sign In | Little Fingers{% endblock %}
 
 {% block content %}
-<style>
-    .login-section {
-        min-height: 80vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-2xl) var(--spacing-md);
-        background-color: #fffdf0;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .login-card {
-        width: 100%;
-        max-width: 480px;
-        background-color: var(--white);
-        padding: var(--spacing-xl);
-        border-radius: var(--border-radius-lg);
-        position: relative;
-        z-index: 10;
-    }
-
-    .input-field {
-        width: 100%;
-        padding: 16px 20px;
-        border-radius: var(--border-radius-md);
-        font-family: var(--font-body);
-        font-size: 1rem;
-        outline: none;
-        background-color: var(--neutral-light);
-        transition: all 0.2s;
-    }
-
-    .input-field:focus {
-        background-color: var(--white);
-        box-shadow: 4px 4px 0px 0px var(--accent);
-        transform: translate(-2px, -2px);
-    }
-</style>
-
-<section class="login-section">
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-margin-desktop bg-background relative overflow-hidden">
     <!-- Decorative Floating Elements -->
-    <div style="position: absolute; top: 10%; left: 10%; color: var(--primary); opacity: 0.6;" class="hidden md-block wiggle">
-        <span class="material-symbols-outlined" style="font-size: 100px;">toys</span>
+    <div class="absolute top-[10%] left-[10%] text-primary opacity-20 hidden md:block animate-[wiggle_3s_ease-in-out_infinite]">
+        <span class="material-symbols-outlined text-[100px]">toys</span>
     </div>
-    <div style="position: absolute; bottom: 15%; right: 12%; color: var(--secondary); opacity: 0.6;" class="hidden md-block rotate-3">
-        <span class="material-symbols-outlined" style="font-size: 120px;">extension</span>
+    <div class="absolute bottom-[15%] right-[12%] text-secondary opacity-20 hidden md:block rotate-3">
+        <span class="material-symbols-outlined text-[120px]">extension</span>
     </div>
 
-    <div class="login-card neo-border neo-shadow">
-        <div class="flex flex-col items-center text-center mb-lg">
-            <div class="bg-primary neo-border rotate-2 mb-md" style="padding: 16px; border-radius: var(--border-radius-full);">
-                <span class="material-symbols-outlined text-dark" style="font-size: 40px;">sentiment_satisfied</span>
+    <div class="bg-white p-10 md:p-12 rounded-[2.5rem] border border-outline-variant/30 w-full max-w-md sticker-shadow relative z-10">
+        <div class="flex flex-col items-center text-center mb-8">
+            <div class="bg-primary text-on-primary w-16 h-16 rounded-2xl flex items-center justify-center mb-4 rotate-2 shadow-sm border border-primary/20">
+                <span class="material-symbols-outlined text-[40px]">sentiment_satisfied</span>
             </div>
-            <h1 class="text-3xl mb-sm">Welcome Back!</h1>
-            <p class="opacity-80 text-sm">Sign in to your Little Fingers account to save designs, track orders, and explore playzones.</p>
+            <h1 class="font-display-lg text-3xl mb-2 text-on-surface">Welcome Back!</h1>
+            <p class="font-body-md text-on-surface-variant opacity-90 text-sm">Sign in to your Little Fingers account to save designs, track orders, and explore playzones.</p>
         </div>
 
         {% if error %}
-        <div class="bg-danger text-white neo-border mb-lg p-md flex items-center gap-sm rotate-1" style="border-radius: var(--border-radius-md);">
-            <span class="material-symbols-outlined">error</span>
+        <div class="bg-error text-white px-4 py-3 rounded-xl mb-6 flex items-center gap-3 rotate-1 shadow-sm border border-error/20">
+            <span class="material-symbols-outlined text-xl shrink-0">error</span>
             <span class="font-bold text-sm">{{ error }}</span>
         </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'admin_login' %}" class="flex flex-col gap-md text-left">
+        <form method="POST" action="{% url 'admin_login' %}" class="flex flex-col gap-6 text-left">
             {% csrf_token %}
             <div>
-                <label class="font-heading font-bold text-sm mb-sm block uppercase text-dark">Email Address</label>
-                <input type="email" name="email" placeholder="your.name@example.com" required class="input-field neo-border">
+                <label class="font-label-md text-sm mb-2 block uppercase tracking-wider text-on-surface">Email Address</label>
+                <input type="email" name="email" placeholder="your.name@example.com" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow">
             </div>
 
             <div>
-                <label class="font-heading font-bold text-sm mb-sm block uppercase text-dark">Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required class="input-field neo-border" style="padding-right: 48px;">
-                    <button type="button" onclick="togglePassword('loginPassword', 'loginEyeIcon')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); opacity: 0.6; display: flex; align-items: center; justify-content: center;">
-                        <span id="loginEyeIcon" class="material-symbols-outlined">visibility</span>
+                <label class="font-label-md text-sm mb-2 block uppercase tracking-wider text-on-surface">Password</label>
+                <div class="relative">
+                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow">
+                    <button type="button" onclick="togglePassword('loginPassword', 'loginEyeIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:opacity-100 flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface transition-colors">
+                        <span id="loginEyeIcon" class="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase text-sm mt-sm" style="width: 100%; padding: 16px; border-radius: 999px; letter-spacing: 0.5px;">
-                Sign In <span class="material-symbols-outlined align-middle ml-1">login</span>
+            <button type="submit" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl btn-chunky hover:scale-105 shadow-lg shadow-primary/20 tracking-wide mt-2 flex items-center justify-center gap-2">
+                Sign In <span class="material-symbols-outlined">login</span>
             </button>
         </form>
 
-        <div class="mt-lg pt-md border-t text-center flex flex-col gap-sm items-center">
-            <p class="text-sm font-bold opacity-80">Don't have an account?</p>
-            <a href="{% url 'signup' %}" class="bounce-btn neo-border neo-shadow-hover bg-secondary text-dark font-black uppercase text-xs" style="padding: 10px 20px; border-radius: 999px;">
+        <div class="mt-8 pt-6 border-t border-outline-variant/30 text-center flex flex-col gap-4 items-center">
+            <p class="font-body-md text-sm font-bold text-on-surface-variant">Don't have an account?</p>
+            <a href="{% url 'signup' %}" class="bg-secondary text-on-secondary font-label-md uppercase px-6 py-2.5 rounded-full btn-chunky hover:bg-secondary/90 text-sm tracking-wide">
                 Sign Up
             </a>
-            <p class="text-xs opacity-70 mt-sm">Admin access requires school invitation.</p>
+            <p class="font-body-md text-xs opacity-70 mt-2 text-on-surface-variant">Admin access requires school invitation.</p>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

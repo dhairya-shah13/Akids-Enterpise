@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Little Fingers | India's Premier Educational Play Solutions</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Quicksand:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#FF9933", // Saffron
+                        "on-primary": "#ffffff",
+                        "primary-container": "#FFD580",
+                        "on-primary-container": "#5A3000",
+                        "secondary": "#008080", // Teal
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#B2DFDB",
+                        "on-secondary-container": "#002525",
+                        "tertiary": "#C71585", // Fuchsia
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#FADADD",
+                        "on-tertiary-container": "#400010",
+                        "background": "#FFFDF9",
+                        "surface": "#ffffff",
+                        "on-surface": "#1C1C18",
+                        "on-surface-variant": "#414751",
+                        "outline": "#727782",
+                        "outline-variant": "#E0E0E0",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-md": "24px",
+                        "gutter": "24px",
+                        "stack-sm": "12px",
+                        "stack-lg": "48px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Quicksand"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sticker-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(255, 153, 51, 0.2);
+        }
+        .btn-chunky {
+            border-bottom: 4px solid rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+        }
+        .btn-chunky:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+        .india-gradient {
+            background: linear-gradient(90deg, #FF9933, #008080, #C71585);
+        }
+        .bento-card {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .bento-card:hover {
+            transform: scale(1.02) rotate(0.5deg);
+        }
+        
+        /* Sparkle Animations */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        .sparkle-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkle 2s infinite ease-in-out;
+        }
+        .sparkle-1 { top: 20%; left: 10%; animation-delay: 0.1s; }
+        .sparkle-2 { top: 60%; left: 15%; animation-delay: 0.5s; }
+        .sparkle-3 { top: 30%; right: 20%; animation-delay: 0.8s; }
+        .sparkle-4 { top: 80%; right: 10%; animation-delay: 1.2s; }
+        .sparkle-5 { top: 40%; left: 40%; animation-delay: 0.3s; }
+
+        .rainbow-text {
+            background: linear-gradient(to right, #FF9933, #008080, #C71585);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background: #FF9933;
+            transition: width 0.3s ease;
+            border-radius: 99px;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface sticky top-0 z-50 border-b-2 border-outline-variant/30 backdrop-blur-md bg-white/95">
+<div class="flex justify-between items-center px-margin-desktop py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="flex flex-col">
+<span class="font-display-lg text-3xl font-extrabold tracking-tight text-primary leading-none">Little Fingers</span>
+<span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">India's Play Experts</span>
+</div>
+</div>
+<nav class="hidden lg:flex items-center gap-8">
+<a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors" href="#">Home</a>
+<div class="group relative">
+<button class="nav-link text-on-surface font-label-md flex items-center gap-1 group-hover:text-primary transition-colors">
+                    Products <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors" href="#">Projects</a>
+<a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors" href="#">Certifications</a>
+<a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors" href="#">About</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-background rounded-full px-4 py-2 border border-outline-variant hover:border-primary transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant mr-2 text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-32 xl:w-48" placeholder="Search our range..." type="text"/>
+</div>
+<button class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md btn-chunky hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20">
+                Request Quote
+            </button>
+</div>
+</div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[600px] lg:min-h-[750px] flex items-center overflow-hidden bg-white">
+<!-- Sparkle Layer -->
+<div class="absolute inset-0 pointer-events-none z-20">
+<div class="sparkle-particle sparkle-1 bg-primary/40"></div>
+<div class="sparkle-particle sparkle-2 bg-secondary/40"></div>
+<div class="sparkle-particle sparkle-3 bg-tertiary/40"></div>
+<div class="sparkle-particle sparkle-4 bg-primary/40"></div>
+<div class="sparkle-particle sparkle-5 bg-secondary/40"></div>
+</div>
+<div class="absolute inset-0 z-0">
+<img alt="Indian Playground Equipment" class="w-full h-full object-contain opacity-25 lg:opacity-40 scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA"/>
+<div class="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
+</div>
+<div class="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full py-20">
+<div class="max-w-2xl space-y-6">
+<div class="inline-flex items-center gap-2 bg-primary-container/40 text-on-primary-container px-5 py-1.5 rounded-full font-label-md border border-primary/20">
+<span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>Safety Certified Play Solutions</span>
+</div>
+<h1 class="font-display-lg text-5xl lg:text-7xl text-on-surface leading-[1.1]">
+                    Crafting <span class="rainbow-text">Magical Spaces</span> for Tiny Explorers
+                </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                    India's leading manufacturer of premium kindergarten furniture and playground equipment. We blend safety with vibrant innovation.
+                </p>
+<div class="flex flex-wrap gap-4 pt-6">
+<button class="bg-primary text-on-primary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:scale-105 shadow-xl shadow-primary/20">
+                        Explore Catalog
+                    </button>
+<button class="bg-surface border-2 border-secondary text-secondary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:bg-secondary/5">
+                        Consult an Expert
+                    </button>
+</div>
+</div>
+</div>
+<!-- Product Highlight Overlay -->
+<div class="absolute right-margin-desktop top-1/2 -translate-y-1/2 hidden xl:block z-20">
+<div class="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-primary/10 -rotate-3 max-w-md transition-transform hover:rotate-0 duration-500">
+<div class="relative overflow-hidden rounded-2xl">
+<img alt="Workbench LF 1428" class="w-full h-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ"/>
+<div class="absolute top-4 right-4 bg-tertiary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">New Arrival</div>
+</div>
+<div class="mt-6 text-center">
+<p class="font-display-lg text-2xl text-secondary">Creative Play Workbench</p>
+<p class="text-on-surface-variant mt-1">Nurturing Skills through Discovery</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Category Bento Grid -->
+<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<span class="text-primary font-bold uppercase tracking-widest text-sm mb-2 block">Our Expertise</span>
+<h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Explore the Little Fingers World</h2>
+<div class="h-1.5 w-24 india-gradient mx-auto mt-6 rounded-full"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter h-auto md:h-[650px]">
+<!-- Playground Solutions -->
+<div class="md:col-span-2 md:row-span-2 bg-secondary-container/10 rounded-[2.5rem] p-8 flex flex-col justify-between bento-card relative overflow-hidden group border border-secondary/10 hover:border-secondary/30">
+<div class="relative z-10">
+<span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">landscape</span>
+</span>
+<h3 class="font-display-lg text-3xl text-on-secondary-container">Outdoor Play Systems</h3>
+<p class="font-body-md text-on-surface-variant mt-3 max-w-xs text-lg">Multi-play stations designed for safety and adventure in Indian conditions.</p>
+</div>
+<div class="relative h-72 mt-6 overflow-hidden rounded-[2rem] border-8 border-white shadow-2xl">
+<img alt="Playground Scrambler" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ljQJ6UOMpuleaUUkoCu0rfy_pog3CPDrPXtddUoFtHOHs0NpLymycbngGBEHXwKHa8gyVA4-hPsiWAq7jLLIQVFYkja9M9HH2r9USLVs9t5uBjxoI32ph9Tb0x4it-mUJPXGYliM4u6faKO1DAYNJgwmXf4FIvAnJVKp3smruBqKpKFlwvhL2Duz15NTCqhJHDNgGXrzVPK7Tps9GP9H8FU3iFUGhSNogtlJo0I2HZS743Vj7ncrlK5X_I85tlqswYlS-z7KJA"/>
+</div>
+<a class="relative z-10 self-start mt-8 bg-white px-8 py-3 rounded-full font-label-md text-secondary sticker-shadow btn-chunky hover:scale-105" href="#">Full Collection</a>
+</div>
+<!-- Modern Furniture -->
+<div class="md:col-span-2 bg-primary-container/10 rounded-[2.5rem] p-8 flex items-center justify-between bento-card overflow-hidden group border border-primary/10 hover:border-primary/30">
+<div class="flex-1">
+<span class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+</span>
+<h3 class="font-display-lg text-2xl text-on-primary-container">Modular Furniture</h3>
+<p class="font-body-md text-on-surface-variant mt-2 text-lg">Smart, stackable, and safe units.</p>
+<a class="mt-6 inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all" href="#">See Range <span class="material-symbols-outlined">arrow_forward</span></a>
+</div>
+<div class="w-2/5 p-4 transform group-hover:-translate-x-2 transition-transform">
+<img alt="Storage Unit" class="w-full rounded-2xl shadow-xl border-4 border-white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g"/>
+</div>
+</div>
+<!-- Safety Fencing -->
+<div class="bg-tertiary-container/10 rounded-[2.5rem] p-8 bento-card border border-tertiary/10 flex flex-col justify-center items-center text-center group hover:border-tertiary/30">
+<span class="bg-tertiary text-on-tertiary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:scale-110 transition-transform shadow-lg">
+<span class="material-symbols-outlined text-2xl">shield</span>
+</span>
+<h3 class="font-display-lg text-sm uppercase tracking-widest text-on-tertiary-container font-extrabold">Safety Barriers</h3>
+<div class="w-24 h-24 overflow-hidden rounded-2xl my-4 border-4 border-white shadow-lg">
+<img alt="Safety Fence" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbs4IhNEaHOfVNhTTXP-kyEWq5O7eJUgFGZsxJbxADsSLup5ics9FZ_6kZgl72PRePdiw38hU8o7ifL1kgsd350nNmsVWYuM946rTi3d9E8r9hE9dQJXhKFKTp_Z3sOCoCuAen9SdgUU2euCFfEHb5_FjFzGKHvXCAfq7MKrmRZvhN7AG3sYjWt3pByedb6ty6qxYZNHIe998duQs9lcwh-uUKLsY_fydfmjSfh6sRnHueNFnmazNllDGshAKdZWIJK4l6bA9M2A"/>
+</div>
+</div>
+<!-- Learning Tools -->
+<div class="bg-surface rounded-[2.5rem] p-8 bento-card border border-outline-variant/30 flex flex-col justify-center items-center text-center group hover:shadow-xl transition-all">
+<span class="bg-secondary-container text-on-secondary-container w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:rotate-12 transition-transform">
+<span class="material-symbols-outlined text-2xl">construction</span>
+</span>
+<h3 class="font-display-lg text-sm uppercase tracking-widest text-on-surface-variant font-extrabold">Skill Labs</h3>
+<p class="text-xs mt-3 font-bold text-secondary">Interactive Discovery</p>
+</div>
+</div>
+</section>
+<!-- Product Highlight Cards -->
+<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+<div>
+<h2 class="font-display-lg text-4xl text-on-surface">Top Selection for Schools</h2>
+<p class="text-on-surface-variant mt-2 text-lg">Tested for Indian conditions and heavy classroom usage.</p>
+</div>
+<button class="text-secondary font-bold flex items-center hover:translate-x-2 transition-transform group">
+                View All Products <span class="material-symbols-outlined ml-2 group-hover:ml-4 transition-all">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Product Card 1 -->
+<div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20">
+<div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+<img alt="Workbench" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ"/>
+</div>
+<div class="space-y-3">
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] rounded-full font-bold uppercase tracking-wider">Skill Development</span>
+<h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Creative Workbench LF 1428</h4>
+<div class="flex justify-between items-center pt-2">
+<p class="text-primary font-bold text-lg">₹14,990.00</p>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
+<span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-secondary/20">
+<div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+<img alt="Playground Station" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA"/>
+</div>
+<div class="space-y-3">
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] rounded-full font-bold uppercase tracking-wider">Active Play</span>
+<h4 class="font-headline-md text-on-surface text-xl group-hover:text-secondary transition-colors">Multi-Play Station MPS-02</h4>
+<div class="flex justify-between items-center pt-2">
+<p class="text-primary font-bold text-lg">₹2,79,990.00</p>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-secondary hover:text-white hover:border-secondary transition-all">
+<span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20">
+<div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+<img alt="Storage Unit" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g"/>
+</div>
+<div class="space-y-3">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">Classroom Solutions</span>
+<h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Mobile Supply Cart LF 1454</h4>
+<div class="flex justify-between items-center pt-2">
+<p class="text-primary font-bold text-lg">Inquire for Pricing</p>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
+<span class="material-symbols-outlined text-xl">mail</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Consultation Section -->
+<section class="py-20 px-margin-desktop bg-tertiary/5 relative overflow-hidden">
+<div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
+<h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface leading-tight">Ready to Design a <span class="text-tertiary">Dream Campus?</span></h2>
+<p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto">Get a personalized 3D layout and expert consulting for your educational facility at no cost.</p>
+<form class="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto pt-8">
+<input class="flex-1 bg-white border-2 border-outline-variant/30 rounded-2xl px-6 py-4 focus:border-secondary focus:ring-0 text-on-surface shadow-sm" placeholder="Your school or organization name..." type="text"/>
+<button class="bg-secondary text-on-secondary px-10 py-4 rounded-2xl font-label-md btn-chunky hover:scale-105 shadow-xl shadow-secondary/30">
+                    Get Free Quote
+                </button>
+</form>
+</div>
+<!-- Decorative particles for this section too -->
+<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface border-t-8 border-primary py-16">
+<div class="max-w-7xl mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="space-y-6 md:col-span-1">
+<div class="flex flex-col">
+<span class="font-display-lg text-3xl font-extrabold text-primary leading-none">Little Fingers</span>
+<span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">Quality Play Environments</span>
+</div>
+<p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Manufacturing Excellence in India. Creating safe, vibrant, and skill-building environments for the leaders of tomorrow.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all" href="#">
+<span class="material-symbols-outlined text-xl">share</span>
+</a>
+<a class="w-10 h-10 bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all" href="#">
+<span class="material-symbols-outlined text-xl">mail</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 md:col-span-3 gap-12">
+<div class="space-y-4">
+<h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Products</h5>
+<nav class="flex flex-col gap-3">
+<a class="text-on-surface-variant hover:text-primary text-sm transition-colors" href="#">Classroom Units</a>
+<a class="text-on-surface-variant hover:text-primary text-sm transition-colors" href="#">Outdoor Play</a>
+<a class="text-on-surface-variant hover:text-primary text-sm transition-colors" href="#">Skill Labs</a>
+<a class="text-on-surface-variant hover:text-primary text-sm transition-colors" href="#">Soft Play</a>
+</nav>
+</div>
+<div class="space-y-4">
+<h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">About</h5>
+<nav class="flex flex-col gap-3">
+<a class="text-on-surface-variant hover:text-secondary text-sm transition-colors" href="#">Our Factory</a>
+<a class="text-on-surface-variant hover:text-secondary text-sm transition-colors" href="#">Safety Standards</a>
+<a class="text-on-surface-variant hover:text-secondary text-sm transition-colors" href="#">Success Stories</a>
+<a class="text-on-surface-variant hover:text-secondary text-sm transition-colors" href="#">Blog</a>
+</nav>
+</div>
+<div class="space-y-4 col-span-2 md:col-span-1">
+<h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Contact</h5>
+<p class="text-sm text-on-surface-variant">Plot No. 42, Industrial Area,<br/>Phase 1, New Delhi - 110020</p>
+<p class="text-sm font-bold text-primary">+91 98765 43210</p>
+<p class="text-sm text-secondary underline">hello@littlefingersindia.com</p>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-margin-desktop mt-16 pt-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-on-surface-variant font-body-md text-xs">© 2024 Little Fingers India. All rights reserved. Designed for Safety.</p>
+<div class="flex gap-6 text-xs text-on-surface-variant">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+</div>
+</div>
+</footer>
+<!-- FAB -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="bg-primary text-on-primary w-16 h-16 rounded-full shadow-2xl border-4 border-white flex items-center justify-center btn-chunky group hover:scale-110">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">call</span>
+<div class="absolute -top-2 -right-2 bg-secondary text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md">Support</div>
+</button>
+</div>
+</body></html>

@@ -3,148 +3,112 @@
 {% block title %}Your Cart | Little Fingers{% endblock %}
 
 {% block content %}
-<style>
-    .cart-section {
-        padding: var(--spacing-2xl) var(--spacing-md);
-        min-height: 80vh;
-    }
-
-    .cart-item {
-        background-color: var(--white);
-        padding: var(--spacing-md);
-        border-radius: var(--border-radius-md);
-        display: flex;
-        gap: var(--spacing-md);
-        align-items: center;
-        margin-bottom: var(--spacing-md);
-    }
-
-    .cart-item img {
-        width: 100px;
-        height: 100px;
-        object-fit: contain;
-        border-radius: var(--border-radius-sm);
-        background-color: var(--neutral-light);
-        padding: 8px;
-    }
-
-    /* Modal Styles */
-    .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(26, 26, 46, 0.8);
-        z-index: 1000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-md);
-    }
-
-    .modal-overlay.hidden {
-        display: none !important;
-    }
-
-    .modal-content {
-        background-color: var(--white);
-        padding: var(--spacing-xl);
-        border-radius: var(--border-radius-lg);
-        max-width: 400px;
-        width: 100%;
-        position: relative;
-    }
-</style>
-
-<div class="container cart-section">
-    <div class="flex justify-between items-center mb-xl">
-        <h1 class="text-4xl font-black">Your Cart</h1>
+<div class="py-12 max-w-7xl mx-auto px-margin-desktop min-h-[80vh]">
+    <div class="flex items-center gap-4 mb-12">
+        <div class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm rotate-2">
+            <span class="material-symbols-outlined text-3xl">shopping_cart</span>
+        </div>
+        <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Your Cart</h1>
     </div>
 
-    <div class="grid md-grid-cols-12 gap-lg">
+    <div class="grid lg:grid-cols-12 gap-12">
         <!-- Cart Items -->
-        <div class="md-col-span-8 flex flex-col">
+        <div class="lg:col-span-8 flex flex-col gap-6">
             {% if cart_items %}
                 {% for item in cart_items %}
-                <div class="cart-item neo-border neo-shadow group">
-                    <a href="{% url 'product_detail' item.product.pk %}" class="shrink-0">
-                        <img src="{{ item.product.display_image }}" class="neo-border" alt="{{ item.product.name }}">
+                <div class="bg-white rounded-[2rem] p-6 border border-outline-variant/30 flex flex-col sm:flex-row gap-6 items-center sticker-shadow group hover:border-primary/20 transition-all">
+                    <!-- Product Image -->
+                    <a href="{% url 'product_detail' item.product.pk %}" class="shrink-0 w-full sm:w-32 h-32 bg-background rounded-2xl p-2 flex items-center justify-center border border-outline-variant/10 relative overflow-hidden">
+                        <img src="{{ item.product.display_image }}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500" alt="{{ item.product.name }}">
                     </a>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-black mb-xs"><a href="{% url 'product_detail' item.product.pk %}" class="hover:underline text-dark">{{ item.product.name }}</a></h3>
-                        <p class="opacity-80 text-sm mb-sm">Category: {{ item.product.category }}</p>
+                    
+                    <!-- Product Info -->
+                    <div class="flex-1 w-full flex flex-col justify-center">
+                        <h3 class="font-headline-md text-xl mb-1"><a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a></h3>
+                        <p class="text-on-surface-variant text-sm mb-4">Category: <span class="font-bold">{{ item.product.category }}</span></p>
                         
-                        <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="flex items-center gap-xs m-0 mb-sm" style="max-width: 120px;">
-                            {% csrf_token %}
-                            <div class="flex items-center neo-border bg-white" style="border-radius: 999px; overflow: hidden;">
-                                <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="px-3 py-1 font-black text-lg bg-neutral-light hover:bg-primary transition-colors">-</button>
-                                <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-full text-center font-black text-sm outline-none bg-white" style="width: 40px;" readonly>
-                                <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="px-3 py-1 font-black text-lg bg-neutral-light hover:bg-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>+</button>
+                        <div class="flex flex-wrap items-center justify-between gap-4 w-full">
+                            <!-- Quantity Controls -->
+                            <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="m-0">
+                                {% csrf_token %}
+                                <div class="flex items-center bg-background border border-outline-variant/50 rounded-xl overflow-hidden shadow-inner">
+                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors">-</button>
+                                    <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly>
+                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>+</button>
+                                </div>
+                            </form>
+                            
+                            <!-- Price & Delete -->
+                            <div class="flex items-center gap-6">
+                                <div class="font-display-lg text-2xl text-on-surface">₹{{ item.total_price }}</div>
+                                <form method="POST" action="{% url 'remove_from_cart' item.product.pk %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors w-10 h-10 rounded-full flex items-center justify-center shadow-sm" title="Remove item">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                </form>
                             </div>
-                        </form>
-                        
-                        <div class="font-bold text-lg">₹{{ item.total_price }}</div>
+                        </div>
                     </div>
-                    <form method="POST" action="{% url 'remove_from_cart' item.product.pk %}" class="m-0 self-center">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-danger text-white neo-border hover:bg-white hover:text-danger transition-colors" style="width: 40px; height: 40px; border-radius: var(--border-radius-full); display: flex; align-items: center; justify-content: center;" title="Remove item">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                    </form>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="neo-border neo-shadow bg-white p-xl text-center flex flex-col items-center justify-center gap-md" style="border-radius: var(--border-radius-lg); min-height: 300px;">
-                    <div class="bg-neutral-light neo-border rotate-2" style="padding: 24px; border-radius: var(--border-radius-full);">
-                        <span class="material-symbols-outlined text-4xl opacity-50">shopping_cart</span>
+                <div class="bg-surface border-2 border-dashed border-outline-variant/50 p-16 rounded-[2.5rem] text-center flex flex-col items-center justify-center">
+                    <div class="bg-white w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-sm border border-outline-variant/10 -rotate-3">
+                        <span class="material-symbols-outlined text-[48px] text-on-surface-variant opacity-50">remove_shopping_cart</span>
                     </div>
-                    <h2 class="text-2xl font-black">Your cart is empty</h2>
-                    <p class="opacity-80 mb-md">Looks like you haven't added anything to your cart yet.</p>
-                    <a href="{% url 'home' %}" class="bounce-btn neo-border neo-shadow bg-primary text-dark font-black uppercase px-6 py-3" style="border-radius: 999px;">Start Shopping</a>
+                    <h2 class="font-display-lg text-3xl text-on-surface mb-3">Your cart is empty</h2>
+                    <p class="font-body-lg text-on-surface-variant mb-8 max-w-md">Looks like you haven't added any magical items to your cart yet.</p>
+                    <a href="{% url 'home' %}" class="bg-primary text-on-primary font-label-md uppercase px-8 py-4 rounded-full btn-chunky hover:scale-105 shadow-lg shadow-primary/20 tracking-wider">Start Shopping</a>
                 </div>
             {% endif %}
         </div>
 
         <!-- Order Summary -->
-        <div class="md-col-span-4">
-            <div class="neo-border neo-shadow bg-light p-card" style="border-radius: var(--border-radius-md);">
-                <h3 class="text-2xl font-black mb-md border-b pb-sm border-dark">Order Summary</h3>
-                <div class="flex justify-between mb-sm font-bold opacity-80">
+        <div class="lg:col-span-4">
+            <div class="bg-primary-container/10 border border-primary/20 p-8 rounded-[2.5rem] sticker-shadow sticky top-8">
+                <h3 class="font-display-lg text-2xl mb-6 text-on-surface border-b border-outline-variant/30 pb-4">Order Summary</h3>
+                
+                <div class="flex justify-between mb-4 font-body-md text-on-surface-variant">
                     <span>Subtotal</span>
-                    <span>₹{{ subtotal|default:"0.00" }}</span>
+                    <span class="font-bold text-on-surface">₹{{ subtotal|default:"0.00" }}</span>
                 </div>
-                <div class="flex justify-between mb-md font-bold opacity-80">
+                <div class="flex justify-between mb-6 font-body-md text-on-surface-variant">
                     <span>Shipping</span>
-                    <span>Calculated at checkout</span>
-                </div>
-                <div class="flex justify-between mb-lg font-black text-xl border-t pt-sm border-dark">
-                    <span>Total</span>
-                    <span>₹{{ total|default:"0.00" }}</span>
+                    <span class="font-bold text-on-surface">Calculated at checkout</span>
                 </div>
                 
-                <button id="checkoutBtn" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase text-lg w-full justify-center" {% if not cart_items %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
-                    Checkout <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                <div class="flex justify-between mb-8 font-display-lg text-3xl text-on-surface border-t border-outline-variant/30 pt-6">
+                    <span>Total</span>
+                    <span class="text-primary">₹{{ total|default:"0.00" }}</span>
+                </div>
+                
+                <button id="checkoutBtn" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl btn-chunky hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform" {% if not cart_items %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                    Checkout <span class="material-symbols-outlined text-[24px]">shopping_cart_checkout</span>
                 </button>
+
+                <div class="mt-6 flex items-center justify-center gap-2 text-on-surface-variant text-sm opacity-80">
+                    <span class="material-symbols-outlined text-[18px]">lock</span> Secure Checkout
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Authentication Gating Modal -->
-<div id="authModal" class="modal-overlay hidden">
-    <div class="modal-content neo-border neo-shadow rotate-1">
-        <div class="bg-primary neo-border mb-md mx-auto flex items-center justify-center" style="width: 64px; height: 64px; border-radius: var(--border-radius-full);">
-            <span class="material-symbols-outlined text-dark" style="font-size: 32px;">lock</span>
+<div id="authModal" class="fixed inset-0 bg-on-surface/80 z-[1000] hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white p-10 rounded-[2.5rem] max-w-md w-full relative sticker-shadow border border-outline-variant/20 -rotate-1">
+        <div class="bg-secondary text-on-secondary w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 shadow-md border border-secondary/20">
+            <span class="material-symbols-outlined text-[32px]">lock</span>
         </div>
-        <h2 class="text-2xl font-black text-center mb-sm">Login Required</h2>
-        <p class="text-center opacity-80 mb-lg">You must be logged in to proceed to checkout and secure your order.</p>
+        <h2 class="font-display-lg text-3xl text-center mb-3 text-on-surface">Login Required</h2>
+        <p class="font-body-md text-center text-on-surface-variant mb-8 px-4">You must be logged in to proceed to checkout and secure your order.</p>
         
-        <div class="flex flex-col gap-sm">
-            <a href="{% url 'admin_login' %}?next={% url 'cart' %}" class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black uppercase justify-center">
+        <div class="flex flex-col gap-4">
+            <a href="{% url 'admin_login' %}?next={% url 'cart' %}" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl btn-chunky hover:scale-105 shadow-lg shadow-primary/20 text-center tracking-wide">
                 Go to Login
             </a>
-            <button id="closeModalBtn" class="bounce-btn neo-border bg-white text-dark font-bold uppercase justify-center mt-sm">
+            <button id="closeModalBtn" class="bg-surface border-2 border-outline-variant/30 text-on-surface-variant font-label-md uppercase py-4 rounded-xl hover:bg-background transition-colors tracking-wide">
                 Stay on Cart
             </button>
         </div>
@@ -160,19 +124,25 @@
         // Check django auth state
         const isAuthenticated = {% if request.user.is_authenticated or request.session.is_admin %}true{% else %}false{% endif %};
 
-        checkoutBtn.addEventListener('click', function() {
-            if (isAuthenticated) {
-                // In a real app, this would submit the order or go to payment page.
-                alert("Proceeding to secure checkout! (Mock Success)");
-            } else {
-                // Show modal
-                authModal.classList.remove('hidden');
-            }
-        });
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function() {
+                if (isAuthenticated) {
+                    // In a real app, this would submit the order or go to payment page.
+                    alert("Proceeding to secure checkout! (Mock Success)");
+                } else {
+                    // Show modal
+                    authModal.classList.remove('hidden');
+                    authModal.classList.add('flex');
+                }
+            });
+        }
 
-        closeModalBtn.addEventListener('click', function() {
-            authModal.classList.add('hidden');
-        });
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function() {
+                authModal.classList.add('hidden');
+                authModal.classList.remove('flex');
+            });
+        }
     });
 </script>
 {% endblock %}
