@@ -260,7 +260,7 @@ def delete_product(request, pk):
     return redirect('admin_dashboard')
 
 def home_view(request):
-    featured_products = Product.objects.all().order_by('-created_at')[:6]
+    featured_products = Product.objects.filter(stock__gt=0).order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
 def category_listing(request, cat_code, template_name):
@@ -268,7 +268,7 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code).order_by('-created_at')
+        products = Product.objects.filter(category=cat_code, stock__gt=0).order_by('-created_at')
     return render(request, template_name, {'products': products})
 
 def indoors_view(request):
@@ -289,7 +289,7 @@ def product_detail(request, pk):
     except Product.DoesNotExist:
         return render(request, '404.html', status=404)
         
-    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).order_by('-created_at')[:3]
+    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).exclude(stock__lte=0).order_by('-created_at')[:3]
     return render(request, 'products/product_detail.html', {
         'product': product,
         'related_products': related_products

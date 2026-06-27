@@ -142,56 +142,35 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
-        <!-- Product Card 1 -->
+        {% for product in featured_products %}
         <div class="bg-white rounded-2xl p-6 border border-outline-variant/30 hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
-            <div class="aspect-square bg-background rounded-xl mb-6 overflow-hidden relative border border-outline-variant/10">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ" alt="Workbench" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500">
-            </div>
+            <a href="{% url 'product_detail' product.pk %}" class="aspect-square bg-background rounded-xl mb-6 overflow-hidden relative border border-outline-variant/10 flex items-center justify-center p-4">
+                <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-500">
+            </a>
             <div class="space-y-3">
-                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] rounded-full font-bold uppercase tracking-wider">Skill Development</span>
-                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Creative Workbench LF 1428</h4>
+                <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">{{ product.category }}</span>
+                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors"><a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a></h4>
                 <div class="flex justify-between items-center pt-2">
-                    <p class="text-primary font-bold text-lg">₹14,990.00</p>
-                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
-                        <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
-                    </button>
+                    {% if product.discount_price %}
+                    <p class="text-primary font-bold text-lg">₹{{ product.discount_price }}</p>
+                    {% else %}
+                    <p class="text-primary font-bold text-lg">₹{{ product.price }}</p>
+                    {% endif %}
+                    <form method="POST" action="{% url 'add_to_cart' product.pk %}" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
+                            <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <!-- Product Card 2 -->
-        <div class="bg-white rounded-2xl p-6 border border-outline-variant/30 hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
-            <div class="aspect-square bg-background rounded-xl mb-6 overflow-hidden relative border border-outline-variant/10">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA" alt="Playground Station" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500">
-            </div>
-            <div class="space-y-3">
-                <span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] rounded-full font-bold uppercase tracking-wider">Active Play</span>
-                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-secondary transition-colors">Multi-Play Station MPS-02</h4>
-                <div class="flex justify-between items-center pt-2">
-                    <p class="text-primary font-bold text-lg">₹2,79,990.00</p>
-                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-secondary hover:text-white hover:border-secondary transition-all">
-                        <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
-                    </button>
-                </div>
-            </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12 text-on-surface-variant">
+            <span class="material-symbols-outlined text-6xl mb-4 block opacity-30">inventory_2</span>
+            <p class="text-lg">No products available right now. Check back soon!</p>
         </div>
-
-        <!-- Product Card 3 -->
-        <div class="bg-white rounded-2xl p-6 border border-outline-variant/30 hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
-            <div class="aspect-square bg-background rounded-xl mb-6 overflow-hidden relative border border-outline-variant/10">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Storage Unit" class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500">
-            </div>
-            <div class="space-y-3">
-                <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">Classroom Solutions</span>
-                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Mobile Supply Cart LF 1454</h4>
-                <div class="flex justify-between items-center pt-2">
-                    <p class="text-primary font-bold text-lg">Inquire for Pricing</p>
-                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
-                        <span class="material-symbols-outlined text-xl">mail</span>
-                    </button>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </section>
 
