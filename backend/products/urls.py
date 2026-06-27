@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('', TemplateView.as_view(template_name='products/home.html'), name='home'),
     path('search/', views.search_view, name='search'),
+    path('', views.home_view, name='home'),
     path('indoors/', views.indoors_view, name='indoors'),
     path('outdoors/', views.outdoors_view, name='outdoors'),
     path('parts/', views.parts_view, name='parts'),
@@ -22,4 +23,5 @@ urlpatterns = [
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/products/add/', views.add_product, name='add_product'),
     path('admin-panel/products/<int:pk>/delete/', views.delete_product, name='delete_product'),
+    path('api/chat/', views.chat_api, name='chat_api'),
 ]

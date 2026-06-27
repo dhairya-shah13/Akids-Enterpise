@@ -33,10 +33,10 @@
             </p>
             
             <div class="flex flex-wrap gap-4 pt-6">
-                <button class="bg-primary text-on-primary px-10 py-3 rounded-full font-label-md text-lg hover:shadow-md transition-shadow">
+                <button onclick="document.getElementById('explore-world').scrollIntoView({behavior: 'smooth'})" class="bg-primary text-on-primary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:scale-105 shadow-xl shadow-primary/20 transition-all">
                     Explore Catalog
                 </button>
-                <button class="bg-surface border border-secondary text-secondary px-10 py-3 rounded-full font-label-md text-lg hover:bg-secondary hover:text-white transition-colors">
+                <button onclick="if(typeof toggleMohanlalChat === 'function') { toggleMohanlalChat(); } else { window.location.href='#explore-world'; }" class="bg-surface border-2 border-secondary text-secondary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:bg-secondary/5 transition-all">
                     Consult an Expert
                 </button>
             </div>
@@ -59,7 +59,7 @@
 </section>
 
 <!-- Category Bento Grid -->
-<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
+<section id="explore-world" class="py-stack-lg px-margin-desktop max-w-7xl mx-auto scroll-mt-24">
     <div class="text-center mb-16">
         <span class="text-primary font-bold uppercase tracking-widest text-sm mb-2 block">Our Expertise</span>
         <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Explore the Little Fingers World</h2>
@@ -67,56 +67,64 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter h-auto md:h-[650px]">
-        <!-- Playground Solutions -->
-        <div class="md:col-span-2 md:row-span-2 bg-secondary-container/10 rounded-2xl p-8 flex flex-col justify-between relative overflow-hidden group border border-secondary/10 hover:border-secondary/30">
+        <!-- Outdoors Inventory Card -->
+        <div onclick="window.location.href='{% url 'outdoors' %}'" class="md:col-span-2 md:row-span-2 bg-secondary-container/10 rounded-[2.5rem] p-8 flex flex-col justify-between bento-card relative overflow-hidden group border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 cursor-pointer">
             <div class="relative z-10">
-                <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-md">
+                <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                     <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">landscape</span>
                 </span>
-                <h3 class="font-display-lg text-3xl text-on-secondary-container">Outdoor Play Systems</h3>
-                <p class="font-body-md text-on-surface-variant mt-3 max-w-xs text-lg">Multi-play stations designed for safety and adventure in Indian conditions.</p>
+                <h3 class="font-display-lg text-3xl text-on-secondary-container group-hover:text-secondary transition-colors">Outdoors</h3>
+                <p class="font-body-md text-on-surface-variant mt-3 max-w-xs text-lg">Multi-play stations & outdoor adventure equipment designed for Indian conditions.</p>
             </div>
-            <div class="relative h-72 mt-6 overflow-hidden rounded-xl border-4 border-white shadow-lg">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ljQJ6UOMpuleaUUkoCu0rfy_pog3CPDrPXtddUoFtHOHs0NpLymycbngGBEHXwKHa8gyVA4-hPsiWAq7jLLIQVFYkja9M9HH2r9USLVs9t5uBjxoI32ph9Tb0x4it-mUJPXGYliM4u6faKO1DAYNJgwmXf4FIvAnJVKp3smruBqKpKFlwvhL2Duz15NTCqhJHDNgGXrzVPK7Tps9GP9H8FU3iFUGhSNogtlJo0I2HZS743Vj7ncrlK5X_I85tlqswYlS-z7KJA" alt="Playground Scrambler" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            <div class="relative h-72 mt-6 overflow-hidden rounded-[2rem] border-8 border-white shadow-2xl">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ljQJ6UOMpuleaUUkoCu0rfy_pog3CPDrPXtddUoFtHOHs0NpLymycbngGBEHXwKHa8gyVA4-hPsiWAq7jLLIQVFYkja9M9HH2r9USLVs9t5uBjxoI32ph9Tb0x4it-mUJPXGYliM4u6faKO1DAYNJgwmXf4FIvAnJVKp3smruBqKpKFlwvhL2Duz15NTCqhJHDNgGXrzVPK7Tps9GP9H8FU3iFUGhSNogtlJo0I2HZS743Vj7ncrlK5X_I85tlqswYlS-z7KJA" alt="Outdoors Inventory" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
             </div>
-            <a href="{% url 'outdoors' %}" class="relative z-10 self-start mt-8 bg-white px-8 py-3 rounded-full font-label-md text-secondary border border-secondary/20 hover:shadow-md transition-shadow">Full Collection</a>
+            <div class="relative z-10 self-start mt-8 bg-secondary text-on-secondary px-8 py-3 rounded-full font-label-md sticker-shadow btn-chunky group-hover:bg-primary group-hover:text-on-primary transition-colors flex items-center gap-2">
+                Explore Outdoors <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </div>
         </div>
 
-        <!-- Modern Furniture -->
-        <div class="md:col-span-2 bg-primary-container/10 rounded-2xl p-8 flex items-center justify-between overflow-hidden group border border-primary/10 hover:border-primary/30">
-            <div class="flex-1">
-                <span class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-md">
+        <!-- Indoors Inventory Card -->
+        <div onclick="window.location.href='{% url 'indoors' %}'" class="md:col-span-2 bg-primary-container/10 rounded-[2.5rem] p-8 flex items-center justify-between bento-card overflow-hidden group border-2 border-primary/20 hover:border-primary hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 cursor-pointer">
+            <div class="flex-1 pr-4">
+                <span class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
                     <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
                 </span>
-                <h3 class="font-display-lg text-2xl text-on-primary-container">Modular Furniture</h3>
-                <p class="font-body-md text-on-surface-variant mt-2 text-lg">Smart, stackable, and safe units.</p>
-                <a href="{% url 'indoors' %}" class="mt-6 inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all">See Range <span class="material-symbols-outlined">arrow_forward</span></a>
+                <h3 class="font-display-lg text-2xl text-on-primary-container group-hover:text-primary transition-colors">Indoors</h3>
+                <p class="font-body-md text-on-surface-variant mt-2 text-lg">Smart, stackable, and safe units & toys.</p>
+                <div class="mt-6 inline-flex items-center gap-2 text-primary font-bold group-hover:gap-4 transition-all">
+                    Explore Indoors <span class="material-symbols-outlined">arrow_forward</span>
+                </div>
             </div>
-            <div class="w-2/5 p-4 transform group-hover:-translate-x-2 transition-transform">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Storage Unit" class="w-full rounded-2xl shadow-lg border-2 border-white">
+            <div class="w-2/5 p-2 transform group-hover:-translate-x-2 transition-transform">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Indoors Inventory" class="w-full rounded-2xl shadow-xl border-4 border-white">
             </div>
         </div>
 
-        <!-- Safety Fencing -->
-        <div class="bg-tertiary-container/10 rounded-2xl p-8 border border-tertiary/10 flex flex-col justify-center items-center text-center group hover:border-tertiary/30">
-            <span class="bg-tertiary text-on-tertiary w-14 h-14 flex items-center justify-center rounded-full mb-4 shadow-md">
+        <!-- Parts Inventory Card -->
+        <div onclick="window.location.href='{% url 'parts' %}'" class="bg-tertiary-container/10 rounded-[2.5rem] p-8 bento-card border-2 border-tertiary/20 hover:border-tertiary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
+            <span class="bg-tertiary text-on-tertiary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:scale-110 transition-transform shadow-lg">
                 <span class="material-symbols-outlined text-2xl">shield</span>
             </span>
-            <h3 class="font-display-lg text-sm uppercase tracking-widest text-on-tertiary-container font-extrabold">Safety Barriers</h3>
-            <div class="w-24 h-24 overflow-hidden rounded-2xl my-4 border-2 border-white shadow-md">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbs4IhNEaHOfVNhTTXP-kyEWq5O7eJUgFGZsxJbxADsSLup5ics9FZ_6kZgl72PRePdiw38hU8o7ifL1kgsd350nNmsVWYuM946rTi3d9E8r9hE9dQJXhKFKTp_Z3sOCoCuAen9SdgUU2euCFfEHb5_FjFzGKHvXCAfq7MKrmRZvhN7AG3sYjWt3pByedb6ty6qxYZNHIe998duQs9lcwh-uUKLsY_fydfmjSfh6sRnHueNFnmazNllDGshAKdZWIJK4l6bA9M2A" alt="Safety Fence" class="w-full h-full object-cover">
+            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-tertiary-container font-extrabold group-hover:text-tertiary transition-colors">Parts</h3>
+            <div class="w-24 h-24 overflow-hidden rounded-2xl my-4 border-4 border-white shadow-lg group-hover:scale-105 transition-transform">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbs4IhNEaHOfVNhTTXP-kyEWq5O7eJUgFGZsxJbxADsSLup5ics9FZ_6kZgl72PRePdiw38hU8o7ifL1kgsd350nNmsVWYuM946rTi3d9E8r9hE9dQJXhKFKTp_Z3sOCoCuAen9SdgUU2euCFfEHb5_FjFzGKHvXCAfq7MKrmRZvhN7AG3sYjWt3pByedb6ty6qxYZNHIe998duQs9lcwh-uUKLsY_fydfmjSfh6sRnHueNFnmazNllDGshAKdZWIJK4l6bA9M2A" alt="Parts Inventory" class="w-full h-full object-cover">
             </div>
-            <a href="{% url 'parts' %}" class="mt-4 text-tertiary text-sm font-bold">Shop Parts</a>
+            <div class="mt-4 text-tertiary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore Parts <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </div>
         </div>
 
-        <!-- Learning Tools -->
-        <div class="bg-surface rounded-2xl p-8 border border-outline-variant/30 flex flex-col justify-center items-center text-center group hover:shadow-md transition-all">
-            <span class="bg-secondary-container text-on-secondary-container w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:scale-105 transition-transform">
-                <span class="material-symbols-outlined text-2xl">construction</span>
+        <!-- RF Sports Inventory Card -->
+        <div onclick="window.location.href='{% url 'rfsports' %}'" class="bg-surface rounded-[2.5rem] p-8 bento-card border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
+            <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:rotate-12 transition-transform shadow-lg">
+                <span class="material-symbols-outlined text-2xl">sports_soccer</span>
             </span>
-            <h3 class="font-display-lg text-sm uppercase tracking-widest text-on-surface-variant font-extrabold">Skill Labs</h3>
-            <p class="text-xs mt-3 font-bold text-secondary">Interactive Discovery</p>
-            <a href="{% url 'rfsports' %}" class="mt-6 text-secondary text-sm font-bold">RF Sports</a>
+            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-surface font-extrabold group-hover:text-secondary transition-colors">RF Sports</h3>
+            <p class="text-xs mt-3 font-bold text-on-surface-variant">Interactive Sports Gear</p>
+            <div class="mt-6 text-secondary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
+                Explore RF Sports <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </div>
         </div>
     </div>
 </section>
@@ -128,9 +136,9 @@
             <h2 class="font-display-lg text-4xl text-on-surface">Top Selection for Schools</h2>
             <p class="text-on-surface-variant mt-2 text-lg">Tested for Indian conditions and heavy classroom usage.</p>
         </div>
-        <button class="text-secondary font-bold flex items-center hover:translate-x-2 transition-transform group">
-            View All Products <span class="material-symbols-outlined ml-2 group-hover:ml-4 transition-all">arrow_forward</span>
-        </button>
+        <a href="#explore-world" class="text-secondary font-bold flex items-center hover:translate-x-2 transition-transform group">
+            View All Categories <span class="material-symbols-outlined ml-2 group-hover:ml-4 transition-all">arrow_forward</span>
+        </a>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
@@ -184,6 +192,7 @@
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 </section>
 

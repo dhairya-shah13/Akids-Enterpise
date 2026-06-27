@@ -230,9 +230,57 @@
         </div>
     </footer>
 
-    <!-- FAB -->
-    <div class="fixed bottom-8 right-8 z-50">
-        <button class="bg-tertiary text-on-tertiary w-16 h-16 rounded-full shadow-2xl border-4 border-white flex items-center justify-center shadow-sm hover:shadow-md transition-shadow group hover:scale-110">
+    <!-- Mohanlal AI Mascot Chat Widget -->
+    <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
+        <!-- Chat Modal Window -->
+        <div id="mohanlalChatModal" class="hidden w-80 md:w-96 bg-surface text-on-surface rounded-3xl border-4 border-outline shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden transition-all duration-300 mb-4 flex flex-col" style="height: 520px; max-height: 80vh;">
+            <!-- Header -->
+            <div class="bg-tertiary text-on-tertiary p-4 border-b-4 border-outline flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-white border-2 border-outline flex items-center justify-center text-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        🤖
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-base leading-tight tracking-wide">Mohanlal</h4>
+                        <p class="text-[11px] text-on-tertiary/80 font-bold flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> AI Mascot & Guide
+                        </p>
+                    </div>
+                </div>
+                <button onclick="toggleMohanlalChat()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center font-bold text-sm transition-colors border border-white/30">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Messages Box -->
+            <div id="mohanlalChatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-surface-variant/20 text-sm font-body">
+                <!-- Welcome Message -->
+                <div class="flex items-start gap-2">
+                    <div class="w-7 h-7 rounded-full bg-tertiary text-white flex items-center justify-center text-xs font-bold shrink-0 border border-outline">M</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border-2 border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] max-w-[85%] text-on-surface">
+                        <p class="font-bold text-xs text-tertiary mb-1">Mohanlal</p>
+                        <p>Namaste! 🙏 I'm <b>Mohanlal</b>, your AI assistant & mascot! Looking for playground equipment, toys, or advice? Ask me anything!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Urgent Call Banner -->
+            <div class="bg-yellow-100 border-t-2 border-b-2 border-outline px-3 py-1.5 text-[11px] text-amber-900 font-medium flex items-center justify-between">
+                <span>⚠️ Larger query or urgent matter?</span>
+                <a href="tel:9924343003" class="font-bold underline text-primary flex items-center gap-0.5">📞 9924343003</a>
+            </div>
+
+            <!-- Input Bar -->
+            <form id="mohanlalChatForm" onsubmit="sendMohanlalMessage(event)" class="p-3 bg-white border-t-2 border-outline flex gap-2 items-center">
+                <input type="text" id="mohanlalChatInput" placeholder="Ask Mohanlal..." class="flex-1 px-3 py-2 bg-surface-variant/30 rounded-xl border-2 border-outline text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/60">
+                <button type="submit" id="mohanlalSendBtn" class="bg-primary text-on-primary px-4 py-2 rounded-xl border-2 border-outline font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px] transition-all flex items-center justify-center">
+                    <span class="material-symbols-outlined text-sm">send</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- FAB Button -->
+        <button onclick="toggleMohanlalChat()" class="bg-tertiary text-on-tertiary w-16 h-16 rounded-full shadow-2xl border-4 border-white flex items-center justify-center btn-chunky group hover:scale-110 transition-transform">
             <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">chat_bubble</span>
             <div class="absolute -top-2 -right-2 bg-primary text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md">Support</div>
         </button>
@@ -260,6 +308,116 @@
             } else {
                 input.type = 'password';
                 icon.textContent = 'visibility';
+            }
+        }
+
+        let mohanlalHistory = [];
+
+        function toggleMohanlalChat() {
+            const modal = document.getElementById('mohanlalChatModal');
+            if (!modal) return;
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    const inp = document.getElementById('mohanlalChatInput');
+                    if (inp) inp.focus();
+                }, 100);
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        async function sendMohanlalMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('mohanlalChatInput');
+            const msgBox = document.getElementById('mohanlalChatMessages');
+            const sendBtn = document.getElementById('mohanlalSendBtn');
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.value = '';
+            input.disabled = true;
+            sendBtn.disabled = true;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'flex items-start justify-end gap-2';
+            userDiv.innerHTML = `
+                <div class="bg-primary text-on-primary p-3 rounded-2xl rounded-tr-none border-2 border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] max-w-[85%] text-sm">
+                    ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                </div>
+            `;
+            msgBox.appendChild(userDiv);
+            msgBox.scrollTop = msgBox.scrollHeight;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = 'mohanlalLoading';
+            loadingDiv.className = 'flex items-start gap-2';
+            loadingDiv.innerHTML = `
+                <div class="w-7 h-7 rounded-full bg-tertiary text-white flex items-center justify-center text-xs font-bold shrink-0 border border-outline">M</div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-none border-2 border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-on-surface flex items-center gap-1.5">
+                    <span class="w-2 h-2 bg-tertiary rounded-full animate-bounce"></span>
+                    <span class="w-2 h-2 bg-tertiary rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                    <span class="w-2 h-2 bg-tertiary rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                </div>
+            `;
+            msgBox.appendChild(loadingDiv);
+            msgBox.scrollTop = msgBox.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: text,
+                        history: mohanlalHistory
+                    })
+                });
+                const data = await res.json();
+                
+                const lDiv = document.getElementById('mohanlalLoading');
+                if (lDiv) lDiv.remove();
+
+                const reply = data.reply || "I am having a little connectivity trouble right now. For urgent queries or larger requirements, please call us at 9924343003!";
+                
+                mohanlalHistory.push({ role: "user", content: text });
+                mohanlalHistory.push({ role: "assistant", content: reply });
+
+                let formattedReply = reply.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+                formattedReply = formattedReply.replace(/(9924343003)/g, '<a href="tel:9924343003" class="font-extrabold text-primary underline">$1</a>');
+                formattedReply = formattedReply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'flex items-start gap-2';
+                botDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-full bg-tertiary text-white flex items-center justify-center text-xs font-bold shrink-0 border border-outline">M</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border-2 border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] max-w-[85%] text-on-surface text-sm leading-relaxed">
+                        <p class="font-bold text-xs text-tertiary mb-1">Mohanlal</p>
+                        <div>${formattedReply}</div>
+                    </div>
+                `;
+                msgBox.appendChild(botDiv);
+                msgBox.scrollTop = msgBox.scrollHeight;
+            } catch (err) {
+                const lDiv = document.getElementById('mohanlalLoading');
+                if (lDiv) lDiv.remove();
+
+                const errDiv = document.createElement('div');
+                errDiv.className = 'flex items-start gap-2';
+                errDiv.innerHTML = `
+                    <div class="w-7 h-7 rounded-full bg-tertiary text-white flex items-center justify-center text-xs font-bold shrink-0 border border-outline">M</div>
+                    <div class="bg-white p-3 rounded-2xl rounded-tl-none border-2 border-outline shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] max-w-[85%] text-on-surface text-sm">
+                        <p class="font-bold text-xs text-tertiary mb-1">Mohanlal</p>
+                        <p>Oops! Network issue. For larger queries or immediate help, please call us directly at <a href="tel:9924343003" class="font-bold text-primary underline">9924343003</a>.</p>
+                    </div>
+                `;
+                msgBox.appendChild(errDiv);
+                msgBox.scrollTop = msgBox.scrollHeight;
+            } finally {
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
             }
         }
     </script>
