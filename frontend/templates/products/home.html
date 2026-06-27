@@ -1,320 +1,208 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-  /* Home specific styles */
-  .hero-section {
-      position: relative;
-      min-height: 80vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: var(--spacing-2xl) var(--spacing-md);
-      background-color: #fffdf0;
-      overflow: hidden;
-  }
-  @media (min-width: 768px) {
-      .hero-section {
-          flex-direction: row;
-          padding: var(--spacing-2xl) var(--spacing-xl);
-      }
-  }
-
-  .hero-content {
-      flex: 1;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-  }
-
-  .tag-pill {
-      display: inline-block;
-      padding: var(--spacing-xs) var(--spacing-md);
-      background-color: var(--secondary);
-      color: var(--neutral-dark);
-      border: var(--border-width) solid var(--neutral-dark);
-      border-radius: var(--border-radius-full);
-      font-weight: bold;
-      width: fit-content;
-  }
-
-  .hero-image-container {
-      flex: 1;
-      width: 100%;
-      height: 400px;
-      position: relative;
-      margin-top: var(--spacing-xl);
-  }
-  @media (min-width: 768px) {
-      .hero-image-container {
-          height: 600px;
-          margin-top: 0;
-      }
-  }
-
-  /* Category Strip */
-  .category-strip {
-      padding: var(--spacing-2xl) 0;
-      overflow: hidden;
-  }
-  
-  .category-cards {
-      display: grid;
-      grid-template-columns: repeat(1, 1fr);
-      gap: var(--spacing-lg);
-      padding: 0 var(--spacing-md) var(--spacing-lg);
-  }
-  @media (min-width: 640px) {
-      .category-cards {
-          grid-template-columns: repeat(2, 1fr);
-      }
-  }
-  @media (min-width: 1024px) {
-      .category-cards {
-          grid-template-columns: repeat(4, 1fr);
-          padding: 0 var(--spacing-xl) var(--spacing-lg);
-      }
-  }
-
-  .category-card {
-      width: 100%;
-      aspect-ratio: 4/5;
-      padding: var(--spacing-lg);
-      border-radius: var(--border-radius-md);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      cursor: pointer;
-      text-decoration: none;
-  }
-  
-  /* Trending Picks */
-  .trending-section {
-      padding: var(--spacing-2xl) 0;
-      background-color: #eef5f7;
-  }
-  
-  .product-card {
-      background-color: var(--white);
-      border-radius: var(--border-radius-md);
-      padding: var(--spacing-md);
-  }
-  .product-card-image {
-      position: relative;
-      border-radius: var(--border-radius-sm);
-      overflow: hidden;
-      margin-bottom: var(--spacing-md);
-  }
-  .product-card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-  }
-  .product-card:hover .product-card-image img {
-      transform: scale(1.05);
-  }
-  
-  /* Newsletter */
-  .newsletter-section {
-      padding: var(--spacing-2xl) var(--spacing-md);
-      text-align: center;
-      background-color: var(--primary);
-      border-top: var(--border-width) solid var(--neutral-dark);
-      border-bottom: var(--border-width) solid var(--neutral-dark);
-  }
-</style>
-
 <!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-content">
-        <div class="tag-pill -rotate-2">
-            PLAYFUL LEARNING
-        </div>
-        <h1 class="text-4xl md-text-5xl">
-            Where <span class="text-primary scribble-underline">Play</span> Meets<br>
-            <span class="text-secondary">Learning</span> & Adventure
-        </h1>
-        <p class="text-lg opacity-80" style="max-width: 600px;">
-            High-quality playground equipment and educational furniture designed to spark creativity in every little explorer.
-        </p>
-        <div class="flex gap-md" style="flex-wrap: wrap; margin-top: var(--spacing-md);">
-            <button class="bounce-btn neo-border neo-shadow bg-primary text-dark">
-                Shop the Collection
-                <span class="material-symbols-outlined">shopping_bag</span>
-            </button>
-            <button class="bounce-btn neo-border neo-shadow bg-white text-dark">
-                View Catalog
-            </button>
-        </div>
-    </div>
-    <div class="hero-image-container">
-        <!-- Decorative Doodles -->
-        <div style="position: absolute; top: -40px; right: -40px; color: var(--primary); opacity: 0.5;">
-            <span class="material-symbols-outlined" style="font-size: 120px;">star</span>
-        </div>
-        <div style="position: absolute; bottom: -40px; left: 0; color: var(--accent); opacity: 0.5;">
-            <span class="material-symbols-outlined" style="font-size: 80px;">cloud</span>
-        </div>
-    </div>
-</section>
-
-<!-- Category Strip -->
-<section class="category-strip">
-    <div class="container mb-section">
-        <h2 class="text-3xl">Browse by Playzone</h2>
-        <p class="opacity-80">Find the perfect match for your space</p>
-    </div>
-    <div class="category-cards">
-        <!-- Indoor Card -->
-        <a href="{% url 'indoors' %}" class="category-card neo-border neo-shadow-hover wiggle bg-primary text-dark">
-            <div class="flex justify-between items-start">
-                <span class="material-symbols-outlined" style="font-size: 40px;">home</span>
-                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
-                    <span class="material-symbols-outlined">arrow_outward</span>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-2xl mb-2 font-black">INDOORS</h3>
-                <p class="text-sm">Furniture, Soft Play, and Creative Corners.</p>
-            </div>
-        </a>
-        <!-- Outdoor Card -->
-        <a href="{% url 'outdoors' %}" class="category-card neo-border neo-shadow-hover wiggle rotate-1 bg-secondary text-dark">
-            <div class="flex justify-between items-start">
-                <span class="material-symbols-outlined" style="font-size: 40px;">park</span>
-                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
-                    <span class="material-symbols-outlined">arrow_outward</span>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-2xl mb-2 font-black">OUTDOORS</h3>
-                <p class="text-sm">Slides, Swings, and Jungle Gyms.</p>
-            </div>
-        </a>
-        <!-- Parts Card -->
-        <a href="{% url 'parts' %}" class="category-card neo-border neo-shadow-hover wiggle bg-accent text-white">
-            <div class="flex justify-between items-start">
-                <span class="material-symbols-outlined" style="font-size: 40px;">settings</span>
-                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
-                    <span class="material-symbols-outlined">arrow_outward</span>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-2xl mb-2 font-black">PARTS</h3>
-                <p class="text-sm opacity-90">Replacement fittings and safety mats.</p>
-            </div>
-        </a>
-        <!-- RF Sports Card -->
-        <a href="{% url 'rfsports' %}" class="category-card neo-border neo-shadow-hover wiggle -rotate-1 bg-danger text-white">
-            <div class="flex justify-between items-start">
-                <span class="material-symbols-outlined" style="font-size: 40px;">sports_basketball</span>
-                <div class="bg-white text-dark neo-border" style="padding: 8px; border-radius: var(--border-radius-full);">
-                    <span class="material-symbols-outlined">arrow_outward</span>
-                </div>
-            </div>
-            <div>
-                <h3 class="text-2xl mb-2 font-black">RF SPORTS</h3>
-                <p class="text-sm opacity-90">Competitive gear and court equipment.</p>
-            </div>
-        </a>
-    </div>
-</section>
-
-<!-- Trending Picks -->
-<section class="trending-section">
-    <div class="container mb-section flex items-center gap-md">
-        <span class="material-symbols-outlined text-primary" style="font-size: 40px;">rocket_launch</span>
-        <h2 class="text-3xl">Trending Picks</h2>
+<section class="relative min-h-[600px] lg:min-h-[750px] flex items-center overflow-hidden bg-white">
+    <!-- Sparkle Layer -->
+    <div class="absolute inset-0 pointer-events-none z-20">
+        <div class="sparkle-particle sparkle-1 bg-primary/40"></div>
+        <div class="sparkle-particle sparkle-2 bg-secondary/40"></div>
+        <div class="sparkle-particle sparkle-3 bg-tertiary/40"></div>
+        <div class="sparkle-particle sparkle-4 bg-primary/40"></div>
+        <div class="sparkle-particle sparkle-5 bg-secondary/40"></div>
     </div>
     
-    <div class="container grid grid-cols-1 md-grid-cols-4 gap-lg">
-        <!-- Large Featured Item -->
-        <div class="product-card neo-border md-col-span-2 flex flex-col" style="grid-row: span 2 / span 2; padding: var(--spacing-lg);">
-            <div class="product-card-image" style="height: 320px;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmgwd8ItPytiOEgH8ZAfyKDsF03bddjDKSC3aIZIkkpITzNIVFZGxntDEvlEO2Adms7fRf2CmCNpPFnEeYsPvFUooL7I7VTz9z4TgPAbqp2-QUbi3Gk7mDJYvRG9yWL9sn99sExOjDuKHjNK0puqBgzAlZtafIczs3DCT1q_fllFPquqN5tzmVInG6MiIwgArADY6nBfED8t3valsE5YyiLpA1Gszd9SspSenPGlIEXUbGMM_wx59Nt15ZGZOeGHkVird08JkQXQ" alt="Slide">
-                <div class="rotate-3 neo-border neo-shadow bg-primary font-black" style="position: absolute; top: 16px; right: 16px; padding: 8px 16px;">
-                    ₹49,990
-                </div>
+    <div class="absolute inset-0 z-0">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA" alt="Indian Playground Equipment" class="w-full h-full object-contain opacity-25 lg:opacity-40 scale-110">
+        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
+    </div>
+
+    <div class="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full py-20">
+        <div class="max-w-2xl space-y-6">
+            <div class="inline-flex items-center gap-2 bg-primary-container/40 text-on-primary-container px-5 py-1.5 rounded-full font-label-md border border-primary/20">
+                <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                <span>Safety Certified Play Solutions</span>
             </div>
-            <div class="flex-col" style="flex: 1; display: flex; justify-content: flex-end;">
-                <div class="flex justify-between items-center mb-sm">
-                    <h3 class="text-2xl">The Everest Slide</h3>
-                    <div class="flex text-primary">
-                        <span class="material-symbols-outlined">star</span>
-                        <span class="material-symbols-outlined">star</span>
-                        <span class="material-symbols-outlined">star</span>
-                        <span class="material-symbols-outlined">star</span>
-                        <span class="material-symbols-outlined">star</span>
-                    </div>
-                </div>
-                <p class="opacity-80 mb-lg">Our most popular indoor-outdoor hybrid slide. Safety-first construction with extra-wide steps.</p>
-                <button class="bounce-btn neo-border neo-shadow-hover bg-secondary" style="width: 100%;">Add to Cart</button>
+            
+            <h1 class="font-display-lg text-5xl lg:text-7xl text-on-surface leading-[1.1]">
+                Crafting <span class="rainbow-text">Magical Spaces</span> for Tiny Explorers
+            </h1>
+            
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                India's leading manufacturer of premium kindergarten furniture and playground equipment. We blend safety with vibrant innovation.
+            </p>
+            
+            <div class="flex flex-wrap gap-4 pt-6">
+                <button class="bg-primary text-on-primary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:scale-105 shadow-xl shadow-primary/20">
+                    Explore Catalog
+                </button>
+                <button class="bg-surface border-2 border-secondary text-secondary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:bg-secondary/5">
+                    Consult an Expert
+                </button>
             </div>
         </div>
-        
-        <!-- Smaller Items -->
-        <div class="product-card neo-border">
-            <div class="product-card-image" style="aspect-ratio: 1;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM99WwRSUwbmb4KiD9E130azGtHa8KS4G0dqIf4GEvTMzRM5uRA8VusID3WlbTt3ZKTBxjad7QKAv6nJ-ocYd7fPinG-Yvru08UanII7jSAWk1hSgWMrtu7_OXPLhOp2pwAYhmXzowDjERXuBnUbDaRt06x70tkYq4R19NyyipTQpUnN4PjwcrlWhtnDFn24wSHocSHpmA1UJolAozmmHZVZ-cEMgvSfW5mk-mhNVgD269UEu4miCtzBvcuS-7EhRMwsY0-eOIRQ" alt="Blocks">
-                <div class="-rotate-2 neo-border bg-accent text-white font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
-                    ₹12,000
-                </div>
+    </div>
+
+    <!-- Product Highlight Overlay -->
+    <div class="absolute right-margin-desktop top-1/2 -translate-y-1/2 hidden xl:block z-20">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-2xl border border-primary/10 -rotate-3 max-w-md transition-transform hover:rotate-0 duration-500">
+            <div class="relative overflow-hidden rounded-2xl">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ" alt="Workbench LF 1428" class="w-full h-auto">
+                <div class="absolute top-4 right-4 bg-tertiary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">New Arrival</div>
             </div>
-            <h4 class="font-bold">Creative Cubes</h4>
-            <p class="text-sm opacity-60">Soft Play Set</p>
-        </div>
-        
-        <div class="product-card neo-border">
-            <div class="product-card-image" style="aspect-ratio: 1;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdoEBjyYQfL9zkAM2aolISGHEORVLwUZkPdsKWDz8jQb2B0W10dUMT-E8nWUkhxzZyUVlMvQpd7v5_CTaVPrO94mCc-E1mbTD2xovvUJBoudNgW-AC_JlL4pqOz5_0IMO8_QzdvpyIU7_1hHHFrhjlUAd3TC--2I4tVSVmfNL3U1DffIOU3SUbai-7gKi9sOQOpF0FUbLgAVBrL2wTmDtDUHjq3SYPKT1yjCYs55b3CuRmW7trwCMT0yHL1SQ-Caf153C9DbUobg" alt="Hoop">
-                <div class="rotate-2 neo-border bg-secondary font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
-                    ₹24,500
-                </div>
+            <div class="mt-6 text-center">
+                <p class="font-display-lg text-2xl text-secondary">Creative Play Workbench</p>
+                <p class="text-on-surface-variant mt-1">Nurturing Skills through Discovery</p>
             </div>
-            <h4 class="font-bold">RF Junior Hoop</h4>
-            <p class="text-sm opacity-60">Sports Equipment</p>
-        </div>
-        
-        <div class="product-card neo-border">
-            <div class="product-card-image" style="aspect-ratio: 1;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWUDaatlwkp6odMOvw6EZvE6_cV3uUsFbahCmscUY8ITnlWm0xbNWOaXJ20t-cAujwGmXVTL8fYIwgSkVFlSIXzMLI8vEKVyzcX-ZMX764F_HfRd_VY3Jf2QZbBuBWFU606VBFR6EaTmuH0R1uP25Yk-3LqTQWq7fmcOEXQjYdeitaksREZUCOYsYKJpwVuVdBvRIRl0vbun6WRtzY_UdDsZQJf70HgJm50bQjHzw321g3JRUjXLleGAKw7jXgqZFBiCJSwQKopw" alt="Desk">
-                <div class="-rotate-1 neo-border bg-primary font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
-                    ₹31,000
-                </div>
-            </div>
-            <h4 class="font-bold">Study Buddy Desk</h4>
-            <p class="text-sm opacity-60">Indoors</p>
-        </div>
-        
-        <div class="product-card neo-border">
-            <div class="product-card-image" style="aspect-ratio: 1;">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClp2K96jzm9yhOjBpTfzQf17PVSUtGvjgJInM8G3l7hee7n4pCnj5AQn0UTgIZRB_pDMGsUNyMuxvSL_u5jfuXMfIcEzyjwk2-f0Yd9mErLiOHqvUMFrDHTaSW_uReTC9NtQeOUGbH_bqLNBvJVv02b58MIHPbYJvAf0oEz58CN3-VbB5mKT-psayTD3vuFalgf-9Y02noAEEhyjZsHfFwhEI1wouiuUs3vnJrGEw58iBTRnFj8RWM3LcAIrsorFJNlhiYyL_4PA" alt="Swing">
-                <div class="rotate-3 neo-border bg-danger text-white font-bold text-sm" style="position: absolute; bottom: 8px; left: 8px; padding: 4px 12px;">
-                    ₹8,500
-                </div>
-            </div>
-            <h4 class="font-bold">Pro-Grip Swing</h4>
-            <p class="text-sm opacity-60">Parts & Extras</p>
         </div>
     </div>
 </section>
 
-<!-- Newsletter / Community -->
-<section class="newsletter-section">
-    <div class="container" style="max-width: 700px; display: flex; flex-direction: column; gap: var(--spacing-md);">
-        <span class="material-symbols-outlined text-4xl text-dark">mail</span>
-        <h2 class="text-4xl">Join the Little Fingers Fam!</h2>
-        <p class="text-lg opacity-80 mb-lg">Sign up for play tips, new product drops, and exclusive discounts delivered to your inbox.</p>
-        <form class="flex flex-col gap-sm" style="margin-bottom: var(--spacing-sm);">
-            <div class="flex gap-sm flex-wrap justify-center" style="width: 100%;">
-                <input type="email" placeholder="Enter your email" class="neo-border" style="flex: 1; min-width: 240px; padding: 16px 24px; border-radius: var(--border-radius-full); outline: none;">
-                <button class="bounce-btn neo-border neo-shadow-hover bg-dark text-white font-black px-6 py-4">Subscribe</button>
+<!-- Category Bento Grid -->
+<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+        <span class="text-primary font-bold uppercase tracking-widest text-sm mb-2 block">Our Expertise</span>
+        <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Explore the Little Fingers World</h2>
+        <div class="h-1.5 w-24 india-gradient mx-auto mt-6 rounded-full"></div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter h-auto md:h-[650px]">
+        <!-- Playground Solutions -->
+        <div class="md:col-span-2 md:row-span-2 bg-secondary-container/10 rounded-[2.5rem] p-8 flex flex-col justify-between bento-card relative overflow-hidden group border border-secondary/10 hover:border-secondary/30">
+            <div class="relative z-10">
+                <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">landscape</span>
+                </span>
+                <h3 class="font-display-lg text-3xl text-on-secondary-container">Outdoor Play Systems</h3>
+                <p class="font-body-md text-on-surface-variant mt-3 max-w-xs text-lg">Multi-play stations designed for safety and adventure in Indian conditions.</p>
             </div>
+            <div class="relative h-72 mt-6 overflow-hidden rounded-[2rem] border-8 border-white shadow-2xl">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ljQJ6UOMpuleaUUkoCu0rfy_pog3CPDrPXtddUoFtHOHs0NpLymycbngGBEHXwKHa8gyVA4-hPsiWAq7jLLIQVFYkja9M9HH2r9USLVs9t5uBjxoI32ph9Tb0x4it-mUJPXGYliM4u6faKO1DAYNJgwmXf4FIvAnJVKp3smruBqKpKFlwvhL2Duz15NTCqhJHDNgGXrzVPK7Tps9GP9H8FU3iFUGhSNogtlJo0I2HZS743Vj7ncrlK5X_I85tlqswYlS-z7KJA" alt="Playground Scrambler" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+            </div>
+            <a href="{% url 'outdoors' %}" class="relative z-10 self-start mt-8 bg-white px-8 py-3 rounded-full font-label-md text-secondary sticker-shadow btn-chunky hover:scale-105">Full Collection</a>
+        </div>
+
+        <!-- Modern Furniture -->
+        <div class="md:col-span-2 bg-primary-container/10 rounded-[2.5rem] p-8 flex items-center justify-between bento-card overflow-hidden group border border-primary/10 hover:border-primary/30">
+            <div class="flex-1">
+                <span class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+                </span>
+                <h3 class="font-display-lg text-2xl text-on-primary-container">Modular Furniture</h3>
+                <p class="font-body-md text-on-surface-variant mt-2 text-lg">Smart, stackable, and safe units.</p>
+                <a href="{% url 'indoors' %}" class="mt-6 inline-flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all">See Range <span class="material-symbols-outlined">arrow_forward</span></a>
+            </div>
+            <div class="w-2/5 p-4 transform group-hover:-translate-x-2 transition-transform">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Storage Unit" class="w-full rounded-2xl shadow-xl border-4 border-white">
+            </div>
+        </div>
+
+        <!-- Safety Fencing -->
+        <div class="bg-tertiary-container/10 rounded-[2.5rem] p-8 bento-card border border-tertiary/10 flex flex-col justify-center items-center text-center group hover:border-tertiary/30">
+            <span class="bg-tertiary text-on-tertiary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:scale-110 transition-transform shadow-lg">
+                <span class="material-symbols-outlined text-2xl">shield</span>
+            </span>
+            <h3 class="font-display-lg text-sm uppercase tracking-widest text-on-tertiary-container font-extrabold">Safety Barriers</h3>
+            <div class="w-24 h-24 overflow-hidden rounded-2xl my-4 border-4 border-white shadow-lg">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbs4IhNEaHOfVNhTTXP-kyEWq5O7eJUgFGZsxJbxADsSLup5ics9FZ_6kZgl72PRePdiw38hU8o7ifL1kgsd350nNmsVWYuM946rTi3d9E8r9hE9dQJXhKFKTp_Z3sOCoCuAen9SdgUU2euCFfEHb5_FjFzGKHvXCAfq7MKrmRZvhN7AG3sYjWt3pByedb6ty6qxYZNHIe998duQs9lcwh-uUKLsY_fydfmjSfh6sRnHueNFnmazNllDGshAKdZWIJK4l6bA9M2A" alt="Safety Fence" class="w-full h-full object-cover">
+            </div>
+            <a href="{% url 'parts' %}" class="mt-4 text-tertiary text-sm font-bold">Shop Parts</a>
+        </div>
+
+        <!-- Learning Tools -->
+        <div class="bg-surface rounded-[2.5rem] p-8 bento-card border border-outline-variant/30 flex flex-col justify-center items-center text-center group hover:shadow-xl transition-all">
+            <span class="bg-secondary-container text-on-secondary-container w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:rotate-12 transition-transform">
+                <span class="material-symbols-outlined text-2xl">construction</span>
+            </span>
+            <h3 class="font-display-lg text-sm uppercase tracking-widest text-on-surface-variant font-extrabold">Skill Labs</h3>
+            <p class="text-xs mt-3 font-bold text-secondary">Interactive Discovery</p>
+            <a href="{% url 'rfsports' %}" class="mt-6 text-secondary text-sm font-bold">RF Sports</a>
+        </div>
+    </div>
+</section>
+
+<!-- Product Highlight Cards -->
+<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+        <div>
+            <h2 class="font-display-lg text-4xl text-on-surface">Top Selection for Schools</h2>
+            <p class="text-on-surface-variant mt-2 text-lg">Tested for Indian conditions and heavy classroom usage.</p>
+        </div>
+        <button class="text-secondary font-bold flex items-center hover:translate-x-2 transition-transform group">
+            View All Products <span class="material-symbols-outlined ml-2 group-hover:ml-4 transition-all">arrow_forward</span>
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
+        <!-- Product Card 1 -->
+        <div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20">
+            <div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ" alt="Workbench" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="space-y-3">
+                <span class="px-3 py-1 bg-tertiary/10 text-tertiary text-[10px] rounded-full font-bold uppercase tracking-wider">Skill Development</span>
+                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Creative Workbench LF 1428</h4>
+                <div class="flex justify-between items-center pt-2">
+                    <p class="text-primary font-bold text-lg">₹14,990.00</p>
+                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
+                        <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Card 2 -->
+        <div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-secondary/20">
+            <div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA" alt="Playground Station" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="space-y-3">
+                <span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] rounded-full font-bold uppercase tracking-wider">Active Play</span>
+                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-secondary transition-colors">Multi-Play Station MPS-02</h4>
+                <div class="flex justify-between items-center pt-2">
+                    <p class="text-primary font-bold text-lg">₹2,79,990.00</p>
+                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-secondary hover:text-white hover:border-secondary transition-all">
+                        <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Card 3 -->
+        <div class="bg-white rounded-[2.5rem] p-8 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20">
+            <div class="aspect-square bg-background rounded-3xl mb-6 overflow-hidden relative border border-outline-variant/10">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Storage Unit" class="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500">
+            </div>
+            <div class="space-y-3">
+                <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">Classroom Solutions</span>
+                <h4 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors">Mobile Supply Cart LF 1454</h4>
+                <div class="flex justify-between items-center pt-2">
+                    <p class="text-primary font-bold text-lg">Inquire for Pricing</p>
+                    <button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
+                        <span class="material-symbols-outlined text-xl">mail</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Consultation Section -->
+<section class="py-20 px-margin-desktop bg-tertiary/5 relative overflow-hidden">
+    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
+        <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface leading-tight">Ready to Design a <span class="text-tertiary">Dream Campus?</span></h2>
+        <p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto">Get a personalized 3D layout and expert consulting for your educational facility at no cost.</p>
+        
+        <form class="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto pt-8">
+            <input type="text" placeholder="Your school or organization name..." class="flex-1 bg-white border-2 border-outline-variant/30 rounded-2xl px-6 py-4 focus:border-secondary focus:ring-0 text-on-surface shadow-sm">
+            <button type="button" class="bg-secondary text-on-secondary px-10 py-4 rounded-2xl font-label-md btn-chunky hover:scale-105 shadow-xl shadow-secondary/30">
+                Get Free Quote
+            </button>
         </form>
-        <p class="text-sm opacity-80">No spam, just pure play. Promise!</p>
     </div>
+    
+    <!-- Decorative particles -->
+    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
+    <div class="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
 </section>
-
 {% endblock %}

@@ -1,216 +1,121 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-  .listing-header {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin-bottom: var(--spacing-xl);
-  }
-
-  .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(1, minmax(0, 1fr));
-      gap: var(--spacing-lg);
-  }
-  @media (min-width: 768px) {
-      .bento-grid {
-          grid-template-columns: repeat(12, minmax(0, 1fr));
-      }
-  }
-
-  .bento-featured {
-      background-color: var(--white);
-      padding: var(--spacing-lg);
-      border-radius: var(--border-radius-lg);
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-  }
-  @media (min-width: 768px) {
-      .bento-featured {
-          grid-column: span 8 / span 8;
-          flex-direction: row;
-      }
-  }
-
-  .bento-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-  }
-  @media (min-width: 768px) {
-      .bento-sidebar { grid-column: span 4 / span 4; }
-  }
-
-  .bento-small-card {
-      background-color: var(--white);
-      padding: var(--spacing-md);
-      border-radius: var(--border-radius-md);
-  }
-  @media (min-width: 768px) {
-      .bento-small-card { grid-column: span 4 / span 4; }
-  }
-
-  .featured-image-container {
-      flex: 1;
-      border-radius: var(--border-radius-md);
-      overflow: hidden;
-      position: relative;
-  }
-  .featured-image-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-  }
-  .bento-featured:hover .featured-image-container img {
-      transform: scale(1.05);
-  }
-
-  .price-sticker {
-      position: absolute;
-      padding: 8px 16px;
-      border-radius: var(--border-radius-full);
-      font-weight: bold;
-      z-index: 10;
-  }
-
-  .accessories-section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xl);
-      align-items: center;
-      margin-top: var(--spacing-2xl);
-  }
-  @media (min-width: 768px) {
-      .accessories-section {
-          flex-direction: row;
-      }
-  }
-
-  .aspect-square { aspect-ratio: 1; }
-  .aspect-video { aspect-ratio: 16/9; }
-</style>
-
-<div class="container py-section relative">
-    <!-- Floating Doodles -->
-    <div style="position: absolute; top: 80px; right: 40px; color: var(--accent); opacity: 0.6;" class="hidden md-block">
-        <span class="material-symbols-outlined" style="font-size: 80px;">cloud</span>
-    </div>
-    <div style="position: absolute; top: 160px; left: 80px; color: var(--secondary); opacity: 0.6;" class="hidden md-block">
-        <span class="material-symbols-outlined" style="font-size: 60px;">cloud</span>
-    </div>
-
+<div class="py-12">
     <!-- Hero Header -->
-    <section class="listing-header">
-        <h1 class="text-4xl md-text-5xl mb-sm" style="position: relative; display: inline-block;">
+    <section class="relative text-center mb-16 px-margin-desktop">
+        <div class="absolute -top-8 right-20 opacity-20 text-primary hidden md:block">
+            <span class="material-symbols-outlined text-[80px]">wb_sunny</span>
+        </div>
+        <div class="absolute top-12 left-32 opacity-20 rotate-12 text-secondary hidden md:block">
+            <span class="material-symbols-outlined text-[60px]">cloud</span>
+        </div>
+        
+        <h1 class="font-display-lg text-4xl md:text-5xl lg:text-6xl text-on-surface mb-4 relative z-10 inline-block">
             Great Outdoor Adventures
-            <span class="material-symbols-outlined text-primary hidden md-block" style="position: absolute; top: -32px; right: -48px; font-size: 60px;">wb_sunny</span>
         </h1>
-        <p class="text-lg opacity-80 mb-lg" style="max-width: 600px;">
+        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto mt-6 mb-8 text-lg">
             Built for heavy play and high spirits. Discover our safety-certified structures designed to transform any backyard into a playground.
         </p>
-        <div class="flex justify-center gap-sm mt-md">
-            <span class="neo-border neo-shadow bg-accent text-white font-bold rotate-1" style="padding: 6px 16px; border-radius: var(--border-radius-full);">UV Protected</span>
-            <span class="neo-border neo-shadow bg-secondary text-dark font-bold rotate-2" style="padding: 6px 16px; border-radius: var(--border-radius-full);">Safety First</span>
+        <div class="flex flex-wrap justify-center gap-4 mt-6">
+            <span class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold shadow-sm border border-primary/20 rotate-1">UV Protected</span>
+            <span class="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-full font-bold shadow-sm border border-secondary/20 -rotate-2">Safety First</span>
         </div>
     </section>
 
-    <!-- Neo-Brutalist Bento Grid (Dynamic) -->
-    <section class="bento-grid my-2xl" style="margin: 48px 0;">
-        <!-- Large Featured Card (Product 1) -->
-        {% if products.0 %}
-        <div class="bento-featured neo-border neo-shadow-hover group bg-light flex flex-col justify-between">
-            <a href="{% url 'product_detail' products.0.pk %}" class="block featured-image-container neo-border mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; position: relative; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px;">
-                <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" style="max-height: 420px; width: auto; max-width: 100%; object-fit: contain;">
-                <div class="price-sticker neo-border neo-shadow bg-primary text-dark rotate-1" style="position: absolute; top: 16px; left: 16px; font-size: 1.25rem; padding: 6px 16px; border-radius: 999px; font-weight: 900; z-index: 5;">
-                    ₹{{ products.0.price }}
-                </div>
-            </a>
-            <div class="flex flex-col justify-center" style="flex: 1;">
-                <span class="text-secondary font-bold text-sm uppercase mb-sm" style="letter-spacing: 0.1em;">{{ products.0.category }}</span>
-                <h3 class="text-3xl font-black mb-md"><a href="{% url 'product_detail' products.0.pk %}" class="hover:underline text-dark">{{ products.0.name }}</a></h3>
-                <p class="opacity-80 mb-lg font-body">{{ products.0.description }}</p>
-                <div class="flex gap-sm mb-lg flex-wrap">
-                    <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: 999px;">UV Protected</span>
-                    <span class="bg-white neo-border font-bold text-sm" style="padding: 4px 12px; border-radius: 999px;">Safety First</span>
-                </div>
-                <a href="{% url 'product_detail' products.0.pk %}" class="bounce-btn neo-border neo-shadow bg-secondary text-dark font-black py-3 rounded-lg uppercase text-center block" style="width: 100%;">View Details</a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Secondary Square Card (Product 2) -->
-        {% if products.1 %}
-        <div class="bento-sidebar bg-primary neo-border neo-shadow-hover wiggle text-dark flex flex-col justify-between" style="padding: 24px; border-radius: 24px;">
-            <div>
-                <a href="{% url 'product_detail' products.1.pk %}" class="neo-border mb-md block" style="border-radius: 16px; overflow: hidden; min-height: 180px; max-height: 320px; width: 100%; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
-                    <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" style="max-height: 300px; width: auto; max-width: 100%; object-fit: contain;">
+    <!-- Bento Grid (Dynamic) -->
+    <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter h-auto mb-12">
+            <!-- Large Featured Card (Product 1) -->
+            {% if products.0 %}
+            <div class="md:col-span-2 bg-white rounded-[2.5rem] p-8 flex flex-col md:flex-row gap-8 bento-card relative overflow-hidden group border border-outline-variant/30 hover:border-primary/30 sticker-shadow">
+                <a href="{% url 'product_detail' products.0.pk %}" class="block relative w-full md:w-1/2 h-[300px] md:h-auto bg-background rounded-[2rem] overflow-hidden border border-outline-variant/10 flex items-center justify-center p-4">
+                    <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" class="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute top-4 left-4 bg-primary text-on-primary px-4 py-2 rounded-full font-black text-lg shadow-lg rotate-1">
+                        ₹{{ products.0.price }}
+                    </div>
                 </a>
-                <div class="flex justify-between items-start mb-sm gap-xs">
-                    <h3 class="text-2xl font-black"><a href="{% url 'product_detail' products.1.pk %}" class="hover:underline text-dark">{{ products.1.name }}</a></h3>
-                    <span class="bg-dark text-white font-bold text-sm" style="padding: 4px 8px; border-radius: 4px;">₹{{ products.1.price }}</span>
+                <div class="flex flex-col justify-center w-full md:w-1/2">
+                    <span class="text-secondary font-bold text-sm uppercase mb-2 tracking-wider">{{ products.0.category }}</span>
+                    <h3 class="font-display-lg text-3xl text-on-surface mb-4"><a href="{% url 'product_detail' products.0.pk %}" class="hover:text-primary transition-colors">{{ products.0.name }}</a></h3>
+                    <p class="font-body-md text-on-surface-variant text-lg mb-6 line-clamp-3">{{ products.0.description }}</p>
+                    <div class="flex gap-2 mb-8 flex-wrap">
+                        <span class="bg-surface border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full text-on-surface-variant">UV Protected</span>
+                        <span class="bg-surface border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full text-on-surface-variant">Safety First</span>
+                    </div>
+                    <a href="{% url 'product_detail' products.0.pk %}" class="bg-secondary text-on-secondary font-label-md px-8 py-3 rounded-full btn-chunky hover:scale-105 inline-block w-full text-center text-sm shadow-lg shadow-secondary/20 uppercase tracking-wide mt-auto">View Details</a>
                 </div>
-                <p class="opacity-80 mb-md font-bold text-sm">{{ products.1.description|truncatechars:80 }}</p>
             </div>
-            <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-dark neo-border w-full py-3 font-black uppercase text-center block" style="border-radius: 12px;">View Details</a>
+            {% endif %}
+
+            <!-- Secondary Square Card (Product 2) -->
+            {% if products.1 %}
+            <div class="md:col-span-1 bg-primary text-on-primary rounded-[2.5rem] p-6 bento-card flex flex-col shadow-xl hover:-translate-y-2 transition-transform">
+                <a href="{% url 'product_detail' products.1.pk %}" class="block h-48 bg-white rounded-2xl overflow-hidden mb-4 p-4 relative flex items-center justify-center group">
+                    <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                </a>
+                <div class="flex justify-between items-start mb-2 gap-2">
+                    <h3 class="font-headline-md text-2xl"><a href="{% url 'product_detail' products.1.pk %}" class="hover:text-primary-container transition-colors">{{ products.1.name }}</a></h3>
+                    <span class="bg-white text-primary font-black px-2 py-1 rounded-md text-sm shrink-0">₹{{ products.1.price }}</span>
+                </div>
+                <p class="font-body-md text-sm mb-6 opacity-90 line-clamp-2">{{ products.1.description }}</p>
+                <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-primary font-label-md px-4 py-3 rounded-full btn-chunky hover:bg-primary-container text-center block w-full mt-auto uppercase text-sm">View Details</a>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
 
         <!-- Standard Grid Items (Products 3+) -->
-        {% for product in products|slice:"2:" %}
-        <div class="bento-small-card neo-border neo-shadow-hover bg-light group flex flex-col justify-between p-card">
-            <div>
-                <a href="{% url 'product_detail' product.pk %}" class="neo-border mb-md block" style="border-radius: 8px; overflow: hidden; position: relative; min-height: 180px; max-height: 320px; background: white; display: flex; align-items: center; justify-content: center; padding: 8px;">
-                    <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 300px; width: auto; max-width: 100%; object-fit: contain;">
-                    <div class="bg-danger text-white neo-border font-black rotate-1" style="position: absolute; bottom: 8px; right: 8px; padding: 4px 12px; border-radius: 6px; z-index: 5;">₹{{ product.price }}</div>
-                </a>
-                <h4 class="text-xl font-black mb-xs"><a href="{% url 'product_detail' product.pk %}" class="hover:underline text-dark">{{ product.name }}</a></h4>
-                <p class="opacity-80 text-sm mb-md">{{ product.description|truncatechars:65 }}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mt-16">
+            {% for product in products|slice:"2:" %}
+            <div class="bg-white rounded-[2.5rem] p-6 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20 flex flex-col justify-between">
+                <div>
+                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-background rounded-2xl mb-4 overflow-hidden relative border border-outline-variant/10 p-4 flex items-center justify-center">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute bottom-2 right-2 bg-error text-white px-3 py-1 rounded-md font-black text-sm rotate-2 shadow-sm">₹{{ product.price }}</div>
+                    </a>
+                    <h4 class="font-headline-md text-on-surface text-lg leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
+                    <p class="font-body-md text-sm text-on-surface-variant mb-6">{{ product.description|truncatechars:65 }}</p>
+                </div>
+                <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-2.5 rounded-full btn-chunky hover:bg-secondary/5 text-center block w-full uppercase text-xs tracking-wider">View Gear</a>
             </div>
-            <a href="{% url 'product_detail' product.pk %}" class="bounce-btn neo-border neo-shadow bg-white text-dark font-black w-full py-2 uppercase text-xs rounded text-center block">View Gear</a>
+            {% endfor %}
         </div>
-        {% endfor %}
     </section>
 
     <!-- Hand-drawn Divider -->
-    <div style="margin: var(--spacing-2xl) 0; border-bottom: var(--border-width) solid var(--neutral-dark); border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; opacity: 0.3;"></div>
+    <div class="max-w-5xl mx-auto border-b-2 border-outline-variant/30 rounded-[255px_15px_225px_15px/15px_225px_15px_255px] my-20"></div>
 
     <!-- Accessories Section -->
-    <section class="accessories-section">
-        <div style="flex: 1;">
-            <h2 class="text-4xl mb-md">Complete the Set</h2>
-            <p class="text-lg opacity-80 mb-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
-            <ul style="list-style: none; display: flex; flex-direction: column; gap: var(--spacing-md);">
-                <li class="flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-secondary">check_circle</span>
-                    <span class="font-bold text-xl">Impact-Resistant Matting</span>
+    <section class="max-w-6xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-12 items-center">
+        <div class="flex-1">
+            <h2 class="font-display-lg text-4xl mb-4 text-on-surface">Complete the Set</h2>
+            <p class="font-body-lg text-on-surface-variant text-lg mb-8 max-w-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
+            <ul class="space-y-4">
+                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
+                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+                    Impact-Resistant Matting
                 </li>
-                <li class="flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-secondary">check_circle</span>
-                    <span class="font-bold text-xl">Weatherproof Covers</span>
+                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
+                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+                    Weatherproof Covers
                 </li>
-                <li class="flex items-center gap-sm">
-                    <span class="material-symbols-outlined text-secondary">check_circle</span>
-                    <span class="font-bold text-xl">Custom Ground Anchors</span>
+                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
+                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+                    Custom Ground Anchors
                 </li>
             </ul>
         </div>
-        <div class="grid grid-cols-2 gap-md" style="flex: 1;">
-            <div class="aspect-square neo-border neo-shadow bg-accent rotate-2 text-white flex flex-col justify-center items-center" style="padding: var(--spacing-md); border-radius: var(--border-radius-md);">
-                <span class="material-symbols-outlined text-5xl mb-sm">shield</span>
-                <div class="font-bold">Safety Gear</div>
+        <div class="flex-1 grid grid-cols-2 gap-6 w-full md:w-auto">
+            <div class="aspect-square bg-tertiary text-on-tertiary rounded-[2rem] p-6 flex flex-col justify-center items-center rotate-2 shadow-lg border border-tertiary/20">
+                <span class="material-symbols-outlined text-[64px] mb-4">shield</span>
+                <div class="font-bold text-lg">Safety Gear</div>
             </div>
-            <div class="aspect-square neo-border neo-shadow bg-primary -rotate-3 text-dark flex flex-col justify-center items-center" style="padding: var(--spacing-md); border-radius: var(--border-radius-md);">
-                <span class="material-symbols-outlined text-5xl mb-sm">construction</span>
-                <div class="font-bold">Tools</div>
+            <div class="aspect-square bg-primary text-on-primary rounded-[2rem] p-6 flex flex-col justify-center items-center -rotate-3 shadow-lg border border-primary/20 mt-8">
+                <span class="material-symbols-outlined text-[64px] mb-4">construction</span>
+                <div class="font-bold text-lg">Tools</div>
             </div>
         </div>
     </section>
 </div>
-
 {% endblock %}

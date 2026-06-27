@@ -3,153 +3,20 @@
 {% block title %}Admin Dashboard | Little Fingers{% endblock %}
 
 {% block content %}
-<style>
-    .dashboard-header {
-        background-color: #1A1A2E;
-        color: var(--white);
-        padding: var(--spacing-xl) 0;
-        border-bottom: var(--border-width) solid var(--primary);
-    }
-
-    .metric-card {
-        background-color: var(--white);
-        padding: var(--spacing-lg);
-        border-radius: var(--border-radius-lg);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .tab-btn {
-        padding: 12px 24px;
-        font-family: var(--font-heading);
-        font-weight: 800;
-        font-size: 1.1rem;
-        border-radius: var(--border-radius-full);
-        border: var(--border-width) solid var(--neutral-dark);
-        background-color: var(--white);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-        background-color: var(--primary);
-        box-shadow: 4px 4px 0px 0px var(--neutral-dark);
-        transform: translate(-2px, -2px);
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: var(--border-radius-md);
-        overflow: hidden;
-        border: var(--border-width) solid var(--neutral-dark);
-        background-color: var(--white);
-    }
-
-    .data-table th {
-        background-color: var(--neutral-dark);
-        color: var(--white);
-        padding: 16px;
-        text-align: left;
-        font-family: var(--font-heading);
-        font-weight: 800;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-    }
-
-    .data-table td {
-        padding: 16px;
-        border-bottom: 2px solid #EAEAEA;
-        vertical-align: middle;
-        font-family: var(--font-body);
-    }
-
-    .data-table tr:last-child td {
-        border-bottom: none;
-    }
-
-    .data-table tr:hover {
-        background-color: #FFFDF0;
-    }
-
-    /* Modal Form */
-    .modal-backdrop {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(26, 26, 46, 0.8);
-        z-index: 100;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-md);
-    }
-
-    .modal-backdrop.open {
-        display: flex;
-    }
-
-    .modal-content {
-        width: 100%;
-        max-width: 560px;
-        background-color: var(--white);
-        padding: var(--spacing-xl);
-        border-radius: var(--border-radius-lg);
-        position: relative;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    /* Bar Chart CSS */
-    .chart-container {
-        height: 300px;
-        display: flex;
-        align-items: flex-end;
-        gap: var(--spacing-md);
-        padding: var(--spacing-lg) var(--spacing-md) 0;
-        border-bottom: var(--border-width) solid var(--neutral-dark);
-        border-left: var(--border-width) solid var(--neutral-dark);
-        background-color: #FFFDF0;
-        position: relative;
-    }
-
-    .chart-bar-wrapper {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .chart-bar {
-        width: 100%;
-        max-width: 64px;
-        background-color: var(--secondary);
-        border: var(--border-width) solid var(--neutral-dark);
-        border-radius: 8px 8px 0 0;
-        transition: height 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .chart-bar:hover {
-        background-color: var(--primary);
-    }
-</style>
-
 <!-- Dashboard Banner -->
-<section class="dashboard-header">
-    <div class="container flex justify-between items-center flex-wrap gap-md">
-        <div class="flex items-center gap-md">
-            <span class="material-symbols-outlined text-primary" style="font-size: 48px;">admin_panel_settings</span>
+<section class="bg-surface border-b border-outline-variant/30 py-8 px-margin-desktop shadow-sm">
+    <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-6">
+        <div class="flex items-center gap-6">
+            <div class="bg-primary text-on-primary w-16 h-16 rounded-2xl flex items-center justify-center shadow-md rotate-2 border border-primary/20">
+                <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
+            </div>
             <div>
-                <h1 class="text-3xl font-black">Admin HQ</h1>
-                <p class="text-sm opacity-80">Logged in as <span class="text-secondary font-bold">{{ admin_email }}</span></p>
+                <h1 class="font-display-lg text-3xl md:text-4xl text-on-surface">Admin HQ</h1>
+                <p class="font-body-md text-on-surface-variant">Logged in as <span class="text-secondary font-bold">{{ admin_email }}</span></p>
             </div>
         </div>
-        <div class="flex gap-sm">
-            <button onclick="openModal()" class="bounce-btn neo-border neo-shadow bg-secondary text-dark">
+        <div class="flex gap-4">
+            <button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md px-6 py-3 rounded-full btn-chunky hover:scale-105 shadow-md shadow-secondary/20 flex items-center gap-2">
                 <span class="material-symbols-outlined">add_circle</span> Add New Product
             </button>
         </div>
@@ -157,67 +24,67 @@
 </section>
 
 <!-- Main Dashboard Navigation & Content -->
-<section class="py-section bg-light">
-    <div class="container">
+<section class="py-12 bg-background min-h-screen px-margin-desktop">
+    <div class="max-w-7xl mx-auto">
         <!-- Tabs -->
-        <div class="flex gap-md mb-lg">
-            <button onclick="switchTab('products')" id="tab-products" class="tab-btn active">
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button onclick="switchTab('products')" id="tab-products" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide">
                 📦 Product Catalog ({{ products|length }})
             </button>
-            <button onclick="switchTab('sales')" id="tab-sales" class="tab-btn">
+            <button onclick="switchTab('sales')" id="tab-sales" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
                 📈 Sales Reports & Analytics
             </button>
         </div>
 
         <!-- SECTION 1: PRODUCT LIST -->
         <div id="section-products">
-            <div class="bg-white neo-border neo-shadow p-card mb-lg">
-                <div class="flex justify-between items-center mb-md flex-wrap gap-sm">
-                    <h2 class="text-2xl">Current Catalog</h2>
-                    <span class="text-sm opacity-60">Showing live Supabase / Local catalog gear</span>
+            <div class="bg-white border border-outline-variant/30 rounded-[2.5rem] p-8 shadow-sm sticker-shadow relative overflow-hidden">
+                <div class="flex justify-between items-center mb-8 flex-wrap gap-4 relative z-10">
+                    <h2 class="font-display-lg text-3xl text-on-surface">Current Catalog</h2>
+                    <span class="bg-secondary/10 text-secondary font-bold text-sm px-4 py-2 rounded-full border border-secondary/20 shadow-sm">Showing live Supabase / Local catalog gear</span>
                 </div>
 
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
+                <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr>
-                                <th>Preview</th>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Description</th>
-                                <th style="text-align: center;">Actions</th>
+                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
+                                <th class="p-4 rounded-tl-2xl">Preview</th>
+                                <th class="p-4">Product Name</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4">Price</th>
+                                <th class="p-4">Description</th>
+                                <th class="p-4 text-center rounded-tr-2xl">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-on-surface font-body-md">
                             {% for product in products %}
-                            <tr>
-                                <td style="width: 80px;">
-                                    <a href="{% url 'product_detail' product.pk %}" target="_blank" style="display: block; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 2px solid #1A1A2E;">
-                                        <img src="{{ product.display_image }}" alt="{{ product.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
+                                <td class="p-4 w-24">
+                                    <a href="{% url 'product_detail' product.pk %}" target="_blank" class="block w-16 h-16 rounded-xl overflow-hidden border border-outline-variant/20 bg-white p-1 shadow-sm hover:scale-105 transition-transform">
+                                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="w-full h-full object-contain">
                                     </a>
                                 </td>
-                                <td class="font-bold text-lg"><a href="{% url 'product_detail' product.pk %}" class="hover:underline text-dark" target="_blank">{{ product.name }}</a></td>
-                                <td>
-                                    <span class="neo-border font-bold text-xs" style="padding: 4px 10px; border-radius: 999px; background-color: #EEE;">
+                                <td class="p-4 font-headline-md text-lg"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors" target="_blank">{{ product.name }}</a></td>
+                                <td class="p-4">
+                                    <span class="bg-surface text-on-surface-variant border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full uppercase">
                                         {{ product.category }}
                                     </span>
                                 </td>
-                                <td class="font-black text-primary text-lg">₹{{ product.price }}</td>
-                                <td style="max-width: 300px; font-size: 0.9rem; opacity: 0.8;">{{ product.description|truncatechars:80 }}</td>
-                                <td style="text-align: center;">
-                                    <form method="POST" action="{% url 'delete_product' product.pk %}" onsubmit="return confirm('Delete {{ product.name }} from catalog?');">
+                                <td class="p-4 font-display-lg text-xl text-primary">₹{{ product.price }}</td>
+                                <td class="p-4 text-sm text-on-surface-variant max-w-[300px] truncate" title="{{ product.description }}">{{ product.description|truncatechars:80 }}</td>
+                                <td class="p-4 text-center">
+                                    <form method="POST" action="{% url 'delete_product' product.pk %}" onsubmit="return confirm('Delete {{ product.name }} from catalog?');" class="inline-block m-0">
                                         {% csrf_token %}
-                                        <button type="submit" class="neo-border bg-danger text-white" style="padding: 8px 12px; border-radius: 8px;" title="Delete Product">
-                                            <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                                        <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Product">
+                                            <span class="material-symbols-outlined text-[20px]">delete</span>
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 48px;">
-                                    <p class="text-lg font-bold opacity-60">No products found in catalog.</p>
+                                <td colspan="6" class="text-center p-12">
+                                    <p class="font-body-lg text-on-surface-variant font-bold">No products found in catalog.</p>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -230,56 +97,56 @@
         <!-- SECTION 2: SALES REPORTS -->
         <div id="section-sales" class="hidden">
             <!-- Top Metrics -->
-            <div class="grid grid-cols-1 md-grid-cols-4 gap-lg mb-lg">
-                <div class="metric-card neo-border neo-shadow bg-primary">
-                    <span class="font-bold text-sm uppercase opacity-80">Total Gross Revenue</span>
-                    <h3 class="text-4xl font-black mt-sm">{{ sales.total_revenue }}</h3>
-                    <div class="flex items-center gap-xs mt-md text-sm font-bold">
-                        <span class="material-symbols-outlined">trending_up</span> +18.4% this month
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                <div class="bg-primary text-on-primary rounded-[2rem] p-8 sticker-shadow rotate-1 border border-primary/20">
+                    <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Total Gross Revenue</span>
+                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.total_revenue }}</h3>
+                    <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
+                        <span class="material-symbols-outlined text-[20px]">trending_up</span> +18.4% this month
                     </div>
                 </div>
 
-                <div class="metric-card neo-border neo-shadow bg-secondary">
-                    <span class="font-bold text-sm uppercase opacity-80">Completed Orders</span>
-                    <h3 class="text-4xl font-black mt-sm">{{ sales.total_orders }}</h3>
-                    <div class="flex items-center gap-xs mt-md text-sm font-bold">
-                        <span class="material-symbols-outlined">check_circle</span> 100% Fulfilled
+                <div class="bg-secondary text-on-secondary rounded-[2rem] p-8 sticker-shadow -rotate-1 border border-secondary/20">
+                    <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Completed Orders</span>
+                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.total_orders }}</h3>
+                    <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
+                        <span class="material-symbols-outlined text-[20px]">check_circle</span> 100% Fulfilled
                     </div>
                 </div>
 
-                <div class="metric-card neo-border neo-shadow bg-accent text-white">
-                    <span class="font-bold text-sm uppercase opacity-80">Active Quote Requests</span>
-                    <h3 class="text-4xl font-black mt-sm">{{ sales.active_quotes }}</h3>
-                    <div class="flex items-center gap-xs mt-md text-sm font-bold">
-                        <span class="material-symbols-outlined">pending_actions</span> Needs follow-up
+                <div class="bg-tertiary text-on-tertiary rounded-[2rem] p-8 sticker-shadow rotate-2 border border-tertiary/20">
+                    <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Active Quote Requests</span>
+                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.active_quotes }}</h3>
+                    <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
+                        <span class="material-symbols-outlined text-[20px]">pending_actions</span> Needs follow-up
                     </div>
                 </div>
 
-                <div class="metric-card neo-border neo-shadow bg-white">
-                    <span class="font-bold text-sm uppercase text-secondary">🏆 Top Best Seller</span>
-                    <h4 class="text-xl font-black mt-sm">{{ sales.best_seller }}</h4>
-                    <span class="text-xs opacity-60 mt-md">Over 44 units installed across schools</span>
+                <div class="bg-white text-on-surface rounded-[2rem] p-8 sticker-shadow -rotate-2 border border-outline-variant/30">
+                    <span class="font-label-md text-xs uppercase text-secondary tracking-wider">🏆 Top Best Seller</span>
+                    <h4 class="font-headline-md text-2xl mt-3 line-clamp-1">{{ sales.best_seller }}</h4>
+                    <p class="font-body-md text-xs text-on-surface-variant mt-4 opacity-80">Over 44 units installed across schools</p>
                 </div>
             </div>
 
             <!-- Revenue Chart Card -->
-            <div class="bg-white neo-border neo-shadow p-card">
-                <div class="flex justify-between items-center mb-lg">
+            <div class="bg-white border border-outline-variant/30 rounded-[2.5rem] p-8 sticker-shadow relative overflow-hidden">
+                <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
                     <div>
-                        <h3 class="text-2xl">Monthly Sales Performance</h3>
-                        <p class="text-sm opacity-60">Revenue generated over the last 6 months</p>
+                        <h3 class="font-display-lg text-3xl text-on-surface">Monthly Sales Performance</h3>
+                        <p class="font-body-md text-sm text-on-surface-variant mt-1">Revenue generated over the last 6 months</p>
                     </div>
-                    <span class="neo-border bg-secondary font-bold text-xs" style="padding: 6px 14px; border-radius: 999px;">Live Analytics</span>
+                    <span class="bg-primary/10 text-primary font-bold text-sm px-4 py-2 rounded-full border border-primary/20 shadow-sm animate-pulse">Live Analytics</span>
                 </div>
 
-                <!-- HTML/CSS Visual Bar Chart -->
-                <div style="overflow-x: auto; width: 100%; padding-bottom: 8px;">
-                    <div class="chart-container neo-border" style="min-width: 480px;">
+                <!-- Visual Bar Chart -->
+                <div class="overflow-x-auto w-full pb-4">
+                    <div class="h-[300px] flex items-end gap-6 pt-8 pb-4 px-6 border-b-2 border-l-2 border-on-surface/10 bg-background/50 relative min-w-[600px] rounded-bl-2xl">
                         {% for item in sales.monthly_sales %}
-                        <div class="chart-bar-wrapper">
-                            <span class="font-bold text-xs text-primary">{{ item.amount }}</span>
-                            <div class="chart-bar neo-shadow" style="height: {{ item.height }};" title="{{ item.month }}: {{ item.amount }}"></div>
-                            <span class="font-heading font-black text-sm uppercase mt-sm">{{ item.month }}</span>
+                        <div class="flex-1 h-full flex flex-col justify-end items-center gap-2 group">
+                            <span class="font-bold text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:-translate-y-1">{{ item.amount }}</span>
+                            <div class="w-full max-w-[64px] bg-secondary/80 hover:bg-secondary rounded-t-xl transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] shadow-md border border-secondary/20" style="height: {{ item.height }};" title="{{ item.month }}: {{ item.amount }}"></div>
+                            <span class="font-label-md text-xs uppercase text-on-surface-variant mt-2">{{ item.month }}</span>
                         </div>
                         {% endfor %}
                     </div>
@@ -290,29 +157,31 @@
 </section>
 
 <!-- MODAL: ADD PRODUCT FORM -->
-<div id="addModal" class="modal-backdrop">
-    <div class="modal-content neo-border neo-shadow">
-        <div class="flex justify-between items-center mb-lg pb-md" style="border-bottom: 2px solid #EEE;">
-            <div class="flex items-center gap-sm">
-                <span class="material-symbols-outlined text-secondary text-3xl">add_photo_alternate</span>
-                <h3 class="text-2xl">Add New Product</h3>
+<div id="addModal" class="fixed inset-0 bg-on-surface/80 z-[100] hidden items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-2xl p-8 md:p-10 relative sticker-shadow border border-outline-variant/30 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-8 pb-4 border-b border-outline-variant/20">
+            <div class="flex items-center gap-3">
+                <div class="bg-secondary/10 text-secondary w-12 h-12 rounded-xl flex items-center justify-center shadow-sm">
+                    <span class="material-symbols-outlined text-[28px]">add_photo_alternate</span>
+                </div>
+                <h3 class="font-display-lg text-3xl text-on-surface">Add New Product</h3>
             </div>
-            <button onclick="closeModal()" class="neo-border bg-danger text-white" style="padding: 4px 8px; border-radius: 50%;">
-                <span class="material-symbols-outlined">close</span>
+            <button onclick="closeModal()" class="bg-surface hover:bg-background text-on-surface-variant transition-colors p-2 rounded-full border border-outline-variant/30 shadow-sm">
+                <span class="material-symbols-outlined text-[24px]">close</span>
             </button>
         </div>
 
-        <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data" class="flex flex-col gap-md">
+        <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data" class="flex flex-col gap-6">
             {% csrf_token %}
             <div>
-                <label class="font-heading font-bold text-sm mb-sm block uppercase">Product Name *</label>
-                <input type="text" name="name" placeholder="e.g. Rainbow Climbing Wall" required class="neo-border" style="width: 100%; padding: 12px 16px; border-radius: 12px;">
+                <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Product Name *</label>
+                <input type="text" name="name" placeholder="e.g. Rainbow Climbing Wall" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow">
             </div>
 
-            <div class="grid grid-cols-2 gap-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="font-heading font-bold text-sm mb-sm block uppercase">Category *</label>
-                    <select name="category" class="neo-border" style="width: 100%; padding: 12px 16px; border-radius: 12px; font-family: inherit; font-size: 1rem;">
+                    <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Category *</label>
+                    <select name="category" class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow appearance-none">
                         <option value="INDOORS">Indoors</option>
                         <option value="OUTDOORS">Outdoors</option>
                         <option value="PARTS">Parts</option>
@@ -320,32 +189,37 @@
                     </select>
                 </div>
                 <div>
-                    <label class="font-heading font-bold text-sm mb-sm block uppercase">Price (₹) *</label>
-                    <input type="number" step="0.01" name="price" placeholder="34990" required class="neo-border" style="width: 100%; padding: 12px 16px; border-radius: 12px;">
+                    <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Price (₹) *</label>
+                    <input type="number" step="0.01" name="price" placeholder="34990" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow">
                 </div>
             </div>
 
-            <div class="bg-light p-md neo-border" style="border-radius: 12px;">
-                <label class="font-heading font-bold text-sm mb-sm block uppercase text-primary">📸 Upload Photo (Supabase / Local Disk)</label>
-                <input type="file" name="photo" accept="image/*" id="photoInput" class="neo-border bg-white" style="width: 100%; padding: 10px; border-radius: 8px;" onchange="previewImage(event)">
-                <span class="text-xs opacity-60 mt-xs block">Select PNG, JPG, or WEBP from your computer</span>
+            <div class="bg-primary/5 p-6 rounded-2xl border border-primary/20 shadow-inner">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-primary flex items-center gap-2">
+                    <span class="material-symbols-outlined">add_a_photo</span> Upload Photo (Supabase / Local Disk)
+                </label>
+                <input type="file" name="photo" accept="image/*" id="photoInput" class="w-full bg-white border border-outline-variant/30 rounded-xl p-3 text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" onchange="previewImage(event)">
+                <span class="font-body-md text-xs opacity-60 mt-2 block text-on-surface-variant">Select PNG, JPG, or WEBP from your computer</span>
                 
-                <div id="imagePreviewContainer" class="hidden" style="margin-top: 16px; text-align: center;">
-                    <p class="text-xs font-bold uppercase mb-xs text-primary" style="letter-spacing: 0.05em;">Instant Preview:</p>
-                    <div class="neo-border neo-shadow bg-white inline-block" style="border-radius: 8px; overflow: hidden; max-height: 220px; max-width: 100%; padding: 6px;">
-                        <img id="imagePreview" src="#" alt="Preview" style="max-height: 200px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto;">
+                <div id="imagePreviewContainer" class="hidden mt-6 text-center">
+                    <p class="font-label-md text-[10px] uppercase tracking-wider mb-2 text-primary">Instant Preview:</p>
+                    <div class="bg-white border border-outline-variant/30 rounded-xl p-2 inline-block shadow-md relative group">
+                        <img id="imagePreview" src="#" alt="Preview" class="max-h-[200px] max-w-full object-contain rounded-lg">
+                        <button type="button" onclick="clearImagePreview()" class="absolute -top-3 -right-3 bg-error text-white w-8 h-8 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <div>
-                <label class="font-heading font-bold text-sm mb-sm block uppercase mt-md">Description *</label>
-                <textarea name="description" rows="3" placeholder="Describe safety specs, dimensions, materials..." required class="neo-border" style="width: 100%; padding: 12px 16px; border-radius: 12px; font-family: inherit;"></textarea>
+                <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface mt-2">Description *</label>
+                <textarea name="description" rows="3" placeholder="Describe safety specs, dimensions, materials..." required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow resize-y"></textarea>
             </div>
 
-            <div class="flex justify-end gap-sm mt-md">
-                <button type="button" onclick="closeModal()" class="neo-border bg-white text-dark bounce-btn text-sm" style="padding: 10px 20px;">Cancel</button>
-                <button type="submit" class="neo-border neo-shadow bg-secondary text-dark bounce-btn text-sm" style="padding: 10px 24px;">Save Product</button>
+            <div class="flex justify-end gap-4 mt-4 pt-4 border-t border-outline-variant/20">
+                <button type="button" onclick="closeModal()" class="bg-surface text-on-surface-variant border-2 border-outline-variant/30 font-label-md px-6 py-3 rounded-full hover:bg-background transition-colors tracking-wide">Cancel</button>
+                <button type="submit" class="bg-secondary text-on-secondary font-label-md px-8 py-3 rounded-full btn-chunky hover:scale-105 shadow-md shadow-secondary/20 tracking-wide uppercase">Save Product</button>
             </div>
         </form>
     </div>
@@ -355,25 +229,35 @@
     function switchTab(tab) {
         document.getElementById('section-products').classList.add('hidden');
         document.getElementById('section-sales').classList.add('hidden');
-        document.getElementById('tab-products').classList.remove('active');
-        document.getElementById('tab-sales').classList.remove('active');
+        
+        // Reset classes
+        const btnProducts = document.getElementById('tab-products');
+        const btnSales = document.getElementById('tab-sales');
+        
+        btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
+        btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
 
         document.getElementById('section-' + tab).classList.remove('hidden');
-        document.getElementById('tab-' + tab).classList.add('active');
+        
+        // Set active classes
+        if (tab === 'products') {
+            btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+        } else {
+            btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+        }
     }
 
     function openModal() {
-        document.getElementById('addModal').classList.add('open');
+        document.getElementById('addModal').classList.remove('hidden');
+        document.getElementById('addModal').classList.add('flex');
     }
 
     function closeModal() {
-        document.getElementById('addModal').classList.remove('open');
+        document.getElementById('addModal').classList.add('hidden');
+        document.getElementById('addModal').classList.remove('flex');
+        clearImagePreview();
         const photoInput = document.getElementById('photoInput');
-        const previewImg = document.getElementById('imagePreview');
-        const previewContainer = document.getElementById('imagePreviewContainer');
         if (photoInput) photoInput.value = '';
-        if (previewImg) previewImg.src = '#';
-        if (previewContainer) previewContainer.classList.add('hidden');
     }
 
     function previewImage(event) {
@@ -389,9 +273,17 @@
             };
             reader.readAsDataURL(input.files[0]);
         } else {
-            img.src = '#';
-            container.classList.add('hidden');
+            clearImagePreview();
         }
+    }
+    
+    function clearImagePreview() {
+        const container = document.getElementById('imagePreviewContainer');
+        const img = document.getElementById('imagePreview');
+        const photoInput = document.getElementById('photoInput');
+        img.src = '#';
+        container.classList.add('hidden');
+        if (photoInput) photoInput.value = '';
     }
 </script>
 {% endblock %}

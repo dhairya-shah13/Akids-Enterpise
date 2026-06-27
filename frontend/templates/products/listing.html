@@ -1,249 +1,156 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-  .listing-header {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin-bottom: var(--spacing-xl);
-  }
-
-  .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(1, minmax(0, 1fr));
-      gap: var(--spacing-lg);
-  }
-  @media (min-width: 768px) {
-      .bento-grid {
-          grid-template-columns: repeat(12, minmax(0, 1fr));
-      }
-  }
-
-  /* Bento Grid specific child placements */
-  .bento-featured {
-      background-color: var(--white);
-      padding: var(--spacing-lg);
-      border-radius: var(--border-radius-lg);
-      position: relative;
-      overflow: hidden;
-  }
-  @media (min-width: 768px) {
-      .bento-featured { grid-column: span 8 / span 8; }
-  }
-
-  .bento-sidebar {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-lg);
-  }
-  @media (min-width: 768px) {
-      .bento-sidebar { grid-column: span 4 / span 4; }
-  }
-
-  .bento-full-discovery {
-      background-color: #ffe173; /* Slightly different primary variant if needed, or use primary */
-      padding: var(--spacing-xl);
-      border-radius: var(--border-radius-lg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-xl);
-      position: relative;
-      overflow: hidden;
-  }
-  @media (min-width: 768px) {
-      .bento-full-discovery {
-          grid-column: span 12 / span 12;
-          flex-direction: row;
-      }
-  }
-
-  .bento-small-card {
-      background-color: var(--white);
-      padding: var(--spacing-md);
-      border-radius: var(--border-radius-md);
-  }
-  @media (min-width: 768px) {
-      .bento-small-card { grid-column: span 4 / span 4; }
-  }
-
-  /* Product specific classes */
-  .featured-image-container {
-      height: 400px;
-      border-radius: var(--border-radius-md);
-      overflow: hidden;
-      position: relative;
-  }
-  .featured-image-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-  }
-  .bento-featured:hover .featured-image-container img {
-      transform: scale(1.05);
-  }
-
-  .price-sticker {
-      position: absolute;
-      padding: 8px 16px;
-      border-radius: var(--border-radius-full);
-      font-weight: bold;
-      z-index: 10;
-  }
-
-  .aspect-square { aspect-ratio: 1; }
-  .aspect-video { aspect-ratio: 16/9; }
-</style>
-
-<div class="container py-section">
+<div class="py-12">
     <!-- Hero Header -->
-    <section class="listing-header">
-        <div style="position: absolute; top: -32px; left: 80px; opacity: 0.2; color: var(--primary);">
-            <span class="material-symbols-outlined" style="font-size: 80px;">star</span>
+    <section class="relative text-center mb-16 px-margin-desktop">
+        <!-- Decorative Elements -->
+        <div class="absolute -top-8 left-20 opacity-20 text-primary">
+            <span class="material-symbols-outlined text-7xl">star</span>
         </div>
-        <div style="position: absolute; top: 48px; right: 120px; opacity: 0.2; transform: rotate(12deg); color: var(--secondary);">
-            <span class="material-symbols-outlined" style="font-size: 60px;">bubble</span>
+        <div class="absolute top-12 right-32 opacity-20 rotate-12 text-secondary">
+            <span class="material-symbols-outlined text-6xl">bubble</span>
         </div>
         
-        <h1 class="text-4xl md-text-5xl mb-sm" style="position: relative; z-index: 10;">
+        <h1 class="font-display-lg text-4xl md:text-5xl lg:text-6xl text-on-surface mb-4 relative z-10 inline-block">
             Indoor Wonders
-            <span class="material-symbols-outlined text-primary" style="position: absolute; top: -16px; right: -32px;">star</span>
-            <span class="material-symbols-outlined text-secondary" style="position: absolute; bottom: -8px; left: -32px;">auto_awesome</span>
+            <span class="material-symbols-outlined text-primary absolute -top-4 -right-8 text-3xl">star</span>
+            <span class="material-symbols-outlined text-secondary absolute -bottom-2 -left-8 text-3xl">auto_awesome</span>
         </h1>
-        <p class="text-lg opacity-80 mb-lg" style="max-width: 600px;">
+        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto mt-6 mb-8 text-lg">
             Magical environments designed for early learners. From soft play to sensory storage, we build spaces that spark curiosity.
         </p>
-        <div style="height: 4px; width: 100%; max-width: 320px; background-color: var(--neutral-dark); border-radius: 50%; opacity: 0.3;"></div>
+        <div class="h-1.5 w-32 india-gradient mx-auto rounded-full opacity-50"></div>
     </section>
 
-    <!-- Neo-Brutalist Bento Grid (Dynamic) -->
-    <section class="bento-grid my-2xl" style="margin: 48px 0;">
-        <!-- Main Featured Item (Product 1) -->
-        {% if products.0 %}
-        <div class="bento-featured neo-border neo-shadow rotate-1 group bg-white flex flex-col justify-between">
-            <div>
-                <a href="{% url 'product_detail' products.0.pk %}" class="block featured-image-container mb-md" style="min-height: 280px; max-height: 450px; border-radius: 12px; overflow: hidden; border: 2px solid #1A1A2E; position: relative; background: #fff; display: flex; align-items: center; justify-content: center; padding: 12px; cursor: pointer;">
-                    <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" style="max-height: 420px; width: auto; max-width: 100%; object-fit: contain;">
-                    <div class="price-sticker neo-border neo-shadow bg-primary text-dark rotate-2" style="position: absolute; top: 16px; left: 16px; padding: 6px 16px; border-radius: 999px; font-weight: 900; z-index: 5;">
-                        {{ products.0.category }}
-                    </div>
-                </a>
-                    <div class="price-sticker neo-border neo-shadow bg-secondary text-dark wiggle" style="position: absolute; bottom: 16px; right: 16px; padding: 6px 16px; border-radius: 999px; font-weight: 900; font-size: 1.25rem; z-index: 5;">
-                        ₹{{ products.0.price }}
-                    </div>
-                </a>
-                <h3 class="text-3xl font-black mb-sm"><a href="{% url 'product_detail' products.0.pk %}" class="hover:underline">{{ products.0.name }}</a></h3>
-                <p class="opacity-80 mb-lg font-body">{{ products.0.description }}</p>
-            </div>
-            <div class="flex gap-sm mt-md">
-                <a href="{% url 'product_detail' products.0.pk %}" class="bounce-btn neo-border neo-shadow bg-primary text-dark font-black px-6 py-3 rounded-lg flex-1 text-center uppercase block">View Details</a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Soft Play Sidebar Items (Product 2 & 3) -->
-        {% if products.1 or products.2 %}
-        <div class="bento-sidebar">
-            {% if products.1 %}
-            <div class="neo-border neo-shadow bg-secondary rotate-2 wiggle flex flex-col justify-between mb-lg" style="padding: 24px; border-radius: 16px;">
+    <!-- Bento Grid (Dynamic) -->
+    <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter h-auto mb-12">
+            <!-- Main Featured Item (Product 1) -->
+            {% if products.0 %}
+            <div class="md:col-span-2 md:row-span-2 bg-white rounded-[2.5rem] p-8 flex flex-col justify-between bento-card relative overflow-hidden group border border-outline-variant/30 hover:border-primary/30 sticker-shadow">
                 <div>
-                    <div class="flex justify-between items-start mb-md">
-                        <span class="material-symbols-outlined text-4xl text-dark">toys</span>
-                        <div class="bg-white text-dark neo-border neo-shadow font-black" style="padding: 4px 12px; border-radius: 999px;">
+                    <a href="{% url 'product_detail' products.0.pk %}" class="block relative h-[450px] bg-background rounded-[2rem] overflow-hidden border border-outline-variant/10 mb-6 flex items-center justify-center p-6">
+                        <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" class="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-6 left-6 bg-primary text-on-primary px-4 py-2 rounded-full font-bold uppercase tracking-wider text-sm shadow-lg rotate-2">
+                            {{ products.0.category }}
+                        </div>
+                        <div class="absolute bottom-6 right-6 bg-secondary text-on-secondary px-6 py-2 rounded-full font-black text-xl shadow-lg -rotate-1">
+                            ₹{{ products.0.price }}
+                        </div>
+                    </a>
+                    <h3 class="font-display-lg text-3xl text-on-surface mb-2"><a href="{% url 'product_detail' products.0.pk %}" class="hover:text-primary transition-colors">{{ products.0.name }}</a></h3>
+                    <p class="font-body-md text-on-surface-variant text-lg">{{ products.0.description }}</p>
+                </div>
+                <div class="mt-8">
+                    <a href="{% url 'product_detail' products.0.pk %}" class="bg-primary text-on-primary font-label-md px-8 py-4 rounded-full btn-chunky hover:scale-105 inline-block w-full text-center text-lg shadow-xl shadow-primary/20">View Details</a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Sidebar Items (Product 2 & 3) -->
+            {% if products.1 or products.2 %}
+            <div class="flex flex-col gap-gutter md:col-span-1 md:row-span-2">
+                {% if products.1 %}
+                <div class="bg-secondary-container/20 rounded-[2.5rem] p-6 bento-card border border-secondary/10 hover:border-secondary/30 flex flex-col h-full sticker-shadow">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="bg-secondary text-on-secondary w-12 h-12 flex items-center justify-center rounded-xl shadow-md">
+                            <span class="material-symbols-outlined text-2xl">toys</span>
+                        </span>
+                        <div class="bg-white text-secondary font-black px-4 py-1.5 rounded-full shadow-sm text-sm border border-secondary/20">
                             ₹{{ products.1.price }}
                         </div>
                     </div>
-                    <a href="{% url 'product_detail' products.1.pk %}" style="display: block; min-height: 140px; max-height: 300px; border-radius: 8px; overflow: hidden; border: 2px solid #1A1A2E; margin-bottom: 12px; background: white; display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer;">
-                        <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" style="max-height: 280px; width: auto; max-width: 100%; object-fit: contain;">
+                    <a href="{% url 'product_detail' products.1.pk %}" class="block h-48 bg-white rounded-2xl overflow-hidden border border-outline-variant/10 mb-4 p-4 flex items-center justify-center group">
+                        <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
                     </a>
-                    <h4 class="text-2xl font-black mb-sm text-dark"><a href="{% url 'product_detail' products.1.pk %}" class="hover:underline">{{ products.1.name }}</a></h4>
-                    <p class="opacity-80 mb-md font-bold text-dark text-sm">{{ products.1.description|truncatechars:70 }}</p>
+                    <h4 class="font-headline-md text-on-surface-variant text-xl mb-2"><a href="{% url 'product_detail' products.1.pk %}" class="hover:text-secondary transition-colors">{{ products.1.name }}</a></h4>
+                    <p class="font-body-md text-sm text-on-surface-variant mb-6 flex-grow">{{ products.1.description|truncatechars:70 }}</p>
+                    <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-secondary border-2 border-secondary font-label-md px-4 py-3 rounded-full btn-chunky hover:bg-secondary/5 text-center block w-full uppercase text-sm">View Item</a>
                 </div>
-                <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-dark neo-border w-full py-2 uppercase font-black text-center block" style="border-radius: 999px;">View Item</a>
-            </div>
-            {% endif %}
-            
-            {% if products.2 %}
-            <div class="neo-border neo-shadow bg-accent -rotate-1 text-white group flex flex-col justify-between" style="padding: 24px; border-radius: 16px;">
-                <div>
-                    <a href="{% url 'product_detail' products.2.pk %}" class="neo-border mb-md block" style="min-height: 160px; max-height: 300px; width: 100%; border-radius: 8px; overflow: hidden; position: relative; background: white; display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer;">
-                        <img src="{{ products.2.display_image }}" alt="{{ products.2.name }}" style="max-height: 280px; width: auto; max-width: 100%; object-fit: contain;">
-                        <div class="bg-danger text-white neo-border" style="position: absolute; top: 8px; right: 8px; padding: 4px 12px; border-radius: 999px; font-weight: bold; font-size: 0.8rem; z-index: 5;">NEW</div>
+                {% endif %}
+                
+                {% if products.2 %}
+                <div class="bg-tertiary text-on-tertiary rounded-[2.5rem] p-6 bento-card flex flex-col h-full shadow-xl hover:-translate-y-2 transition-transform">
+                    <a href="{% url 'product_detail' products.2.pk %}" class="block h-40 bg-white rounded-2xl overflow-hidden mb-4 p-4 relative flex items-center justify-center group">
+                        <img src="{{ products.2.display_image }}" alt="{{ products.2.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-2 right-2 bg-error text-white px-3 py-1 rounded-full font-bold text-[10px] shadow-sm uppercase tracking-widest">NEW</div>
                     </a>
-                    <h4 class="text-2xl font-black mb-xs"><a href="{% url 'product_detail' products.2.pk %}" class="hover:underline text-white">{{ products.2.name }}</a></h4>
-                    <p class="font-bold text-sm mb-md opacity-90">₹{{ products.2.price }}</p>
+                    <h4 class="font-headline-md text-2xl mb-1"><a href="{% url 'product_detail' products.2.pk %}" class="hover:text-tertiary-container transition-colors">{{ products.2.name }}</a></h4>
+                    <p class="font-bold text-lg mb-6 opacity-90">₹{{ products.2.price }}</p>
+                    <a href="{% url 'product_detail' products.2.pk %}" class="bg-white text-tertiary font-label-md px-4 py-3 rounded-full btn-chunky hover:bg-tertiary-container text-center block w-full mt-auto uppercase text-sm">View Item</a>
                 </div>
-                <a href="{% url 'product_detail' products.2.pk %}" class="bg-white text-dark neo-border w-full py-2 uppercase font-black text-center block" style="border-radius: 999px;">View Item</a>
+                {% endif %}
             </div>
             {% endif %}
         </div>
-        {% endif %}
 
         <!-- Full Width Discovery Section -->
-        <div class="bento-full-discovery neo-border neo-shadow bg-primary" style="grid-column: 1 / -1; position: relative; overflow: hidden; padding: 32px; border-radius: 16px; display: flex; flex-wrap: wrap; gap: 32px; align-items: center; margin: 24px 0;">
-            <div style="position: absolute; top: -48px; right: -48px; opacity: 0.1; color: var(--dark);">
-                <span class="material-symbols-outlined" style="font-size: 240px;">child_care</span>
+        <div class="bg-primary-container/20 rounded-[2.5rem] p-10 border border-primary/20 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden my-16 bento-card">
+            <div class="absolute -top-12 -right-12 opacity-10 text-primary-container">
+                <span class="material-symbols-outlined text-[240px]">child_care</span>
             </div>
             
-            <div style="flex: 1; min-width: 280px; z-index: 10;">
-                <h2 class="text-4xl font-black mb-md">Built for Chaos, Designed for Play.</h2>
-                <p class="text-lg opacity-80 mb-lg">
+            <div class="flex-1 relative z-10">
+                <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-6 leading-tight">Built for Chaos,<br>Designed for Play.</h2>
+                <p class="font-body-lg text-on-surface-variant text-lg max-w-xl mb-8">
                     Every edge is rounded, every surface is washable, and every hinge is pinch-proof. We take safety as seriously as we take fun.
                 </p>
-                <div class="flex gap-sm flex-wrap">
-                    <div class="bg-white neo-border font-bold" style="padding: 8px 16px; border-radius: 999px; display: flex; align-items: center; gap: 8px;">
-                        <span class="material-symbols-outlined text-primary">verified</span> Safety Certified
+                <div class="flex flex-wrap gap-4">
+                    <div class="bg-white text-primary font-bold px-5 py-2.5 rounded-full flex items-center gap-2 border border-primary/10 shadow-sm">
+                        <span class="material-symbols-outlined">verified</span> Safety Certified
                     </div>
-                    <div class="bg-white neo-border font-bold" style="padding: 8px 16px; border-radius: 999px; display: flex; align-items: center; gap: 8px;">
-                        <span class="material-symbols-outlined text-primary">eco</span> Eco-Materials
+                    <div class="bg-white text-primary font-bold px-5 py-2.5 rounded-full flex items-center gap-2 border border-primary/10 shadow-sm">
+                        <span class="material-symbols-outlined">eco</span> Eco-Materials
                     </div>
                 </div>
             </div>
             
-            <div style="flex: 1; min-width: 240px; display: flex; justify-content: center; z-index: 10;">
-                <div class="neo-border neo-shadow rotate-2 group" style="width: 240px; height: 240px; border-radius: 50%; overflow: hidden; position: relative; cursor: pointer;">
-                    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80" alt="Kids playing" style="width: 100%; height: 100%; object-fit: cover;">
+            <div class="flex-shrink-0 relative z-10">
+                <div class="w-64 h-64 rounded-full overflow-hidden border-8 border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+                    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80" alt="Kids playing" class="w-full h-full object-cover">
                 </div>
             </div>
         </div>
 
-        <!-- Remaining Inventory Cards (Products 4+) -->
-        {% for product in products|slice:"3:" %}
-        <div class="bento-small-card neo-border neo-shadow {% if forloop.counter0|divisibleby:2 %}rotate-1 bg-light{% else %}-rotate-1 bg-white{% endif %} group flex flex-col justify-between p-card">
-            <div>
-                <a href="{% url 'product_detail' product.pk %}" class="neo-border mb-sm block" style="border-radius: 8px; overflow: hidden; min-height: 180px; max-height: 320px; background: white; display: flex; align-items: center; justify-content: center; padding: 8px; position: relative; cursor: pointer;">
-                    <img src="{{ product.display_image }}" alt="{{ product.name }}" style="max-height: 290px; width: auto; max-width: 100%; object-fit: contain;">
-                </a>
-                <div class="flex justify-between items-center mb-xs gap-xs">
-                    <h4 class="text-xl font-black"><a href="{% url 'product_detail' product.pk %}" class="hover:underline text-dark">{{ product.name }}</a></h4>
-                    <div class="bg-primary text-dark neo-border neo-shadow font-black px-2 py-1 text-xs" style="border-radius: 999px;">₹{{ product.price }}</div>
+        <!-- Remaining Inventory Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mt-16">
+            {% for product in products|slice:"3:" %}
+            <div class="bg-white rounded-[2.5rem] p-6 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20 flex flex-col justify-between">
+                <div>
+                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-background rounded-2xl mb-4 overflow-hidden relative border border-outline-variant/10 p-4 flex items-center justify-center">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                    </a>
+                    <div class="flex justify-between items-start mb-2 gap-2">
+                        <h4 class="font-headline-md text-on-surface text-lg leading-tight"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
+                        <div class="bg-secondary/10 text-secondary px-2 py-1 rounded-md font-bold text-xs whitespace-nowrap">₹{{ product.price }}</div>
+                    </div>
+                    <p class="font-body-md text-sm text-on-surface-variant mb-6">{{ product.description|truncatechars:65 }}</p>
                 </div>
-                <p class="opacity-80 text-sm mb-md">{{ product.description|truncatechars:65 }}</p>
+                <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-2.5 rounded-full btn-chunky hover:bg-secondary/5 text-center block w-full uppercase text-xs tracking-wider">View Item</a>
             </div>
-            <a href="{% url 'product_detail' product.pk %}" class="bounce-btn neo-border neo-shadow bg-secondary font-black text-dark text-xs uppercase text-center block" style="width: 100%; padding: 10px; border-radius: 8px;">View Item</a>
+            {% endfor %}
         </div>
-        {% endfor %}
     </section>
 
     <!-- Newsletter / Contact -->
-    <section class="neo-border bg-secondary text-dark rotate-1" style="margin-top: var(--spacing-xl); padding: var(--spacing-2xl) var(--spacing-lg); border-radius: var(--border-radius-lg); text-align: center; position: relative; overflow: hidden;">
-        <div style="position: relative; z-index: 10;">
-            <h3 class="text-3xl mb-sm">Designing a new classroom?</h3>
-            <p class="text-lg opacity-90 mb-lg max-w-xl mx-auto" style="max-width: 600px; margin: 0 auto var(--spacing-lg);">Our design consultants offer free 3D layout planning for schools and daycare centers.</p>
-            <div class="flex justify-center gap-sm">
-                <input type="email" placeholder="Your school email" class="neo-border" style="padding: 12px 24px; border-radius: var(--border-radius-full); outline: none; width: 300px;">
-                <button class="bounce-btn neo-border neo-shadow neo-shadow-hover bg-accent text-white">
-                    Talk to a Designer
-                </button>
+    <section class="max-w-5xl mx-auto px-margin-desktop mb-12">
+        <div class="bg-secondary text-on-secondary rounded-[2.5rem] p-12 text-center relative overflow-hidden bento-card shadow-xl">
+            <div class="relative z-10 max-w-2xl mx-auto">
+                <h3 class="font-display-lg text-3xl lg:text-4xl mb-4">Designing a new classroom?</h3>
+                <p class="text-lg opacity-90 mb-8 font-body-lg">Our design consultants offer free 3D layout planning for schools and daycare centers.</p>
+                <form class="flex flex-col sm:flex-row justify-center gap-4">
+                    <input type="email" placeholder="Your school email" class="bg-white text-on-surface border-none rounded-2xl px-6 py-4 focus:ring-2 focus:ring-primary outline-none sm:w-72 shadow-inner">
+                    <button type="button" class="bg-primary text-on-primary px-8 py-4 rounded-2xl font-label-md btn-chunky hover:scale-105 shadow-lg shadow-primary/30 whitespace-nowrap">
+                        Talk to a Designer
+                    </button>
+                </form>
             </div>
+            <!-- Decorative doodles -->
+            <span class="material-symbols-outlined absolute top-6 left-6 text-6xl opacity-10">draw</span>
+            <span class="material-symbols-outlined absolute bottom-6 right-6 text-[96px] opacity-10">edit</span>
         </div>
-        <!-- Decorative doodles -->
-        <span class="material-symbols-outlined" style="position: absolute; top: 16px; left: 16px; font-size: 64px; opacity: 0.3;">draw</span>
-        <span class="material-symbols-outlined" style="position: absolute; bottom: 16px; right: 16px; font-size: 96px; opacity: 0.3;">edit</span>
     </section>
 </div>
 {% endblock %}

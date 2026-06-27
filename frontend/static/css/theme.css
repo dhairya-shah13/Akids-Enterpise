@@ -1,0 +1,68 @@
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.sticker-shadow {
+    box-shadow: 4px 4px 0px 0px rgba(255, 153, 51, 0.2);
+}
+.btn-chunky {
+    border-bottom: 4px solid rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+.btn-chunky:active {
+    transform: translateY(2px);
+    border-bottom-width: 2px;
+}
+.india-gradient {
+    background: linear-gradient(90deg, #FF9933, #008080, #C71585);
+}
+.bento-card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bento-card:hover {
+    transform: scale(1.02) rotate(0.5deg);
+}
+
+/* Sparkle Animations */
+@keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+}
+.sparkle-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: white;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: sparkle 2s infinite ease-in-out;
+}
+.sparkle-1 { top: 20%; left: 10%; animation-delay: 0.1s; }
+.sparkle-2 { top: 60%; left: 15%; animation-delay: 0.5s; }
+.sparkle-3 { top: 30%; right: 20%; animation-delay: 0.8s; }
+.sparkle-4 { top: 80%; right: 10%; animation-delay: 1.2s; }
+.sparkle-5 { top: 40%; left: 40%; animation-delay: 0.3s; }
+
+.rainbow-text {
+    background: linear-gradient(to right, #FF9933, #008080, #C71585);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    position: relative;
+    padding: 0.5rem 0;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 3px;
+    bottom: 0;
+    left: 0;
+    background: #FF9933;
+    transition: width 0.3s ease;
+    border-radius: 99px;
+}
+.nav-link:hover::after, .nav-link.active::after {
+    width: 100%;
+}

@@ -1,214 +1,232 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Little Fingers | Where Play Meets Learning{% endblock %}</title>
+    <title>{% block title %}Little Fingers | India's Premier Educational Play Solutions{% endblock %}</title>
     
-    <!-- Design System CSS -->
-    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+    <!-- Tailwind and Fonts from homepage1.html -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
-    <!-- Inline styles for layout spacing where utility classes aren't enough -->
-    <style>
-        .header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background-color: var(--neutral-light);
-            border-bottom: var(--border-width) solid var(--neutral-dark);
-            padding: var(--spacing-sm) 0;
-            box-shadow: 0px 4px 0px 0px var(--neutral-dark);
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#FF9933", // Saffron
+                        "on-primary": "#ffffff",
+                        "primary-container": "#FFD580",
+                        "on-primary-container": "#5A3000",
+                        "secondary": "#008080", // Teal
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#B2DFDB",
+                        "on-secondary-container": "#002525",
+                        "tertiary": "#C71585", // Fuchsia
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#FADADD",
+                        "on-tertiary-container": "#400010",
+                        "background": "#FFFDF9",
+                        "surface": "#ffffff",
+                        "on-surface": "#1C1C18",
+                        "on-surface-variant": "#414751",
+                        "outline": "#727782",
+                        "outline-variant": "#E0E0E0",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "stack-md": "24px",
+                        "gutter": "24px",
+                        "stack-sm": "12px",
+                        "stack-lg": "48px",
+                        "margin-mobile": "20px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Quicksand"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                    }
+                },
+            },
         }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            position: relative;
-            padding: 0 20px;
-        }
-        @media (min-width: 768px) {
-            .header-content {
-                padding: 0 48px;
-            }
-        }
-
-        /* Responsive Navbar Rules */
-        .nav-links {
-            display: none;
-            gap: var(--spacing-lg);
-            align-items: center;
-        }
-        @media (min-width: 768px) {
-            .nav-links {
-                display: flex;
-            }
-        }
-
-        .desktop-action {
-            display: none;
-        }
-        @media (min-width: 768px) {
-            .desktop-action {
-                display: inline-flex;
-            }
-        }
-
-        .mobile-toggle {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 44px;
-            height: 44px;
-            cursor: pointer;
-        }
-        @media (min-width: 768px) {
-            .mobile-toggle {
-                display: none !important;
-            }
-        }
-
-        .nav-link {
-            font-family: var(--font-heading);
-            font-weight: 700;
-            color: var(--neutral-dark);
-            transition: transform 0.2s;
-        }
-        
-        .nav-link:hover {
-            transform: translate(-2px, -2px);
-        }
-
-        .nav-link.active {
-            color: var(--neutral-dark);
-            background-color: var(--primary);
-            padding: 6px 14px;
-            border-radius: 999px;
-            border: 2px solid var(--neutral-dark);
-            box-shadow: 2px 2px 0px 0px var(--neutral-dark);
-            text-decoration: none;
-        }
-
-        .footer {
-            background-color: var(--secondary);
-            border-top: var(--border-width) solid var(--neutral-dark);
-            padding: var(--spacing-xl) 0 var(--spacing-lg);
-            margin-top: var(--spacing-2xl);
-            position: relative;
-        }
-
-        .footer .grass-border {
-            position: absolute;
-            top: -20px;
-            left: 0;
-        }
-    </style>
+    </script>
+    
+    <!-- Shared Design System CSS -->
+    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
     
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
     <!-- Header / Navbar -->
-    <header class="header">
-        <div class="header-content">
-            <div class="flex items-center gap-md">
-                <a href="{% url 'home' %}" class="flex items-center gap-sm">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="Little Fingers" style="height: 38px;">
-                    <span class="font-heading font-black text-xl md-text-2xl text-primary" style="white-space: nowrap;">Little Fingers</span>
+    <header class="bg-surface sticky top-0 z-50 border-b-2 border-outline-variant/30 backdrop-blur-md bg-white/95">
+        <div class="flex justify-between items-center px-margin-desktop py-4 max-w-7xl mx-auto">
+            <div class="flex items-center gap-4">
+                <a href="{% url 'home' %}" class="flex items-center gap-2">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="Little Fingers" class="h-10">
+                    <div class="flex flex-col">
+                        <span class="font-display-lg text-3xl font-extrabold tracking-tight text-primary leading-none">Little Fingers</span>
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">India's Play Experts</span>
+                    </div>
                 </a>
             </div>
             
-            <nav class="nav-links">
-                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
-                <a href="{% url 'indoors' %}" class="nav-link {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}">Indoors</a>
-                <a href="{% url 'outdoors' %}" class="nav-link {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}">Outdoors</a>
-                <a href="{% url 'parts' %}" class="nav-link {% if request.resolver_match.url_name == 'parts' %}active{% endif %}">Parts</a>
-                <a href="{% url 'rfsports' %}" class="nav-link {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}">RF Sports</a>
+            <nav class="hidden lg:flex items-center gap-8">
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Parts</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">RF Sports</a>
             </nav>
             
-            <div class="flex items-center gap-sm">
-                <a href="{% url 'cart' %}" class="desktop-action neo-border {% if request.resolver_match.url_name == 'cart' %}bg-primary font-black{% else %}bg-white{% endif %} text-dark bounce-btn neo-shadow neo-shadow-hover text-sm flex items-center gap-xs" style="padding: 8px 16px;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">shopping_cart</span> Cart
+            <div class="flex items-center gap-4">
+                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-primary text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-primary hover:text-primary transition-colors hidden sm:flex">
+                    <span class="material-symbols-outlined text-xl">shopping_cart</span>
+                    <span class="text-sm font-bold">Cart</span>
                 </a>
                 
                 {% if request.session.is_admin %}
-                <a href="{% url 'admin_dashboard' %}" class="desktop-action neo-border {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary font-black{% else %}bg-secondary{% endif %} text-dark bounce-btn neo-shadow neo-shadow-hover text-sm" style="padding: 8px 16px;">
+                <a href="{% url 'admin_dashboard' %}" class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md btn-chunky hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20 hidden sm:block">
                     Dashboard
                 </a>
-                <a href="{% url 'admin_logout' %}" class="desktop-action neo-border bg-danger text-white bounce-btn neo-shadow neo-shadow-hover text-sm" style="padding: 8px 16px;">
+                <a href="{% url 'admin_logout' %}" class="bg-error text-white px-6 py-2.5 rounded-full font-label-md btn-chunky hover:scale-105 active:scale-95 hidden sm:block">
                     Logout
                 </a>
                 {% elif request.user.is_authenticated %}
-                <a href="{% url 'admin_logout' %}" class="desktop-action neo-border bg-danger text-white bounce-btn neo-shadow neo-shadow-hover text-sm" style="padding: 8px 16px;">
+                <a href="{% url 'admin_logout' %}" class="bg-error text-white px-6 py-2.5 rounded-full font-label-md btn-chunky hover:scale-105 active:scale-95 hidden sm:block">
                     Logout
                 </a>
                 {% else %}
-                <a href="{% url 'admin_login' %}" class="desktop-action neo-border {% if request.resolver_match.url_name == 'admin_login' %}bg-secondary{% else %}bg-primary{% endif %} text-dark bounce-btn neo-shadow neo-shadow-hover font-black" style="padding: 8px 20px;">
+                <a href="{% url 'admin_login' %}" class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md btn-chunky hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20 hidden sm:block">
                     Sign In
                 </a>
                 {% endif %}
 
                 <!-- Mobile Hamburger Button -->
-                <button id="mobileMenuBtn" class="mobile-toggle neo-border neo-shadow bg-primary text-dark font-black text-xl rounded" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
-                    ☰
+                <button id="mobileMenuBtn" class="lg:hidden bg-primary text-on-primary w-10 h-10 rounded-full shadow-lg flex items-center justify-center btn-chunky" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+                    <span class="material-symbols-outlined">menu</span>
                 </button>
             </div>
-
+            
             <!-- Mobile Navigation Drawer -->
-            <div id="mobileDrawer" class="neo-border neo-shadow bg-white p-card" style="display: none; position: absolute; top: 100%; left: 0; right: 0; width: 100%; flex-direction: column; gap: 14px; z-index: 100; border-radius: 16px; margin-top: 12px; box-shadow: 6px 6px 0px #1A1A2E;">
-                <a href="{% url 'home' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'home' %}active{% endif %}">🌟 Home</a>
-                <a href="{% url 'indoors' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}">🏠 Indoors</a>
-                <a href="{% url 'outdoors' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}">🌳 Outdoors</a>
-                <a href="{% url 'parts' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'parts' %}active{% endif %}">🔧 Parts</a>
-                <a href="{% url 'rfsports' %}" class="nav-link font-black text-lg py-1 border-b {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}">🏀 RF Sports</a>
-                <div style="height: 2px; background: #1A1A2E; margin: 4px 0;"></div>
-                <a href="{% url 'cart' %}" class="neo-border neo-shadow {% if request.resolver_match.url_name == 'cart' %}bg-primary{% else %}bg-white{% endif %} text-dark bounce-btn text-center block py-2 font-black uppercase mt-1">Cart</a>
+            <div id="mobileDrawer" class="hidden absolute top-full left-0 right-0 bg-white border-t-4 border-primary shadow-2xl p-6 flex-col gap-4 z-50 rounded-b-3xl">
+                <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-primary{% endif %}">Home</a>
+                <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-primary{% endif %}">Indoors</a>
+                <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-primary{% endif %}">Outdoors</a>
+                <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-primary{% endif %}">Parts</a>
+                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-primary{% endif %}">RF Sports</a>
+                
+                <a href="{% url 'cart' %}" class="bg-primary text-on-primary py-3 rounded-xl text-center font-label-md btn-chunky mt-2">Cart</a>
                 {% if request.session.is_admin %}
-                <a href="{% url 'admin_dashboard' %}" class="neo-border neo-shadow {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-primary{% else %}bg-secondary{% endif %} text-dark bounce-btn text-center block py-2 font-black uppercase mt-1">Admin Dashboard</a>
-                <a href="{% url 'admin_logout' %}" class="neo-border bg-danger text-white bounce-btn text-center block py-2 font-bold uppercase mt-1">Logout</a>
+                <a href="{% url 'admin_dashboard' %}" class="bg-secondary text-on-secondary py-3 rounded-xl text-center font-label-md btn-chunky mt-2">Admin Dashboard</a>
+                <a href="{% url 'admin_logout' %}" class="bg-error text-white py-3 rounded-xl text-center font-label-md btn-chunky mt-2">Logout</a>
                 {% elif request.user.is_authenticated %}
-                <a href="{% url 'admin_logout' %}" class="neo-border bg-danger text-white bounce-btn text-center block py-2 font-bold uppercase mt-1">Logout</a>
+                <a href="{% url 'admin_logout' %}" class="bg-error text-white py-3 rounded-xl text-center font-label-md btn-chunky mt-2">Logout</a>
                 {% else %}
-                <a href="{% url 'admin_login' %}" class="neo-border neo-shadow {% if request.resolver_match.url_name == 'admin_login' %}bg-secondary{% else %}bg-primary{% endif %} text-dark bounce-btn text-center block py-2 font-black uppercase mt-1">Sign In</a>
+                <a href="{% url 'admin_login' %}" class="bg-secondary text-on-secondary py-3 rounded-xl text-center font-label-md btn-chunky mt-2">Sign In</a>
                 {% endif %}
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main style="min-height: 70vh;">
+    <main class="min-h-[70vh]">
         {% block content %}
         {% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="grass-border"></div>
-        <div class="container flex flex-col items-center justify-center gap-lg text-center text-dark">
-            <span class="font-heading font-black text-3xl">Little Fingers</span>
-            <div class="flex gap-md font-bold flex-wrap justify-center">
-                <a href="#" class="nav-link">Safety Certified</a>
-                <a href="#" class="nav-link">Fast Shipping</a>
-                <a href="#" class="nav-link">Privacy Policy</a>
-                <a href="#" class="nav-link">Contact Us</a>
+    <footer class="bg-surface border-t-8 border-primary py-16 mt-20">
+        <div class="max-w-7xl mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div class="space-y-6 md:col-span-1">
+                <div class="flex flex-col">
+                    <span class="font-display-lg text-3xl font-extrabold text-primary leading-none">Little Fingers</span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">Quality Play Environments</span>
+                </div>
+                <p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Manufacturing Excellence in India. Creating safe, vibrant, and skill-building environments for the leaders of tomorrow.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all">
+                        <span class="material-symbols-outlined text-xl">share</span>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all">
+                        <span class="material-symbols-outlined text-xl">mail</span>
+                    </a>
+                </div>
             </div>
-            <p class="font-body text-sm font-bold opacity-80">© 2026 Little Fingers. Built for Play.</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 md:col-span-3 gap-12">
+                <div class="space-y-4">
+                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Products</h5>
+                    <nav class="flex flex-col gap-3">
+                        <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Indoor</a>
+                        <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Outdoor Play</a>
+                        <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Parts</a>
+                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">RF Sports</a>
+                    </nav>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">About</h5>
+                    <nav class="flex flex-col gap-3">
+                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Our Factory</a>
+                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Safety Standards</a>
+                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Success Stories</a>
+                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Contact Us</a>
+                    </nav>
+                </div>
+                <div class="space-y-4 col-span-2 md:col-span-1">
+                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Contact</h5>
+                    <p class="text-sm text-on-surface-variant">Plot No. 42, Industrial Area,<br>Phase 1, New Delhi - 110020</p>
+                    <p class="text-sm font-bold text-primary">+91 98765 43210</p>
+                    <p class="text-sm text-secondary underline">hello@littlefingersindia.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-margin-desktop mt-16 pt-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-on-surface-variant font-body-md text-xs">© 2026 Little Fingers India. All rights reserved. Designed for Safety.</p>
+            <div class="flex gap-6 text-xs text-on-surface-variant">
+                <a href="#" class="hover:text-primary">Privacy Policy</a>
+                <a href="#" class="hover:text-primary">Terms of Service</a>
+            </div>
         </div>
     </footer>
 
     <!-- FAB -->
-    <button class="bounce-btn neo-border neo-shadow neo-shadow-hover bg-accent text-white" 
-            style="position: fixed; bottom: 24px; right: 24px; z-index: 50; width: 56px; height: 56px; padding: 0; border-radius: 50%;">
-        <span class="material-symbols-outlined" style="font-size: 28px;">chat_bubble</span>
-    </button>
+    <div class="fixed bottom-8 right-8 z-50">
+        <button class="bg-tertiary text-on-tertiary w-16 h-16 rounded-full shadow-2xl border-4 border-white flex items-center justify-center btn-chunky group hover:scale-110">
+            <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">chat_bubble</span>
+            <div class="absolute -top-2 -right-2 bg-primary text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md">Support</div>
+        </button>
+    </div>
 
     <script>
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileDrawer');
             if (!drawer) return;
-            if (drawer.style.display === 'none' || drawer.classList.contains('hidden')) {
+            if (drawer.classList.contains('hidden')) {
                 drawer.classList.remove('hidden');
                 drawer.style.display = 'flex';
             } else {

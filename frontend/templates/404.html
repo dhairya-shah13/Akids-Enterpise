@@ -3,14 +3,24 @@
 {% block title %}Page Not Found | Little Fingers{% endblock %}
 
 {% block content %}
-<div class="container flex flex-col items-center justify-center text-center" style="min-height: 70vh; padding: var(--spacing-2xl) var(--spacing-md);">
-    <div class="neo-border neo-shadow bg-accent rotate-2 mb-xl" style="padding: 32px; border-radius: var(--border-radius-full);">
-        <span class="material-symbols-outlined text-white" style="font-size: 80px;">search_off</span>
+<div class="min-h-[80vh] flex flex-col items-center justify-center text-center px-margin-desktop py-20 relative overflow-hidden bg-background">
+    <!-- Decorative Floating Elements -->
+    <div class="absolute top-[15%] left-[15%] text-primary opacity-20 hidden md:block animate-[wiggle_4s_ease-in-out_infinite]">
+        <span class="material-symbols-outlined text-[100px]">toys</span>
     </div>
-    <h1 class="text-5xl font-black mb-md text-dark">Oops! 404</h1>
-    <p class="text-xl opacity-80 mb-xl max-w-lg mx-auto font-bold">We couldn't find the page or product you were looking for. It might have been moved or doesn't exist.</p>
-    <a href="{% url 'home' %}" class="bounce-btn neo-border neo-shadow-hover bg-primary text-dark font-black uppercase" style="padding: 16px 32px; border-radius: 999px; font-size: 1.1rem;">
-        Back to Home <span class="material-symbols-outlined ml-2">home</span>
-    </a>
+    <div class="absolute bottom-[20%] right-[15%] text-secondary opacity-20 hidden md:block -rotate-12">
+        <span class="material-symbols-outlined text-[120px]">extension</span>
+    </div>
+    
+    <div class="bg-white p-12 md:p-16 rounded-[3rem] border border-outline-variant/30 max-w-2xl w-full sticker-shadow relative z-10">
+        <div class="bg-accent text-white w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto mb-8 rotate-3 shadow-lg border border-accent/20">
+            <span class="material-symbols-outlined text-[64px]">search_off</span>
+        </div>
+        <h1 class="font-display-lg text-6xl md:text-7xl mb-4 text-on-surface">Oops! 404</h1>
+        <p class="font-body-lg text-xl text-on-surface-variant opacity-90 mb-10 max-w-lg mx-auto">We couldn't find the page or product you were looking for. It might have been moved or doesn't exist.</p>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-3 bg-primary text-on-primary font-label-md uppercase px-10 py-4 rounded-full btn-chunky hover:scale-105 shadow-xl shadow-primary/20 tracking-wider">
+            Back to Home <span class="material-symbols-outlined text-[24px]">home</span>
+        </a>
+    </div>
 </div>
 {% endblock %}
