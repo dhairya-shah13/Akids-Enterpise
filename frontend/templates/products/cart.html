@@ -3,7 +3,8 @@
 {% block title %}Your Cart | Little Fingers{% endblock %}
 
 {% block content %}
-<div class="py-12 max-w-7xl mx-auto px-margin-desktop min-h-[80vh]">
+<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
+    <div class="max-w-7xl mx-auto px-margin-desktop">
     <div class="flex items-center gap-4 mb-12">
         <div class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm rotate-2">
             <span class="material-symbols-outlined text-3xl">shopping_cart</span>
@@ -66,7 +67,7 @@
 
         <!-- Order Summary -->
         <div class="lg:col-span-4">
-            <div class="bg-primary-container/10 border border-primary/20 p-8 rounded-2xl shadow-sm sticky top-8">
+            <div class="bg-white border border-primary/20 p-8 rounded-2xl shadow-sm sticky top-8">
                 <h3 class="font-display-lg text-2xl mb-6 text-on-surface border-b border-outline-variant/30 pb-4">Order Summary</h3>
                 
                 <div class="flex justify-between mb-4 font-body-md text-on-surface-variant">
@@ -93,6 +94,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Authentication Gating Modal -->
