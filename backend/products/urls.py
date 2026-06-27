@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/products/add/', views.add_product, name='add_product'),
     path('admin-panel/products/<int:pk>/delete/', views.delete_product, name='delete_product'),
+    path('api/chat/', views.chat_api, name='chat_api'),
 ]

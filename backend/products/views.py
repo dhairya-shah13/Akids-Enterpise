@@ -1,9 +1,12 @@
 import os
+import json
 import uuid
 import requests
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from .models import Product
@@ -281,3 +284,66 @@ def product_detail(request, pk):
         'product': product,
         'related_products': related_products
     })
+
+@csrf_exempt
+def chat_api(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+    
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        user_message = data.get("message", "").strip()
+        history = data.get("history", [])
+    except Exception:
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        
+    if not user_message:
+        return JsonResponse({"error": "Empty message"}, status=400)
+
+    api_key = os.getenv("GROQ_API_KEY", "")
+    
+    system_prompt = (
+        "You are Mohanlal, the friendly, enthusiastic, and knowledgeable AI assistant and mascot for Little Fingers India / Mohanlal website. "
+        "We specialize in premium children's playground equipment, indoor & outdoor toys, RF sports gear, educational furniture, and spare parts. "
+        "Your goal is to engage warmly with customers, give them expert advice on playground products, answer their queries with enthusiasm, and help them find the right equipment. "
+        "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: 9924343003. "
+        "Keep your tone upbeat, helpful, and concise. Format your advice clearly using markdown if appropriate."
+    )
+
+    messages = [{"role": "system", "content": system_prompt}]
+    
+    for h in history[-6:]:
+        if isinstance(h, dict) and "role" in h and "content" in h:
+            if h["role"] in ("user", "assistant"):
+                messages.append({"role": h["role"], "content": str(h["content"])})
+                
+    messages.append({"role": "user", "content": user_message})
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": messages,
+        "temperature": 0.7,
+        "max_tokens": 600
+    }
+
+    try:
+        resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=15)
+        if resp.status_code == 200:
+            res_json = resp.json()
+            bot_reply = res_json["choices"][0]["message"]["content"]
+            return JsonResponse({"reply": bot_reply})
+        else:
+            payload["model"] = "llama-3.1-8b-instant"
+            resp2 = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=15)
+            if resp2.status_code == 200:
+                res_json = resp2.json()
+                bot_reply = res_json["choices"][0]["message"]["content"]
+                return JsonResponse({"reply": bot_reply})
+            return JsonResponse({"reply": "Namaste! I'm Mohanlal. I'm having a little trouble connecting right now, but for any urgent queries or larger requirements, please feel free to call us directly at 9924343003!"}, status=200)
+    except Exception:
+        return JsonResponse({"reply": "Namaste! I'm Mohanlal. I encountered a momentary connection glitch. For any important queries or immediate advice, please call us at 9924343003!"}, status=200)
+
