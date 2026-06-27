@@ -6,7 +6,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.paginator import Paginator
 from .models import Product
+from .search import search_products
 
 def get_env_credentials():
     env_email = "admin@gmail.com"
@@ -255,7 +257,11 @@ def delete_product(request, pk):
     return redirect('admin_dashboard')
 
 def category_listing(request, cat_code, template_name):
-    products = Product.objects.filter(category=cat_code).order_by('-created_at')
+    q = request.GET.get('q', '').strip()
+    if q:
+        products = search_products(q, category=cat_code)
+    else:
+        products = Product.objects.filter(category=cat_code).order_by('-created_at')
     return render(request, template_name, {'products': products})
 
 def indoors_view(request):
@@ -281,3 +287,23 @@ def product_detail(request, pk):
         'product': product,
         'related_products': related_products
     })
+
+def search_view(request):
+    q = request.GET.get('q', '').strip()
+    category = request.GET.get('category', '').strip()
+    
+    if category.lower() == 'all' or not category:
+        category = None
+        
+    products_list = search_products(q, category)
+    
+    paginator = Paginator(products_list, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'products/search_results.html', {
+        'page_obj': page_obj,
+        'q': q,
+        'category': category,
+    })
+

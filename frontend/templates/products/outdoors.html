@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="py-12">
+<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
     <!-- Hero Header -->
     <section class="relative text-center mb-16 px-margin-desktop">
         <div class="absolute -top-8 right-20 opacity-20 text-primary hidden md:block">
@@ -18,73 +18,52 @@
             Built for heavy play and high spirits. Discover our safety-certified structures designed to transform any backyard into a playground.
         </p>
         <div class="flex flex-wrap justify-center gap-4 mt-6">
-            <span class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold shadow-sm border border-primary/20 rotate-1">UV Protected</span>
-            <span class="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-full font-bold shadow-sm border border-secondary/20 -rotate-2">Safety First</span>
+            <span class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold shadow-sm border border-primary/20">UV Protected</span>
+            <span class="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-full font-bold shadow-sm border border-secondary/20">Safety First</span>
         </div>
     </section>
 
-    <!-- Bento Grid (Dynamic) -->
+    <!-- Category Search Bar -->
+    <section class="max-w-3xl mx-auto px-margin-desktop mb-16">
+        <form action="{% url 'search' %}" method="GET" class="relative">
+            <input type="hidden" name="category" value="OUTDOORS">
+            <input type="text" name="q" placeholder="Search outdoor gear..." required class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
+            <button type="submit" class="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
+                <span class="material-symbols-outlined text-xl">search</span>
+            </button>
+        </form>
+    </section>
+
+    <!-- Product Grid -->
     <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
         
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter h-auto mb-12">
-            <!-- Large Featured Card (Product 1) -->
-            {% if products.0 %}
-            <div class="md:col-span-2 bg-white rounded-[2.5rem] p-8 flex flex-col md:flex-row gap-8 bento-card relative overflow-hidden group border border-outline-variant/30 hover:border-primary/30 sticker-shadow">
-                <a href="{% url 'product_detail' products.0.pk %}" class="block relative w-full md:w-1/2 h-[300px] md:h-auto bg-background rounded-[2rem] overflow-hidden border border-outline-variant/10 flex items-center justify-center p-4">
-                    <img src="{{ products.0.display_image }}" alt="{{ products.0.name }}" class="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-700">
-                    <div class="absolute top-4 left-4 bg-primary text-on-primary px-4 py-2 rounded-full font-black text-lg shadow-lg rotate-1">
-                        ₹{{ products.0.price }}
-                    </div>
-                </a>
-                <div class="flex flex-col justify-center w-full md:w-1/2">
-                    <span class="text-secondary font-bold text-sm uppercase mb-2 tracking-wider">{{ products.0.category }}</span>
-                    <h3 class="font-display-lg text-3xl text-on-surface mb-4"><a href="{% url 'product_detail' products.0.pk %}" class="hover:text-primary transition-colors">{{ products.0.name }}</a></h3>
-                    <p class="font-body-md text-on-surface-variant text-lg mb-6 line-clamp-3">{{ products.0.description }}</p>
-                    <div class="flex gap-2 mb-8 flex-wrap">
-                        <span class="bg-surface border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full text-on-surface-variant">UV Protected</span>
-                        <span class="bg-surface border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full text-on-surface-variant">Safety First</span>
-                    </div>
-                    <a href="{% url 'product_detail' products.0.pk %}" class="bg-secondary text-on-secondary font-label-md px-8 py-3 rounded-full btn-chunky hover:scale-105 inline-block w-full text-center text-sm shadow-lg shadow-secondary/20 uppercase tracking-wide mt-auto">View Details</a>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Secondary Square Card (Product 2) -->
-            {% if products.1 %}
-            <div class="md:col-span-1 bg-primary text-on-primary rounded-[2.5rem] p-6 bento-card flex flex-col shadow-xl hover:-translate-y-2 transition-transform">
-                <a href="{% url 'product_detail' products.1.pk %}" class="block h-48 bg-white rounded-2xl overflow-hidden mb-4 p-4 relative flex items-center justify-center group">
-                    <img src="{{ products.1.display_image }}" alt="{{ products.1.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
-                </a>
-                <div class="flex justify-between items-start mb-2 gap-2">
-                    <h3 class="font-headline-md text-2xl"><a href="{% url 'product_detail' products.1.pk %}" class="hover:text-primary-container transition-colors">{{ products.1.name }}</a></h3>
-                    <span class="bg-white text-primary font-black px-2 py-1 rounded-md text-sm shrink-0">₹{{ products.1.price }}</span>
-                </div>
-                <p class="font-body-md text-sm mb-6 opacity-90 line-clamp-2">{{ products.1.description }}</p>
-                <a href="{% url 'product_detail' products.1.pk %}" class="bg-white text-primary font-label-md px-4 py-3 rounded-full btn-chunky hover:bg-primary-container text-center block w-full mt-auto uppercase text-sm">View Details</a>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Standard Grid Items (Products 3+) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mt-16">
-            {% for product in products|slice:"2:" %}
-            <div class="bg-white rounded-[2.5rem] p-6 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20 flex flex-col justify-between">
-                <div>
-                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-background rounded-2xl mb-4 overflow-hidden relative border border-outline-variant/10 p-4 flex items-center justify-center">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute bottom-2 right-2 bg-error text-white px-3 py-1 rounded-md font-black text-sm rotate-2 shadow-sm">₹{{ product.price }}</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            {% for product in products %}
+            <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full">
+                <div class="flex-grow">
+                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-6 flex items-center justify-center group-hover:border-primary/30 transition-colors">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
                     </a>
-                    <h4 class="font-headline-md text-on-surface text-lg leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
-                    <p class="font-body-md text-sm text-on-surface-variant mb-6">{{ product.description|truncatechars:65 }}</p>
+                    <h4 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
+                    <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description|truncatechars:65 }}</p>
                 </div>
-                <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-2.5 rounded-full btn-chunky hover:bg-secondary/5 text-center block w-full uppercase text-xs tracking-wider">View Gear</a>
+                <div class="mt-auto flex flex-col gap-4">
+                    <div class="flex items-center">
+                        <div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">₹{{ product.price }}</div>
+                    </div>
+                    <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">View Item</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-12 text-center text-on-surface-variant font-body-lg">
+                No products found in this category.
             </div>
             {% endfor %}
         </div>
     </section>
 
-    <!-- Hand-drawn Divider -->
-    <div class="max-w-5xl mx-auto border-b-2 border-outline-variant/30 rounded-[255px_15px_225px_15px/15px_225px_15px_255px] my-20"></div>
+    <!-- Divider -->
+    <div class="max-w-5xl mx-auto border-b border-outline-variant/30 my-20"></div>
 
     <!-- Accessories Section -->
     <section class="max-w-6xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-12 items-center">
@@ -107,11 +86,11 @@
             </ul>
         </div>
         <div class="flex-1 grid grid-cols-2 gap-6 w-full md:w-auto">
-            <div class="aspect-square bg-tertiary text-on-tertiary rounded-[2rem] p-6 flex flex-col justify-center items-center rotate-2 shadow-lg border border-tertiary/20">
+            <div class="aspect-square bg-tertiary text-on-tertiary rounded-2xl p-6 flex flex-col justify-center items-center shadow-md border border-tertiary/20">
                 <span class="material-symbols-outlined text-[64px] mb-4">shield</span>
                 <div class="font-bold text-lg">Safety Gear</div>
             </div>
-            <div class="aspect-square bg-primary text-on-primary rounded-[2rem] p-6 flex flex-col justify-center items-center -rotate-3 shadow-lg border border-primary/20 mt-8">
+            <div class="aspect-square bg-primary text-on-primary rounded-2xl p-6 flex flex-col justify-center items-center shadow-md border border-primary/20 mt-8">
                 <span class="material-symbols-outlined text-[64px] mb-4">construction</span>
                 <div class="font-bold text-lg">Tools</div>
             </div>

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results | Little Fingers{% endblock %}
+
+{% block content %}
+<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
+    <div class="max-w-7xl mx-auto px-margin-desktop min-h-[70vh]">
+    <!-- Search Header -->
+    <div class="mb-12">
+        <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">
+            Search Results for "<span class="text-primary">{{ q }}</span>"
+        </h1>
+        
+        {% if category %}
+        <div class="bg-secondary/10 border border-secondary/20 rounded-xl p-4 flex flex-wrap items-center gap-4 inline-block mb-6">
+            <div class="flex items-center gap-2 text-secondary font-bold">
+                <span class="material-symbols-outlined">filter_list</span>
+                Showing results in category: {{ category }}
+            </div>
+            <a href="{% url 'search' %}?q={{ q }}" class="text-sm bg-white border border-outline-variant/30 hover:border-secondary hover:text-secondary px-4 py-2 rounded-full font-label-md transition-colors shadow-sm">
+                Search all categories instead
+            </a>
+        </div>
+        {% endif %}
+        
+        <p class="font-body-md text-on-surface-variant text-lg">
+            Found {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+        </p>
+    </div>
+
+    <!-- Results Grid -->
+    {% if page_obj %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        {% for product in page_obj %}
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-shadow group flex flex-col justify-between h-full">
+            <div class="flex-grow">
+                <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-4 flex items-center justify-center group-hover:border-primary/30 transition-colors">
+                    <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+                </a>
+                <h4 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
+                <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description|truncatechars:65 }}</p>
+            </div>
+            <div class="mt-auto flex flex-col gap-4">
+                <div class="flex items-center">
+                    <div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">₹{{ product.price }}</div>
+                </div>
+                <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">View Item</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="flex justify-center items-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?q={{ q }}{% if category %}&category={{ category }}{% endif %}&page={{ page_obj.previous_page_number }}" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant/30 hover:border-primary hover:text-primary transition-colors shadow-sm">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </a>
+        {% endif %}
+        
+        <div class="font-bold text-on-surface-variant px-4">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+        
+        {% if page_obj.has_next %}
+        <a href="?q={{ q }}{% if category %}&category={{ category }}{% endif %}&page={{ page_obj.next_page_number }}" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant/30 hover:border-primary hover:text-primary transition-colors shadow-sm">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white border-2 border-dashed border-outline-variant/50 p-16 rounded-2xl text-center flex flex-col items-center justify-center mb-16">
+        <div class="bg-surface w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-sm border border-outline-variant/10 -rotate-3">
+            <span class="material-symbols-outlined text-[48px] text-on-surface-variant opacity-50">search_off</span>
+        </div>
+        <h2 class="font-display-lg text-3xl text-on-surface mb-3">No matching items found</h2>
+        <p class="font-body-lg text-on-surface-variant mb-8 max-w-md">We couldn't find anything matching your search. Try adjusting your keywords or clearing the category filter.</p>
+        <a href="{% url 'search' %}?q={{ q }}" class="bg-primary text-on-primary font-label-md uppercase px-8 py-4 rounded-full shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 tracking-wider">Search all categories instead</a>
+    </div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}

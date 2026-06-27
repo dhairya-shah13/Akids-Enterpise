@@ -7,7 +7,7 @@
     <div class="grid lg:grid-cols-12 gap-12 items-start mb-24">
         <!-- Left: Product Image Gallery -->
         <div class="lg:col-span-5 flex flex-col gap-4">
-            <div class="bg-background border border-outline-variant/30 rounded-[2.5rem] p-8 flex items-center justify-center relative overflow-hidden sticker-shadow h-[500px]">
+            <div class="bg-background border border-outline-variant/30 rounded-2xl p-8 flex items-center justify-center relative overflow-hidden shadow-sm h-[500px]">
                 <!-- Decorative element -->
                 <div class="absolute -top-10 -right-10 text-primary opacity-20 rotate-3">
                     <span class="material-symbols-outlined text-[200px]">toys</span>
@@ -67,7 +67,7 @@
             </div>
 
             <!-- Description Card -->
-            <div class="bg-white border border-outline-variant/30 p-8 rounded-[2rem] shadow-sm">
+            <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
                 <h3 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h3>
                 <p class="font-body-md text-on-surface-variant leading-relaxed mb-4">
                     {{ product.description }}
@@ -90,7 +90,7 @@
                     </div>
                     
                     {% if product.stock > 0 %}
-                    <button type="button" onclick="submitCart()" class="bg-primary text-on-primary font-label-md text-lg flex-1 flex items-center justify-center gap-2 rounded-2xl py-4 btn-chunky hover:scale-105 shadow-xl shadow-primary/20 uppercase">
+                    <button type="button" onclick="submitCart()" class="bg-primary text-on-primary font-label-md text-lg flex-1 flex items-center justify-center gap-2 rounded-2xl py-4 shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-primary/20 uppercase">
                         <span class="material-symbols-outlined">shopping_cart</span> Add to Cart
                     </button>
                     {% else %}
@@ -100,7 +100,7 @@
                     {% endif %}
                 </form>
                 
-                <button class="bg-secondary text-on-secondary font-label-md text-lg w-full flex items-center justify-center gap-2 rounded-2xl py-4 btn-chunky hover:scale-105 shadow-xl shadow-secondary/20 uppercase mt-2">
+                <button class="bg-secondary text-on-secondary font-label-md text-lg w-full flex items-center justify-center gap-2 rounded-2xl py-4 shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 uppercase mt-2">
                     <span class="material-symbols-outlined">request_quote</span> Request Bulk Quote
                 </button>
             </div>
@@ -125,7 +125,7 @@
         <h2 class="font-display-lg text-3xl mb-8 text-on-surface">You May Also Like</h2>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
             {% for rel_product in related_products %}
-            <div class="bg-white rounded-[2rem] p-6 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-secondary/20 flex flex-col justify-between">
+            <div class="bg-white rounded-xl p-6 border border-outline-variant/30 shadow-sm hover:-translate-y-2 transition-all group hover:border-secondary/20 flex flex-col justify-between">
                 <div>
                     <a href="{% url 'product_detail' rel_product.pk %}" class="block aspect-[4/3] bg-background rounded-xl mb-4 overflow-hidden border border-outline-variant/10 p-4 flex items-center justify-center">
                         <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
@@ -139,7 +139,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <a href="{% url 'product_detail' rel_product.pk %}" class="bg-secondary text-on-secondary font-label-md px-4 py-2.5 rounded-full btn-chunky hover:bg-secondary/90 text-center block w-full uppercase text-xs tracking-wider">View Item</a>
+                <a href="{% url 'product_detail' rel_product.pk %}" class="bg-secondary text-on-secondary font-label-md px-4 py-2.5 rounded-full shadow-sm hover:shadow-md transition-shadow hover:bg-secondary/90 text-center block w-full uppercase text-xs tracking-wider">View Item</a>
             </div>
             {% endfor %}
         </div>
