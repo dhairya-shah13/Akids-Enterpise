@@ -12,9 +12,9 @@
         <span class="material-symbols-outlined text-[120px]">extension</span>
     </div>
 
-    <div class="bg-white p-10 md:p-12 rounded-[2.5rem] border border-outline-variant/30 w-full max-w-md sticker-shadow relative z-10">
+    <div class="bg-white p-10 md:p-12 rounded-2xl border border-outline-variant/30 w-full max-w-md shadow-sm relative z-10">
         <div class="flex flex-col items-center text-center mb-8">
-            <div class="bg-primary text-on-primary w-16 h-16 rounded-2xl flex items-center justify-center mb-4 rotate-2 shadow-sm border border-primary/20">
+            <div class="bg-primary text-on-primary w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-primary/20">
                 <span class="material-symbols-outlined text-[40px]">sentiment_satisfied</span>
             </div>
             <h1 class="font-display-lg text-3xl mb-2 text-on-surface">Welcome Back!</h1>
@@ -22,7 +22,7 @@
         </div>
 
         {% if error %}
-        <div class="bg-error text-white px-4 py-3 rounded-xl mb-6 flex items-center gap-3 rotate-1 shadow-sm border border-error/20">
+        <div class="bg-error text-white px-4 py-3 rounded-xl mb-6 flex items-center gap-3 shadow-sm border border-error/20">
             <span class="material-symbols-outlined text-xl shrink-0">error</span>
             <span class="font-bold text-sm">{{ error }}</span>
         </div>
@@ -45,14 +45,14 @@
                 </div>
             </div>
 
-            <button type="submit" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl btn-chunky hover:scale-105 shadow-lg shadow-primary/20 tracking-wide mt-2 flex items-center justify-center gap-2">
+            <button type="submit" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 tracking-wide mt-2 flex items-center justify-center gap-2">
                 Sign In <span class="material-symbols-outlined">login</span>
             </button>
         </form>
 
         <div class="mt-8 pt-6 border-t border-outline-variant/30 text-center flex flex-col gap-4 items-center">
             <p class="font-body-md text-sm font-bold text-on-surface-variant">Don't have an account?</p>
-            <a href="{% url 'signup' %}" class="bg-secondary text-on-secondary font-label-md uppercase px-6 py-2.5 rounded-full btn-chunky hover:bg-secondary/90 text-sm tracking-wide">
+            <a href="{% url 'signup' %}" class="bg-secondary text-on-secondary font-label-md uppercase px-6 py-2.5 rounded-full shadow-sm hover:shadow-md transition-shadow hover:bg-secondary/90 text-sm tracking-wide">
                 Sign Up
             </a>
             <p class="font-body-md text-xs opacity-70 mt-2 text-on-surface-variant">Admin access requires school invitation.</p>

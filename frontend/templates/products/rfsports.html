@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="py-12 max-w-7xl mx-auto px-margin-desktop">
+<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
+    <div class="max-w-7xl mx-auto px-margin-desktop">
     <!-- Coming Soon Header Section -->
-    <section class="bg-background border border-outline-variant/30 rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden sticker-shadow mb-20 flex flex-col items-center justify-center min-h-[500px]">
+    <section class="bg-background border border-outline-variant/30 rounded-3xl p-12 md:p-20 text-center relative overflow-hidden shadow-sm mb-20 flex flex-col items-center justify-center min-h-[500px]">
         
         <!-- Decorative Doodles -->
         <div class="absolute top-10 left-10 text-error opacity-20 -rotate-12 pointer-events-none hidden md:block">
@@ -19,7 +20,7 @@
             <span class="material-symbols-outlined text-[80px]">sports_tennis</span>
         </div>
 
-        <div class="bg-error text-white px-8 py-4 rounded-full shadow-lg border border-error/20 rotate-2 mb-8 relative z-10">
+        <div class="bg-error text-white px-8 py-4 rounded-full shadow-lg border border-error/20 mb-8 relative z-10">
             <h1 class="font-display-lg text-4xl md:text-5xl">Coming Soon!</h1>
         </div>
         
@@ -32,7 +33,7 @@
             <p class="font-bold text-on-surface mb-4">Get notified when we launch!</p>
             <div class="flex flex-col sm:flex-row gap-3 w-full">
                 <input type="email" placeholder="Your email address" class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface">
-                <button class="bg-primary text-on-primary font-label-md px-6 py-3 rounded-xl btn-chunky hover:scale-105 shadow-md shadow-primary/20 shrink-0">
+                <button class="bg-primary text-on-primary font-label-md px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-md shadow-primary/20 shrink-0">
                     Notify
                 </button>
             </div>
@@ -41,6 +42,17 @@
         <div class="mt-16 relative z-10">
             <span class="material-symbols-outlined text-error text-[64px] animate-bounce">sports_baseball</span>
         </div>
+    </section>
+
+    <!-- Category Search Bar -->
+    <section class="max-w-3xl mx-auto mb-16">
+        <form action="{% url 'search' %}" method="GET" class="relative">
+            <input type="hidden" name="category" value="RFSPORTS">
+            <input type="text" name="q" placeholder="Search sports gear..." required class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
+            <button type="submit" class="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
+                <span class="material-symbols-outlined text-xl">search</span>
+            </button>
+        </form>
     </section>
 
     <!-- Live Admin Added Catalog Section -->
@@ -53,25 +65,28 @@
             <span class="bg-secondary text-on-secondary font-bold text-xs px-4 py-2 rounded-full shadow-sm border border-secondary/20">Supabase Cloud</span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {% for product in products %}
-            <div class="bg-white rounded-[2.5rem] p-6 border border-outline-variant/30 sticker-shadow hover:-translate-y-2 transition-all group hover:border-primary/20 flex flex-col justify-between">
-                <div>
-                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-background rounded-2xl mb-6 overflow-hidden border border-outline-variant/10 p-4 flex items-center justify-center relative">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+            <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-shadow group flex flex-col justify-between h-full">
+                <div class="flex-grow">
+                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden border border-outline-variant/20 p-4 flex items-center justify-center relative group-hover:border-primary/30 transition-colors">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
                     </a>
-                    <div class="flex justify-between items-start mb-3 gap-3">
-                        <h3 class="font-headline-md text-xl text-on-surface leading-tight"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
-                        <span class="bg-primary text-on-primary font-black text-sm px-3 py-1.5 rounded-xl shadow-sm border border-primary/20 shrink-0">₹{{ product.price }}</span>
-                    </div>
-                    <p class="font-body-md text-sm text-on-surface-variant mb-6 leading-relaxed">{{ product.description }}</p>
+                    <h3 class="font-headline-md text-xl text-on-surface mb-2 leading-tight line-clamp-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
+                    <p class="font-body-md text-sm text-on-surface-variant mb-6 leading-relaxed break-all line-clamp-2">{{ product.description }}</p>
                 </div>
-                <a href="{% url 'product_detail' product.pk %}" class="bg-secondary text-on-secondary font-label-md px-4 py-3.5 rounded-xl btn-chunky hover:bg-secondary/90 text-center block w-full uppercase text-xs tracking-wider shadow-sm mt-auto">
-                    View Details
-                </a>
+                <div class="mt-auto flex flex-col gap-4">
+                    <div class="flex items-center">
+                        <div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">₹{{ product.price }}</div>
+                    </div>
+                    <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">
+                        View Details
+                    </a>
+                </div>
             </div>
             {% endfor %}
         </div>
+    </div>
     </div>
 </div>
 {% endblock %}
