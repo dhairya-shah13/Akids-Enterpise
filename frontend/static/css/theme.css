@@ -65,3 +65,53 @@
 .nav-link:hover::after, .nav-link.active::after {
     width: 100%;
 }
+
+/* ===================== */
+/* Responsive Overrides   */
+/* ===================== */
+
+/* Mobile: reduce padding from 64px to 16px */
+@media (max-width: 640px) {
+    .px-margin-desktop {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    .hero-min-height {
+        min-height: 400px !important;
+    }
+    .hero-heading {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+    .bento-grid-card-image {
+        height: 160px !important;
+    }
+}
+
+/* Tablet: moderate padding */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .px-margin-desktop {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+    .hero-min-height {
+        min-height: 500px !important;
+    }
+}
+
+/* Ensure interactive elements meet 48px touch target minimum */
+.touch-target {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+/* Darken primary text on light backgrounds for WCAG AA contrast (4.5:1) */
+.text-primary {
+    color: #A86000 !important;
+}
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+

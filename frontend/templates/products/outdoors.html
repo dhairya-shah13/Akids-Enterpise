@@ -25,12 +25,13 @@
 
     <!-- Category Search Bar -->
     <section class="max-w-3xl mx-auto px-margin-desktop mb-16">
-        <form action="{% url 'search' %}" method="GET" class="relative">
+        <form action="{% url 'search' %}" method="GET" class="relative search-wrapper">
             <input type="hidden" name="category" value="OUTDOORS">
-            <input type="text" name="q" placeholder="Search outdoor gear..." required class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
+            <input type="text" name="q" placeholder="Search outdoor gear..." required autocomplete="off" class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
             <button type="submit" class="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
                 <span class="material-symbols-outlined text-xl">search</span>
             </button>
+            <div class="autocomplete-dropdown"></div>
         </form>
     </section>
 
@@ -42,9 +43,9 @@
             <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full">
                 <div class="flex-grow">
                     <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-6 flex items-center justify-center group-hover:border-primary/30 transition-colors">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
                     </a>
-                    <h4 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h4>
+                    <h3 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
                     <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description|truncatechars:65 }}</p>
                 </div>
                 <div class="mt-auto flex flex-col gap-4">
@@ -68,7 +69,7 @@
     <!-- Accessories Section -->
     <section class="max-w-6xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-12 items-center">
         <div class="flex-1">
-            <h2 class="font-display-lg text-4xl mb-4 text-on-surface">Complete the Set</h2>
+            <h3 class="font-display-lg text-4xl mb-4 text-on-surface">Complete the Set</h3>
             <p class="font-body-lg text-on-surface-variant text-lg mb-8 max-w-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
             <ul class="space-y-4">
                 <li class="flex items-center gap-3 text-on-surface font-bold text-lg">

@@ -34,6 +34,9 @@
             <button onclick="switchTab('sales')" id="tab-sales" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
                 📈 Sales Reports & Analytics
             </button>
+            <button onclick="switchTab('orders')" id="tab-orders" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
+                📦 Order Management ({{ all_orders|length }})
+            </button>
         </div>
 
         <!-- SECTION 1: PRODUCT LIST -->
@@ -61,7 +64,7 @@
                             <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
                                 <td class="p-4 w-24">
                                     <a href="{% url 'product_detail' product.pk %}" target="_blank" class="block w-16 h-16 rounded-xl overflow-hidden border border-outline-variant/20 bg-white p-1 shadow-sm hover:scale-105 transition-transform">
-                                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="w-full h-full object-contain">
+                                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="w-full h-full object-contain">
                                     </a>
                                 </td>
                                 <td class="p-4 font-headline-md text-lg"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors" target="_blank">{{ product.name }}</a></td>
@@ -100,32 +103,32 @@
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                 <div class="bg-primary text-on-primary rounded-xl p-8 shadow-sm border border-primary/20">
                     <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Total Gross Revenue</span>
-                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.total_revenue }}</h3>
+                    <h3 class="font-display-lg text-4xl mt-3">₹{{ sales.total_revenue|floatformat:2 }}</h3>
                     <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
-                        <span class="material-symbols-outlined text-[20px]">trending_up</span> +18.4% this month
+                        <span class="material-symbols-outlined text-[20px]">account_balance</span> From completed orders
                     </div>
                 </div>
 
-                <div class="bg-secondary text-on-secondary rounded-xl p-8 shadow-sm -border border-secondary/20">
+                <div class="bg-secondary text-on-secondary rounded-xl p-8 shadow-sm border border-secondary/20">
                     <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Completed Orders</span>
                     <h3 class="font-display-lg text-4xl mt-3">{{ sales.total_orders }}</h3>
                     <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
-                        <span class="material-symbols-outlined text-[20px]">check_circle</span> 100% Fulfilled
+                        <span class="material-symbols-outlined text-[20px]">check_circle</span> Total fulfilled
                     </div>
                 </div>
 
                 <div class="bg-tertiary text-on-tertiary rounded-xl p-8 shadow-sm border border-tertiary/20">
-                    <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Active Quote Requests</span>
-                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.active_quotes }}</h3>
+                    <span class="font-label-md text-xs uppercase opacity-80 tracking-wider">Pending Orders</span>
+                    <h3 class="font-display-lg text-4xl mt-3">{{ sales.pending_orders }}</h3>
                     <div class="flex items-center gap-2 mt-6 text-sm font-bold opacity-90">
-                        <span class="material-symbols-outlined text-[20px]">pending_actions</span> Needs follow-up
+                        <span class="material-symbols-outlined text-[20px]">pending_actions</span> Awaiting processing
                     </div>
                 </div>
 
-                <div class="bg-white text-on-surface rounded-xl p-8 shadow-sm -border border-outline-variant/30">
+                <div class="bg-white text-on-surface rounded-xl p-8 shadow-sm border border-outline-variant/30">
                     <span class="font-label-md text-xs uppercase text-secondary tracking-wider">🏆 Top Best Seller</span>
                     <h4 class="font-headline-md text-2xl mt-3 line-clamp-1">{{ sales.best_seller }}</h4>
-                    <p class="font-body-md text-xs text-on-surface-variant mt-4 opacity-80">Over 44 units installed across schools</p>
+                    <p class="font-body-md text-xs text-on-surface-variant mt-4 opacity-80">{{ sales.best_seller_qty }} units sold</p>
                 </div>
             </div>
 
@@ -136,7 +139,7 @@
                         <h3 class="font-display-lg text-3xl text-on-surface">Monthly Sales Performance</h3>
                         <p class="font-body-md text-sm text-on-surface-variant mt-1">Revenue generated over the last 6 months</p>
                     </div>
-                    <span class="bg-primary/10 text-primary font-bold text-sm px-4 py-2 rounded-full border border-primary/20 shadow-sm animate-pulse">Live Analytics</span>
+                    <span class="bg-primary/10 text-primary font-bold text-sm px-4 py-2 rounded-full border border-primary/20 shadow-sm animate-pulse">Live Data</span>
                 </div>
 
                 <!-- Visual Bar Chart -->
@@ -144,15 +147,174 @@
                     <div class="h-[300px] flex items-end gap-6 pt-8 pb-4 px-6 border-b-2 border-l-2 border-on-surface/10 bg-background/50 relative min-w-[600px] rounded-bl-2xl">
                         {% for item in sales.monthly_sales %}
                         <div class="flex-1 h-full flex flex-col justify-end items-center gap-2 group">
-                            <span class="font-bold text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:-translate-y-1">{{ item.amount }}</span>
-                            <div class="w-full max-w-[64px] bg-secondary/80 hover:bg-secondary rounded-t-xl transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] shadow-md border border-secondary/20" style="height: {{ item.height }};" title="{{ item.month }}: {{ item.amount }}"></div>
+                            <span class="font-bold text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:-translate-y-1">₹{{ item.amount|floatformat:0 }}</span>
+                            <div class="w-full max-w-[64px] bg-secondary/80 hover:bg-secondary rounded-t-xl transition-all duration-700 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] shadow-md border border-secondary/20" style="height: {{ item.height }};" title="{{ item.month }}: ₹{{ item.amount|floatformat:2 }}"></div>
                             <span class="font-label-md text-xs uppercase text-on-surface-variant mt-2">{{ item.month }}</span>
+                        </div>
+                        {% empty %}
+                        <div class="w-full h-full flex items-center justify-center text-on-surface-variant font-body-md">
+                            No sales data yet. Orders will appear here once customers start purchasing.
                         </div>
                         {% endfor %}
                     </div>
                 </div>
             </div>
+
+            <!-- Recent Orders -->
+            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm mt-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h4 class="font-display-lg text-2xl text-on-surface">Recent Orders</h4>
+                    <span class="bg-surface text-on-surface-variant font-bold text-xs px-3 py-1 rounded-full border border-outline-variant/30">{{ sales.recent_orders|length }} shown</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
+                                <th class="p-3 rounded-tl-xl">Order #</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Items</th>
+                                <th class="p-3">Total</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-right rounded-tr-xl">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-on-surface font-body-md">
+                            {% for order in sales.recent_orders %}
+                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
+                                <td class="p-3 font-bold">#{{ order.id }}</td>
+                                <td class="p-3">
+                                    <span class="font-medium">{{ order.customer_name }}</span>
+                                    <span class="text-xs text-on-surface-variant block">{{ order.customer_email }}</span>
+                                </td>
+                                <td class="p-3">{{ order.items.count }}</td>
+                                <td class="p-3 font-bold">₹{{ order.total_amount|floatformat:2 }}</td>
+                                <td class="p-3">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase
+                                        {% if order.status == 'DELIVERED' %}bg-green-100 text-green-800
+                                        {% elif order.status == 'OUT_FOR_DELIVERY' %}bg-teal-100 text-teal-800
+                                        {% elif order.status == 'IN_TRANSIT' %}bg-blue-100 text-blue-800
+                                        {% elif order.status == 'DISPATCHED' %}bg-purple-100 text-purple-800
+                                        {% elif order.status == 'CANCELLED' %}bg-red-100 text-red-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="p-3 text-right text-sm text-on-surface-variant">{{ order.created_at|date:"d M Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center p-12">
+                                    <p class="font-body-lg text-on-surface-variant">No orders yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+        <!-- SECTION 3: ORDER MANAGEMENT -->
+        <div id="section-orders" class="hidden" data-update-url-pattern="{% url 'update_order_status' 999999999 %}">
+            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h2 class="font-display-lg text-3xl text-on-surface">All Orders</h2>
+                    <span class="bg-secondary/10 text-secondary font-bold text-sm px-4 py-2 rounded-full border border-secondary/20 shadow-sm">Manage order statuses</span>
+                </div>
+
+                {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}bg-error/10 text-error border-error/20{% else %}bg-green-50 text-green-800 border-green-200{% endif %} border px-5 py-3 rounded-xl font-medium text-sm">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
+                                <th class="p-3 rounded-tl-xl">Order #</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Items</th>
+                                <th class="p-3">Total</th>
+                                <th class="p-3">Current Status</th>
+                                <th class="p-3">Actions</th>
+                                <th class="p-3 text-right rounded-tr-xl">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-on-surface font-body-md">
+                            {% for order in all_orders %}
+                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
+                                <td class="p-3 font-bold">#{{ order.id }}</td>
+                                <td class="p-3">
+                                    <span class="font-medium">{{ order.customer_name }}</span>
+                                    <span class="text-xs text-on-surface-variant block">{{ order.customer_email }}</span>
+                                </td>
+                                <td class="p-3">{{ order.items.count }}</td>
+                                <td class="p-3 font-bold">₹{{ order.total_amount|floatformat:2 }}</td>
+                                <td class="p-3">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase
+                                        {% if order.status == 'DELIVERED' %}bg-green-100 text-green-800
+                                        {% elif order.status == 'OUT_FOR_DELIVERY' %}bg-teal-100 text-teal-800
+                                        {% elif order.status == 'IN_TRANSIT' %}bg-blue-100 text-blue-800
+                                        {% elif order.status == 'DISPATCHED' %}bg-purple-100 text-purple-800
+                                        {% elif order.status == 'CANCELLED' %}bg-red-100 text-red-800
+                                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="p-3">
+                                    {% if order.status == 'DELIVERED' %}
+                                        <span class="text-xs text-green-700 font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px]">check_circle</span> ✓ Completed
+                                        </span>
+                                    {% elif order.status == 'CANCELLED' %}
+                                        <span class="text-xs text-red-700 font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px]">cancel</span> ✕ Cancelled
+                                        </span>
+                                    {% else %}
+                                        <div class="flex gap-2 flex-wrap items-center">
+                                            {% with next_code=order.get_next_status_code next_label=order.get_next_status_display %}
+                                            <form method="POST" action="{% url 'update_order_status' order.pk %}" class="m-0 order-status-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="advance">
+                                                <button type="submit" class="bg-primary text-on-primary text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 hover:scale-105 transition-all shadow-sm whitespace-nowrap flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span> {{ next_label }}
+                                                </button>
+                                            </form>
+                                            {% endwith %}
+                                            <form method="POST" action="{% url 'update_order_status' order.pk %}" class="m-0 order-status-form">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="cancel">
+                                                <button type="submit" class="bg-error/10 text-error text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-error hover:text-white transition-all border border-error/20 whitespace-nowrap flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[14px]">cancel</span> Cancel
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="p-3 text-right text-sm text-on-surface-variant">{{ order.created_at|date:"d M Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center p-12">
+                                    <div class="flex flex-col items-center">
+                                        <span class="material-symbols-outlined text-[48px] text-on-surface-variant opacity-50 mb-4">receipt_long</span>
+                                        <p class="font-body-lg text-on-surface-variant">No orders yet.</p>
+                                        <p class="text-sm text-on-surface-variant mt-2">Orders will appear here once customers start purchasing.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -185,7 +347,7 @@
                         <option value="INDOORS">Indoors</option>
                         <option value="OUTDOORS">Outdoors</option>
                         <option value="PARTS">Parts</option>
-                        <option value="RFSPORTS">RF Sports</option>
+                        <option value="MRSPORTS">MR Sports</option>
                     </select>
                 </div>
                 <div>
@@ -229,21 +391,24 @@
     function switchTab(tab) {
         document.getElementById('section-products').classList.add('hidden');
         document.getElementById('section-sales').classList.add('hidden');
+        document.getElementById('section-orders').classList.add('hidden');
         
-        // Reset classes
         const btnProducts = document.getElementById('tab-products');
         const btnSales = document.getElementById('tab-sales');
+        const btnOrders = document.getElementById('tab-orders');
         
         btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
         btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
+        btnOrders.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
 
         document.getElementById('section-' + tab).classList.remove('hidden');
         
-        // Set active classes
         if (tab === 'products') {
             btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
-        } else {
+        } else if (tab === 'sales') {
             btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+        } else {
+            btnOrders.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
         }
     }
 
@@ -285,5 +450,190 @@
         container.classList.add('hidden');
         if (photoInput) photoInput.value = '';
     }
+</script>
+
+<script>
+    // ===== Order Status AJAX Updates =====
+    function getCsrfToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function getStatusBadgeHtml(status, display) {
+        const colorMap = {
+            'DELIVERED': 'bg-green-100 text-green-800',
+            'OUT_FOR_DELIVERY': 'bg-teal-100 text-teal-800',
+            'IN_TRANSIT': 'bg-blue-100 text-blue-800',
+            'DISPATCHED': 'bg-purple-100 text-purple-800',
+            'CANCELLED': 'bg-red-100 text-red-800',
+        };
+        const cls = colorMap[status] || 'bg-yellow-100 text-yellow-800';
+        return '<span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ' + cls + '">' + display + '</span>';
+    }
+
+    function getActionsHtml(orderId, status, nextCode, nextDisplay) {
+        if (status === 'DELIVERED') {
+            return '<span class="text-xs text-green-700 font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">check_circle</span> ✓ Completed</span>';
+        }
+        if (status === 'CANCELLED') {
+            return '<span class="text-xs text-red-700 font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">cancel</span> ✕ Cancelled</span>';
+        }
+
+        const csrf = getCsrfToken();
+        const ordersSection = document.getElementById('section-orders');
+        const urlPattern = ordersSection ? ordersSection.dataset.updateUrlPattern : '';
+        const actionUrl = urlPattern ? urlPattern.replace('/999999999/', '/' + orderId + '/') : '';
+
+        let html = '<div class="flex gap-2 flex-wrap items-center">';
+
+        if (nextCode && nextDisplay && actionUrl) {
+            html += '<form method="POST" action="' + actionUrl + '" class="m-0 order-status-form">'
+                 + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrf + '">'
+                 + '<input type="hidden" name="action" value="advance">'
+                 + '<button type="submit" class="bg-primary text-on-primary text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary/90 hover:scale-105 transition-all shadow-sm whitespace-nowrap flex items-center gap-1">'
+                 + '<span class="material-symbols-outlined text-[14px]">arrow_forward</span> ' + nextDisplay
+                 + '</button>'
+                 + '</form>';
+        }
+
+        if (actionUrl) {
+            html += '<form method="POST" action="' + actionUrl + '" class="m-0 order-status-form">'
+                 + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrf + '">'
+                 + '<input type="hidden" name="action" value="cancel">'
+                 + '<button type="submit" class="bg-error/10 text-error text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-error hover:text-white transition-all border border-error/20 whitespace-nowrap flex items-center gap-1">'
+                 + '<span class="material-symbols-outlined text-[14px]">cancel</span> Cancel'
+                 + '</button>'
+                 + '</form>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function showToast(message, type) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:400px;';
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'px-5 py-3 rounded-xl font-medium text-sm shadow-lg border transition-all duration-300 flex items-center gap-3 ' + (type === 'success' ? 'bg-green-50 text-green-800 border-green-200' : 'bg-red-50 text-red-800 border-red-200');
+
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined text-[20px]';
+        icon.textContent = type === 'success' ? 'check_circle' : 'error';
+        toast.appendChild(icon);
+
+        const msg = document.createElement('span');
+        msg.textContent = message;
+        toast.appendChild(msg);
+
+        container.appendChild(toast);
+
+        setTimeout(function () {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(20px)';
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 3500);
+    }
+
+    // Intercept order status form submissions with AJAX
+    document.addEventListener('DOMContentLoaded', function () {
+        var ordersSection = document.getElementById('section-orders');
+        if (!ordersSection) return;
+
+        ordersSection.addEventListener('submit', function (e) {
+            var form = e.target.closest('form.order-status-form');
+            if (!form) return;
+            e.preventDefault();
+
+            var actionUrl = form.getAttribute('action');
+            var formData = new FormData(form);
+            var row = form.closest('tr');
+            var action = formData.get('action');
+
+            // Confirmation for cancel
+            if (action === 'cancel') {
+                var orderNum = row ? (row.querySelector('td:first-child')?.textContent?.trim() || 'Order') : 'Order';
+                if (!confirm('Cancel ' + orderNum + '? This action cannot be undone.')) {
+                    return;
+                }
+            }
+
+            // Add AJAX header
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', actionUrl, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('X-CSRFToken', getCsrfToken());
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+
+                        if (data.success) {
+                            // Update row in Order Management table (6th column: actions)
+                            if (row) {
+                                var statusCell = row.querySelectorAll('td')[4];
+                                if (statusCell) {
+                                    statusCell.innerHTML = getStatusBadgeHtml(data.new_status, data.new_status_display);
+                                }
+
+                                var actionsCell = row.querySelectorAll('td')[5];
+                                if (actionsCell) {
+                                    actionsCell.innerHTML = getActionsHtml(data.order_id, data.new_status, data.next_status_code, data.next_status_display);
+                                }
+                            }
+
+                            // Also update the matching row in the Recent Orders table (Sales section)
+                            var orderIdStr = '#' + data.order_id;
+                            var salesTable = document.querySelector('#section-sales .overflow-x-auto table tbody');
+                            if (salesTable) {
+                                var salesRows = salesTable.querySelectorAll('tr');
+                                for (var i = 0; i < salesRows.length; i++) {
+                                    var firstTd = salesRows[i].querySelector('td:first-child');
+                                    if (firstTd && firstTd.textContent.trim() === orderIdStr) {
+                                        // Update the status cell (5th column, index 4)
+                                        var salesStatusCell = salesRows[i].querySelectorAll('td')[4];
+                                        if (salesStatusCell) {
+                                            salesStatusCell.innerHTML = getStatusBadgeHtml(data.new_status, data.new_status_display);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            showToast(data.message, 'success');
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch (err) {
+                        showToast('An error occurred while processing the response.', 'error');
+                    }
+                } else {
+                    showToast('Server error. Please refresh and try again.', 'error');
+                }
+            };
+
+            xhr.onerror = function () {
+                showToast('Network error. Please check your connection.', 'error');
+            };
+
+            xhr.send(formData);
+        });
+    });
 </script>
 {% endblock %}

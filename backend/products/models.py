@@ -1,11 +1,13 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 class Product(models.Model):
     CATEGORY_CHOICES = [
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('RFSPORTS', 'RF Sports'),
+        ('MRSPORTS', 'MR Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -28,3 +30,85 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('DISPATCHED', 'Dispatched'),
+        ('IN_TRANSIT', 'In Transit'),
+        ('OUT_FOR_DELIVERY', 'Out for Delivery'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    customer_name = models.CharField(max_length=200, default='Guest')
+    customer_email = models.EmailField(max_length=254, default='guest@example.com')
+    customer_phone = models.CharField(max_length=20, blank=True, default='')
+    shipping_address = models.TextField(blank=True, default='')
+    total_amount = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    payment_status = models.CharField(max_length=20, default='PENDING', choices=[
+        ('PENDING', 'Pending'),
+        ('PAID', 'Paid'),
+        ('FAILED', 'Failed'),
+        ('REFUNDED', 'Refunded'),
+    ])
+    notes = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def get_next_status_code(self):
+        """Return the next logical status code in the order workflow."""
+        next_map = {
+            'PENDING': 'DISPATCHED',
+            'DISPATCHED': 'IN_TRANSIT',
+            'IN_TRANSIT': 'OUT_FOR_DELIVERY',
+            'OUT_FOR_DELIVERY': 'DELIVERED',
+        }
+        return next_map.get(self.status)
+
+    def get_next_status_display(self):
+        """Return the human-readable next status name."""
+        code = self.get_next_status_code()
+        if code:
+            return dict(self.STATUS_CHOICES).get(code, code)
+        return None
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.customer_name}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='order_items')
+    product_name = models.CharField(max_length=200)
+    product_sku = models.CharField(max_length=50, blank=True, default='')
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=14, decimal_places=2)
+    total_price = models.DecimalField(max_digits=14, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.quantity}x {self.product_name}"
+
+
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    label = models.CharField(max_length=50, default='Home', help_text='e.g. Home, School, Office')
+    full_address = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=10)
+    phone = models.CharField(max_length=20, blank=True, default='')
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Addresses'
+        ordering = ['-is_default', '-created_at']
+
+    def __str__(self):
+        return f"{self.label}: {self.full_address[:50]}"

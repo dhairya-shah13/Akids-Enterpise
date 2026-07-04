@@ -4,6 +4,14 @@
 
 {% block content %}
 <div class="py-12 max-w-7xl mx-auto px-margin-desktop">
+    <!-- Back Navigation -->
+    <nav class="mb-8">
+        <a href="{% url back_url_name %}" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label-md transition-colors group">
+            <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <span class="border-b border-transparent group-hover:border-primary transition-colors">Back to {{ back_label }}</span>
+        </a>
+    </nav>
+
     <div class="grid lg:grid-cols-12 gap-12 items-start mb-24">
         <!-- Left: Product Image Gallery -->
         <div class="lg:col-span-5 flex flex-col gap-4">
@@ -13,16 +21,16 @@
                     <span class="material-symbols-outlined text-[200px]">toys</span>
                 </div>
                 
-                <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500">
+                <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500">
             </div>
             
             <!-- Thumbnails -->
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 hover:border-primary transition-colors">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 1" class="max-h-full object-contain">
+                    <img src="{{ product.display_image }}" alt="Thumbnail 1" width="1" height="1" class="max-h-full object-contain">
                 </div>
                 <div class="bg-background border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 opacity-60 hover:opacity-100 transition-opacity">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 2" class="max-h-full object-contain grayscale">
+                    <img src="{{ product.display_image }}" alt="Thumbnail 2" width="1" height="1" class="max-h-full object-contain grayscale">
                 </div>
                 <div class="bg-secondary/10 border border-secondary/20 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 text-secondary hover:bg-secondary/20 transition-colors">
                     <span class="material-symbols-outlined text-4xl">play_circle</span>
@@ -51,11 +59,11 @@
                 
                 {% if product.discount_price %}
                 <div class="flex items-end gap-4 mb-8">
-                    <h2 class="font-display-lg text-4xl text-on-surface">₹{{ product.discount_price }}</h2>
-                    <h3 class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1">₹{{ product.price }}</h3>
+                    <p class="font-display-lg text-4xl text-on-surface">₹{{ product.discount_price }}</p>
+                    <p class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1">₹{{ product.price }}</p>
                 </div>
                 {% else %}
-                <h2 class="font-display-lg text-4xl text-on-surface mb-8">₹{{ product.price }}</h2>
+                <p class="font-display-lg text-4xl text-on-surface mb-8">₹{{ product.price }}</p>
                 {% endif %}
                 
                 <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm">
@@ -68,7 +76,7 @@
 
             <!-- Description Card -->
             <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
-                <h3 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h3>
+                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h2>
                 <p class="font-body-md text-on-surface-variant leading-relaxed mb-4">
                     {{ product.description }}
                 </p>
@@ -84,9 +92,9 @@
                     <input type="hidden" id="addCartUrl" value="{% url 'add_to_cart' product.pk %}">
                     
                     <div class="flex items-center bg-white border-2 border-outline-variant/50 rounded-2xl overflow-hidden w-full sm:w-auto shrink-0 shadow-inner">
-                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value>1)q.value--;" class="px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none">-</button>
+                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value>1)q.value--;" class="min-w-[48px] min-h-[48px] px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none" aria-label="Decrease quantity">-</button>
                         <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly>
-                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value<{{ product.stock }})q.value++;" class="px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none">+</button>
+                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value<{{ product.stock }})q.value++;" class="min-w-[48px] min-h-[48px] px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none" aria-label="Increase quantity">+</button>
                     </div>
                     
                     {% if product.stock > 0 %}
@@ -128,9 +136,9 @@
             <div class="bg-white rounded-xl p-6 border border-outline-variant/30 shadow-sm hover:-translate-y-2 transition-all group hover:border-secondary/20 flex flex-col justify-between">
                 <div>
                     <a href="{% url 'product_detail' rel_product.pk %}" class="block aspect-[4/3] bg-background rounded-xl mb-4 overflow-hidden border border-outline-variant/10 p-4 flex items-center justify-center">
-                        <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                        <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
                     </a>
-                    <h4 class="font-headline-md text-lg mb-2 line-clamp-1"><a href="{% url 'product_detail' rel_product.pk %}" class="hover:text-secondary transition-colors">{{ rel_product.name }}</a></h4>
+                    <h3 class="font-headline-md text-lg mb-2 line-clamp-1"><a href="{% url 'product_detail' rel_product.pk %}" class="hover:text-secondary transition-colors">{{ rel_product.name }}</a></h3>
                     <div class="font-bold mb-6 text-on-surface">
                         {% if rel_product.discount_price %}
                         <span>₹{{ rel_product.discount_price }}</span> <span class="opacity-60 line-through text-sm font-normal">₹{{ rel_product.price }}</span>
