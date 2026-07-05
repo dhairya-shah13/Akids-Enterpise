@@ -41,7 +41,7 @@
 
         <!-- SECTION 1: PRODUCT LIST -->
         <div id="section-products">
-            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm shadow-sm relative overflow-hidden">
+            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm relative overflow-hidden">
                 <div class="flex justify-between items-center mb-8 flex-wrap gap-4 relative z-10">
                     <h2 class="font-display-lg text-3xl text-on-surface">Current Catalog</h2>
                     <span class="bg-secondary/10 text-secondary font-bold text-sm px-4 py-2 rounded-full border border-secondary/20 shadow-sm">Showing live Supabase / Local catalog gear</span>
@@ -54,27 +54,48 @@
                                 <th class="p-4 rounded-tl-2xl">Preview</th>
                                 <th class="p-4">Product Name</th>
                                 <th class="p-4">Category</th>
+                                <th class="p-4">Type</th>
                                 <th class="p-4">Price</th>
-                                <th class="p-4">Description</th>
+                                <th class="p-4">Stock</th>
                                 <th class="p-4 text-center rounded-tr-2xl">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-on-surface font-body-md">
                             {% for product in products %}
-                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
+                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors {% if product.parent_product %}bg-background/30{% endif %}">
                                 <td class="p-4 w-24">
                                     <a href="{% url 'product_detail' product.pk %}" target="_blank" class="block w-16 h-16 rounded-xl overflow-hidden border border-outline-variant/20 bg-white p-1 shadow-sm hover:scale-105 transition-transform">
-                                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="w-full h-full object-contain">
+                                        <img loading="lazy" src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="w-full h-full object-contain">
                                     </a>
                                 </td>
-                                <td class="p-4 font-headline-md text-lg"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors" target="_blank">{{ product.name }}</a></td>
+                                <td class="p-4 font-headline-md text-lg">
+                                    <a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors" target="_blank">
+                                        {% if product.parent_product %}
+                                            <span class="flex flex-col">
+                                                <span class="text-sm opacity-60">{{ product.parent_product.name }}</span>
+                                                <span class="text-primary text-sm">{{ product.variant_name }}</span>
+                                            </span>
+                                        {% else %}
+                                            {{ product.name }}
+                                        {% endif %}
+                                    </a>
+                                </td>
                                 <td class="p-4">
                                     <span class="bg-surface text-on-surface-variant border border-outline-variant/30 font-bold text-xs px-3 py-1 rounded-full uppercase">
                                         {{ product.category }}
                                     </span>
                                 </td>
+                                <td class="p-4">
+                                    {% if product.parent_product %}
+                                    <span class="bg-secondary/10 text-secondary text-xs font-bold px-2 py-1 rounded-full border border-secondary/20">Variant</span>
+                                    {% else %}
+                                    <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full border border-primary/20">Parent</span>
+                                    {% endif %}
+                                </td>
                                 <td class="p-4 font-display-lg text-xl text-primary">₹{{ product.price }}</td>
-                                <td class="p-4 text-sm text-on-surface-variant max-w-[300px] truncate" title="{{ product.description }}">{{ product.description|truncatechars:80 }}</td>
+                                <td class="p-4 text-sm">
+                                    <span class="{% if product.stock > 0 %}text-secondary{% else %}text-error{% endif %} font-bold">{{ product.stock }}</span>
+                                </td>
                                 <td class="p-4 text-center">
                                     <form method="POST" action="{% url 'delete_product' product.pk %}" onsubmit="return confirm('Delete {{ product.name }} from catalog?');" class="inline-block m-0">
                                         {% csrf_token %}
@@ -86,7 +107,7 @@
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="6" class="text-center p-12">
+                                <td colspan="7" class="text-center p-12">
                                     <p class="font-body-lg text-on-surface-variant font-bold">No products found in catalog.</p>
                                 </td>
                             </tr>
@@ -366,7 +387,7 @@
                 <div id="imagePreviewContainer" class="hidden mt-6 text-center">
                     <p class="font-label-md text-[10px] uppercase tracking-wider mb-2 text-primary">Instant Preview:</p>
                     <div class="bg-white border border-outline-variant/30 rounded-xl p-2 inline-block shadow-md relative group">
-                        <img id="imagePreview" src="#" alt="Preview" class="max-h-[200px] max-w-full object-contain rounded-lg">
+                        <img loading="lazy" id="imagePreview" src="#" alt="Preview" class="max-h-[200px] max-w-full object-contain rounded-lg">
                         <button type="button" onclick="clearImagePreview()" class="absolute -top-3 -right-3 bg-error text-white w-8 h-8 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <span class="material-symbols-outlined text-[18px]">close</span>
                         </button>

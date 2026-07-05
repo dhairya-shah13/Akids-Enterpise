@@ -38,15 +38,25 @@
     <!-- Product Grid -->
     <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 stagger-children">
             {% for product in products %}
-            <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full">
+            <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full fade-in-card">
                 <div class="flex-grow">
                     <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-6 flex items-center justify-center group-hover:border-primary/30 transition-colors">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" loading="lazy">
                     </a>
                     <h3 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
                     <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description|truncatechars:65 }}</p>
+                    {% with variant_count=product.variants.count %}
+                    {% if variant_count > 0 %}
+                    <div class="mb-3">
+                        <span class="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">tune</span>
+                            {{ variant_count }} variant{{ variant_count|pluralize:"s" }} available
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
                 </div>
                 <div class="mt-auto flex flex-col gap-4">
                     <div class="flex items-center">
@@ -63,7 +73,7 @@
         </div>
 
         <!-- Full Width Discovery Section -->
-        <div class="bg-white rounded-2xl p-10 border border-primary/20 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden my-16 shadow-sm">
+        <div class="bg-white rounded-2xl p-10 border border-primary/20 flex flex-col md:flex-row items-center gap-12 relative overflow-hidden my-16 shadow-sm fade-in-section">
             <div class="absolute -top-12 -right-12 opacity-5 text-primary-container">
                 <span class="material-symbols-outlined text-[240px]">child_care</span>
             </div>
@@ -85,14 +95,14 @@
             
             <div class="flex-shrink-0 relative z-10 hidden md:block">
                 <div class="w-64 h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80" alt="Kids playing" width="1" height="1" class="w-full h-full object-cover">
+                    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80" alt="Kids playing" width="1" height="1" class="w-full h-full object-cover" loading="lazy">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Newsletter / Contact -->
-    <section class="max-w-5xl mx-auto px-margin-desktop mb-12">
+    <section class="max-w-5xl mx-auto px-margin-desktop mb-12 lazy-section">
         <div class="bg-secondary text-on-secondary rounded-2xl p-12 text-center relative overflow-hidden bento-card shadow-xl">
             <div class="relative z-10 max-w-2xl mx-auto">
                 <h3 class="font-display-lg text-3xl lg:text-4xl mb-4">Designing a new classroom?</h3>

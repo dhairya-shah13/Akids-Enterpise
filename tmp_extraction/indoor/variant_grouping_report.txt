@@ -1,0 +1,101 @@
+Variant Grouping Report
+============================================================
+
+Processing 17 variant groups...
+============================================================
+
+--- Rolling Carpet (4 variants) ---
+  PARENT: 'Rolling Carpet - Size M' -> 'Rolling Carpet' (ID=374)
+  CHILD: 'Rolling Carpet - Size L' -> 'Rolling Carpet - Size L' (ID=375, SKU=RC-L)
+  CHILD: 'Rolling Carpet - Size XL' -> 'Rolling Carpet - Size XL' (ID=376, SKU=RC-XL)
+
+--- Folding Mat XPE (2 variants) ---
+  PARENT: 'Folding Mat XPE - Size L' -> 'Folding Mat XPE' (ID=377)
+  CHILD: 'Folding Mat XPE - Size XL' -> 'Folding Mat XPE - Size XL' (ID=378, SKU=XPE-XL)
+
+--- EVA Mat 2ft x 2ft (5 variants) ---
+  PARENT: 'EVA Mat 2ftx2ft 12mm' -> 'EVA Mat 2ft x 2ft' (ID=379)
+  CHILD: 'EVA Mat 2ftx2ft 20mm' -> 'EVA Mat 2ft x 2ft - 20mm Thickness' (ID=380, SKU=EVA-2X2-20MM)
+  CHILD: 'EVA Mat 2ftx2ft Blue 12mm' -> 'EVA Mat 2ft x 2ft - Blue - 12mm' (ID=383, SKU=EVA-2X2-BLUE)
+  CHILD: 'EVA Mat 2ftx2ft Grey 12mm' -> 'EVA Mat 2ft x 2ft - Grey - 12mm' (ID=384, SKU=EVA-2X2-GREY)
+  CHILD: 'EVA Mat 2ftx2ft Black 12mm' -> 'EVA Mat 2ft x 2ft - Black - 12mm' (ID=385, SKU=EVA-2X2-BLACK)
+
+--- EVA Mat 1M x 1M (2 variants) ---
+  PARENT: 'EVA Mat 1Mx1M 25mm' -> 'EVA Mat 1M x 1M' (ID=381)
+  CHILD: 'EVA Mat 1Mx1M 20mm' -> 'EVA Mat 1M x 1M - 20mm Thickness' (ID=382, SKU=EVA-1M-20MM)
+
+--- Plastic Balls (2 variants) ---
+  PARENT: 'Plastic Balls (200 pcs)' -> 'Plastic Balls' (ID=193)
+  CHILD: 'Plastic Balls (100 pcs)' -> 'Plastic Balls - 100 pcs (8.5 cm)' (ID=194, SKU=LFT 100)
+
+--- Trampoline (8 variants) ---
+  PARENT: 'Trampoline 36 inch' -> 'Trampoline' (ID=228)
+  CHILD: 'Trampoline 45 inch' -> 'Trampoline - 45 inch' (ID=229, SKU=LF 545)
+  CHILD: 'Trampoline 55 inch' -> 'Trampoline - 55 inch' (ID=230, SKU=LF 55)
+  CHILD: 'Trampoline 72 inch' -> 'Trampoline - 72 inch' (ID=231, SKU=LF 72)
+  CHILD: 'Trampoline 96 inch' -> 'Trampoline - 96 inch' (ID=232, SKU=LF 96)
+  CHILD: 'Trampoline 120 inch' -> 'Trampoline - 120 inch' (ID=233, SKU=LF 120)
+  CHILD: 'Trampoline 144 inch' -> 'Trampoline - 144 inch' (ID=234, SKU=LF 144T)
+  CHILD: 'Trampoline 168 inch' -> 'Trampoline - 168 inch' (ID=235, SKU=LF 168)
+
+--- Plastic Chair (11 variants) ---
+  PARENT: 'Plastic Chair 24cm' -> 'Plastic Chair' (ID=111)
+  CHILD: 'Plastic Chair 26cm' -> 'Plastic Chair - 26 cm Height' (ID=112, SKU=LF 116)
+  CHILD: 'Adjustable Plastic Chair 26-30cm' -> 'Plastic Chair - 26-30 cm (Adjustable)' (ID=113, SKU=LF 186)
+  CHILD: 'Plastic Handle Chair 28cm' -> 'Plastic Chair - 28 cm (with Handle)' (ID=114, SKU=LF 146)
+  CHILD: 'Metal Chair 30cm' -> 'Plastic Chair - 30 cm (Metal)' (ID=115, SKU=LF 176)
+  CHILD: 'Plastic Chair 31cm' -> 'Plastic Chair - 31 cm Height' (ID=116, SKU=LF 126)
+  CHILD: 'Plastic Chair 35cm' -> 'Plastic Chair - 35 cm Height' (ID=117, SKU=LF 127)
+  CHILD: 'Metal Handle Chair 35cm' -> 'Plastic Chair - 35 cm (Metal Handle)' (ID=118, SKU=LF 156)
+  CHILD: 'Metal Handle Chair 36cm' -> 'Plastic Chair - 36 cm (Metal Handle)' (ID=119, SKU=LF 166)
+  CHILD: 'Plastic Chair 40cm' -> 'Plastic Chair - 40 cm Height' (ID=121, SKU=LF 128)
+  CHILD: 'Plastic Chair 45cm' -> 'Plastic Chair - 45 cm Height' (ID=120, SKU=LF 129)
+
+--- Play Junction Fence (3 variants) ---
+  PARENT: 'Play Junction Fence Red' -> 'Play Junction Fence' (ID=204)
+  CHILD: 'Play Junction Fence Blue' -> 'Play Junction Fence - Blue' (ID=205, SKU=LF 135B)
+  CHILD: 'Play Junction Fence White' -> 'Play Junction Fence - White' (ID=206, SKU=LF 135W)
+
+--- Colorful Play Umbrella (2 variants) ---
+  PARENT: 'Colorful Play Umbrella 9ft' -> 'Colorful Play Umbrella' (ID=276)
+  CHILD: 'Colorful Play Umbrella 6.5ft' -> 'Colorful Play Umbrella - 6.5 ft Diameter' (ID=277, SKU=LF 62S)
+
+--- Bowling Set (2 variants) ---
+  PARENT: 'Bowling Set Jumbo' -> 'Bowling Set' (ID=351)
+  CHILD: 'Bowling Set Standard' -> 'Bowling Set - Standard' (ID=352, SKU=LFT 99)
+
+--- Xylophone (2 variants) ---
+  PARENT: 'Xylophone Big' -> 'Xylophone' (ID=364)
+  CHILD: 'Xylophone' -> 'Xylophone - Standard' (ID=365, SKU=LFT 1151)
+
+--- Tray (2 variants) ---
+  PARENT: 'Small Tray' -> 'Tray' (ID=224)
+  CHILD: 'Large Tray' -> 'Tray - Large (31x42x10 cm)' (ID=225, SKU=LF 13-5)
+
+--- Building Blocks (2 variants) ---
+  PARENT: 'Blocks 16 Pcs' -> 'Building Blocks' (ID=226)
+  CHILD: 'Blocks 32 Pcs' -> 'Building Blocks - 32 Pieces' (ID=227, SKU=LFT 3994P)
+
+--- Divider (2 variants) ---
+  PARENT: 'Divider 10 Pcs' -> 'Divider' (ID=251)
+  CHILD: 'Divider 25 Pcs' -> 'Divider - 25 Pieces' (ID=252, SKU=LF 53)
+
+--- Ring (2 variants) ---
+  PARENT: 'Ring 40cm' -> 'Ring' (ID=255)
+  CHILD: 'Ring 50cm' -> 'Ring - 50 cm Diameter' (ID=256, SKU=LF 57)
+
+--- Premium Display Shelf (4 variants) ---
+  PARENT: 'Premium Display Shelf' -> 'Premium Display Shelf' (ID=83)
+  CHILD: 'Premium Display Shelf Style 2' -> 'Premium Display Shelf - Style 2' (ID=84, SKU=LF 1503)
+  CHILD: 'Premium Display Shelf Style 3' -> 'Premium Display Shelf - Style 3' (ID=85, SKU=LF 1502)
+  CHILD: 'Premium Tall Display Shelf' -> 'Premium Display Shelf - Tall' (ID=86, SKU=LF 1504)
+
+--- Horse Rideon (2 variants) ---
+  PARENT: 'Horse Rideon Brown' -> 'Horse Rideon' (ID=186)
+  CHILD: 'Horse Rideon Grey' -> 'Horse Rideon - Grey' (ID=187, SKU=LF 927E)
+
+============================================================
+SUMMARY:
+  Groups processed:       17
+  Products linked as children: 39
+  Products skipped:       0

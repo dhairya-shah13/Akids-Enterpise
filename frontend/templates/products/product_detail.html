@@ -21,16 +21,16 @@
                     <span class="material-symbols-outlined text-[200px]">toys</span>
                 </div>
                 
-                <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500">
+                <img id="mainProductImage" src="{{ selected_variant.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500" loading="lazy">
             </div>
             
             <!-- Thumbnails -->
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 hover:border-primary transition-colors">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 1" width="1" height="1" class="max-h-full object-contain">
+                    <img src="{{ selected_variant.display_image }}" alt="View 1" width="1" height="1" class="max-h-full object-contain" loading="lazy">
                 </div>
                 <div class="bg-background border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 opacity-60 hover:opacity-100 transition-opacity">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 2" width="1" height="1" class="max-h-full object-contain grayscale">
+                    <img src="{{ product.display_image }}" alt="View 2" width="1" height="1" class="max-h-full object-contain grayscale" loading="lazy">
                 </div>
                 <div class="bg-secondary/10 border border-secondary/20 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 text-secondary hover:bg-secondary/20 transition-colors">
                     <span class="material-symbols-outlined text-4xl">play_circle</span>
@@ -57,19 +57,44 @@
                     <span class="font-bold opacity-60 text-sm text-on-surface-variant">(42 Reviews)</span>
                 </div>
                 
-                {% if product.discount_price %}
-                <div class="flex items-end gap-4 mb-8">
-                    <p class="font-display-lg text-4xl text-on-surface">₹{{ product.discount_price }}</p>
-                    <p class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1">₹{{ product.price }}</p>
+                <!-- Price Display with Variant Awareness -->
+                <div id="priceDisplay">
+                {% if selected_variant.discount_price %}
+                <div class="flex items-end gap-4 mb-4">
+                    <p class="font-display-lg text-4xl text-on-surface" id="variantPrice">₹{{ selected_variant.discount_price }}</p>
+                    <p class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1" id="variantOriginalPrice">₹{{ selected_variant.price }}</p>
                 </div>
                 {% else %}
-                <p class="font-display-lg text-4xl text-on-surface mb-8">₹{{ product.price }}</p>
+                <p class="font-display-lg text-4xl text-on-surface mb-4" id="variantPrice">₹{{ selected_variant.price }}</p>
+                {% endif %}
+                </div>
+                
+                <!-- Variant Selector -->
+                {% if variants and variants|length > 1 %}
+                <div class="mb-8">
+                    <h3 class="font-label-md text-xs uppercase tracking-wider text-on-surface-variant mb-3">Available Options</h3>
+                    <div class="flex flex-wrap gap-3" id="variantSelector">
+                        {% for v in variants %}
+                        <a href="{% url 'product_detail' v.pk %}"
+                           class="variant-btn inline-block px-5 py-3 rounded-xl text-sm font-bold border-2 transition-all duration-200 {% if v.pk == variant_pk %}bg-primary text-on-primary border-primary shadow-md shadow-primary/20{% else %}bg-white text-on-surface border-outline-variant/30 hover:border-primary hover:text-primary{% endif %}">
+                            {% if v.parent_product %}
+                                {{ v.variant_name|default:v.name }}
+                            {% else %}
+                                Default
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
                 
-                <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm">
-                    {% if product.sku %}<span class="bg-surface border border-outline-variant px-3 py-1 rounded-md">SKU: {{ product.sku }}</span>{% endif %}
-                    <span class="{% if product.stock > 0 %}text-secondary bg-secondary/10{% else %}text-error bg-error/10{% endif %} px-3 py-1 rounded-md">
-                        {% if product.stock > 0 %}In Stock ({{ product.stock }}){% else %}Out of Stock{% endif %}
+                <!-- SKU & Stock Info (shows selected variant info) -->
+                <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm flex-wrap">
+                    <span id="variantSku" class="bg-surface border border-outline-variant px-3 py-1 rounded-md">
+                        SKU: {% if selected_variant.sku %}{{ selected_variant.sku }}{% else %}{{ product.sku|default:"N/A" }}{% endif %}
+                    </span>
+                    <span id="variantStock" class="{% if selected_variant.stock > 0 %}text-secondary bg-secondary/10{% else %}text-error bg-error/10{% endif %} px-3 py-1 rounded-md">
+                        {% if selected_variant.stock > 0 %}In Stock ({{ selected_variant.stock }}){% else %}Out of Stock{% endif %}
                     </span>
                 </div>
             </div>
@@ -89,15 +114,15 @@
             <div class="flex flex-col gap-4">
                 <form id="addCartForm" class="flex flex-col sm:flex-row gap-4 m-0 w-full">
                     {% csrf_token %}
-                    <input type="hidden" id="addCartUrl" value="{% url 'add_to_cart' product.pk %}">
+                    <input type="hidden" id="addCartUrl" value="{% url 'add_to_cart' variant_pk %}">
                     
                     <div class="flex items-center bg-white border-2 border-outline-variant/50 rounded-2xl overflow-hidden w-full sm:w-auto shrink-0 shadow-inner">
                         <button type="button" onclick="const q=document.getElementById('qty'); if(q.value>1)q.value--;" class="min-w-[48px] min-h-[48px] px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none" aria-label="Decrease quantity">-</button>
-                        <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly>
-                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value<{{ product.stock }})q.value++;" class="min-w-[48px] min-h-[48px] px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none" aria-label="Increase quantity">+</button>
+                        <input type="number" id="qty" name="quantity" value="1" min="1" max="{{ selected_variant.stock }}" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly>
+                        <button type="button" onclick="const q=document.getElementById('qty'); if(q.value<{{ selected_variant.stock }})q.value++;" class="min-w-[48px] min-h-[48px] px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none" aria-label="Increase quantity">+</button>
                     </div>
                     
-                    {% if product.stock > 0 %}
+                    {% if selected_variant.stock > 0 %}
                     <button type="button" onclick="submitCart()" class="bg-primary text-on-primary font-label-md text-lg flex-1 flex items-center justify-center gap-2 rounded-2xl py-4 shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-primary/20 uppercase">
                         <span class="material-symbols-outlined">shopping_cart</span> Add to Cart
                     </button>
@@ -129,14 +154,14 @@
 
     <!-- Related Products -->
     {% if related_products %}
-    <div class="mt-16 pt-16 border-t border-outline-variant/30">
+    <div class="mt-16 pt-16 border-t border-outline-variant/30 lazy-section">
         <h2 class="font-display-lg text-3xl mb-8 text-on-surface">You May Also Like</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter stagger-children">
             {% for rel_product in related_products %}
             <div class="bg-white rounded-xl p-6 border border-outline-variant/30 shadow-sm hover:-translate-y-2 transition-all group hover:border-secondary/20 flex flex-col justify-between">
                 <div>
                     <a href="{% url 'product_detail' rel_product.pk %}" class="block aspect-[4/3] bg-background rounded-xl mb-4 overflow-hidden border border-outline-variant/10 p-4 flex items-center justify-center">
-                        <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500">
+                        <img src="{{ rel_product.display_image }}" alt="{{ rel_product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500" loading="lazy">
                     </a>
                     <h3 class="font-headline-md text-lg mb-2 line-clamp-1"><a href="{% url 'product_detail' rel_product.pk %}" class="hover:text-secondary transition-colors">{{ rel_product.name }}</a></h3>
                     <div class="font-bold mb-6 text-on-surface">
@@ -180,7 +205,6 @@
     function showToast() {
         const toast = document.getElementById('cartToast');
         toast.classList.remove('hidden');
-        // Small delay to allow display to apply before transform
         setTimeout(() => {
             toast.style.transform = 'translateY(0)';
         }, 10);

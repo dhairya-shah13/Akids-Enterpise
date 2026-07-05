@@ -46,15 +46,25 @@
     <!-- Product Grid -->
     <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16" stagger-children stagger-children>
             {% for product in products %}
             <div class="bg-white rounded-[2rem] p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full">
                 <div class="flex-grow">
                     <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden border border-outline-variant/20 p-4 flex items-center justify-center relative group-hover:border-primary/30 transition-colors">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+                        <img loading="lazy" src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
                     </a>
                     <h3 class="font-headline-md text-xl text-on-surface mb-2 leading-tight line-clamp-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
                     <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description }}</p>
+                    {% with variant_count=product.variants.count %}
+                    {% if variant_count > 0 %}
+                    <div class="mb-3">
+                        <span class="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">tune</span>
+                            {{ variant_count }} variant{{ variant_count|pluralize:"s" }} available
+                        </span>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
                 </div>
                 <div class="mt-auto flex flex-col gap-4">
                     <div class="flex items-center">

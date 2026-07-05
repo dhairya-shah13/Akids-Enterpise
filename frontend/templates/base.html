@@ -126,7 +126,7 @@
         <div class="flex justify-between items-center px-margin-desktop py-4 max-w-7xl mx-auto gap-4 lg:gap-8">
             <div class="flex items-center gap-4 shrink-0">
                 <a href="{% url 'home' %}" class="flex items-center gap-2">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-10 w-auto">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-10 w-auto" loading="lazy">
                     <div class="flex flex-col">
                         <span class="font-display-lg text-3xl font-extrabold tracking-tight text-primary leading-none">A kids</span>
                         <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">India's Play Experts</span>
@@ -339,6 +339,37 @@
     </div>
 
     <script>
+        // ===== Global Lazy Loading: Intersection Observer for scroll animations =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fade-in sections
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                rootMargin: '50px',
+                threshold: 0.05
+            });
+
+            document.querySelectorAll('.fade-in-section, .fade-in-card').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Progressive image loading: blur-up effect
+            document.querySelectorAll('.img-blur-load').forEach(img => {
+                if (img.complete) {
+                    img.classList.add('loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        this.classList.add('loaded');
+                    });
+                }
+            });
+        });
+
         // ===== Autocomplete Search =====
         function initAutocomplete(inputEl) {
             if (!inputEl || inputEl.dataset.acInitialized) return;
