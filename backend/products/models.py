@@ -20,6 +20,18 @@ class Product(models.Model):
     stock = models.IntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Variant support: parent_product links variant (child) products to a parent product
+    # Parent products have parent_product=NULL and are shown in listings.
+    # Variant products have parent_product set and are hidden from listings.
+    parent_product = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='variants',
+        help_text='If set, this product is a variant of the parent product. Variants are hidden from category listings.'
+    )
+
     @property
     def display_image(self):
         if self.image_file:
@@ -28,7 +40,29 @@ class Product(models.Model):
             return self.image_url
         return "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
 
+    @property
+    def is_parent(self):
+        """Returns True if this is a parent product (has variants or no parent)."""
+        return self.parent_product is None
+
+    @property
+    def variant_name(self):
+        """Extract the variant-specific part from the product name.
+        E.g., 'Rolling Carpet - Size M' → 'Size M'
+        """
+        if not self.parent_product:
+            return None
+        parent_name = self.parent_product.name
+        child_name = self.name
+        if parent_name in child_name:
+            suffix = child_name.replace(parent_name, '', 1).strip()
+            return suffix.lstrip('-').strip()
+        return child_name
+
     def __str__(self):
+        if self.parent_product:
+            variant_label = self.variant_name or self.sku or ''
+            return f"{self.parent_product.name} ({variant_label})"
         return self.name
 
 

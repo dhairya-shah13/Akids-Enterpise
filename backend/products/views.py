@@ -388,7 +388,7 @@ def delete_product(request, pk):
     return redirect('admin_dashboard')
 
 def home_view(request):
-    featured_products = Product.objects.filter(stock__gt=0).order_by('-created_at')[:6]
+    featured_products = Product.objects.filter(parent_product__isnull=True, stock__gt=0).order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
 def category_listing(request, cat_code, template_name):
@@ -396,7 +396,7 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code, stock__gt=0).order_by('-created_at')
+        products = Product.objects.filter(category=cat_code, parent_product__isnull=True, stock__gt=0).order_by('-created_at')
     return render(request, template_name, {'products': products})
 
 def indoors_view(request):
@@ -416,7 +416,11 @@ def product_detail(request, pk):
         product = Product.objects.get(pk=pk)
     except Product.DoesNotExist:
         return render(request, '404.html', status=404)
-        
+
+    # If this is a variant product, redirect the URL to the parent product's page for cleaner navigation
+    # but still show the variant as pre-selected
+    parent_product = product.parent_product
+    
     # Determine the back link based on product category
     category_url_map = {
         'INDOORS': ('indoors', 'Indoor Equipment'),
@@ -424,11 +428,37 @@ def product_detail(request, pk):
         'PARTS': ('parts', 'Spare Parts'),
         'MRSPORTS': ('mrsports', 'MR Sports'),
     }
-    back_url_name, back_label = category_url_map.get(product.category, ('home', 'Home'))
     
-    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).exclude(stock__lte=0).order_by('-created_at')[:3]
+    if parent_product:
+        # Use parent's category for back link
+        back_url_name, back_label = category_url_map.get(parent_product.category, ('home', 'Home'))
+        # Get all variants including the parent
+        variants = list(parent_product.variants.all())
+        # Prepend the parent as default
+        all_variant_choices = [parent_product] + variants
+        # Current selected variant
+        selected_variant = product
+        current_product = parent_product  # Show parent info for main details
+        variant_pk = product.pk  # Track which variant is selected
+    else:
+        back_url_name, back_label = category_url_map.get(product.category, ('home', 'Home'))
+        variants = list(product.variants.all())
+        all_variant_choices = [product] + variants if variants else [product]
+        selected_variant = product
+        current_product = product
+        variant_pk = product.pk
+    
+    related_products = Product.objects.filter(
+        category=current_product.category
+    ).exclude(pk=current_product.pk).exclude(stock__lte=0).filter(
+        parent_product__isnull=True
+    ).order_by('-created_at')[:3]
+    
     return render(request, 'products/product_detail.html', {
-        'product': product,
+        'product': current_product,
+        'variants': all_variant_choices,
+        'selected_variant': selected_variant,
+        'variant_pk': variant_pk,
         'related_products': related_products,
         'back_url_name': back_url_name,
         'back_label': back_label,
@@ -649,7 +679,8 @@ def search_suggestions_api(request):
         return JsonResponse({'results': []})
 
     products = Product.objects.filter(
-        Q(name__icontains=q) | Q(sku__icontains=q)
+        Q(name__icontains=q) | Q(sku__icontains=q),
+        parent_product__isnull=True  # Only show parent products in suggestions
     )
     if category:
         products = products.filter(category=category)
