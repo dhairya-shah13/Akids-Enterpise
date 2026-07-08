@@ -1,6 +1,5 @@
 import os
 import json
-import uuid
 import requests
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
@@ -38,32 +37,6 @@ def get_env_credentials():
                 pass
             break
     return env_email, env_pass
-
-def upload_photo_to_supabase(file_obj):
-    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    supabase_key = os.getenv("SUPABASE_KEY", "").strip()
-    bucket = os.getenv("SUPABASE_BUCKET", "products").strip()
-    
-    if supabase_url and supabase_key:
-        ext = file_obj.name.split('.')[-1] if '.' in file_obj.name else 'jpg'
-        filename = f"{uuid.uuid4().hex}.{ext}"
-        upload_url = f"{supabase_url}/storage/v1/object/{bucket}/{filename}"
-        
-        headers = {
-            "Authorization": f"Bearer {supabase_key}",
-            "apikey": supabase_key,
-            "Content-Type": getattr(file_obj, 'content_type', 'application/octet-stream'),
-        }
-        try:
-            resp = requests.post(upload_url, headers=headers, data=file_obj.read(), timeout=10)
-            if resp.status_code in (200, 201):
-                return f"{supabase_url}/storage/v1/object/public/{bucket}/{filename}"
-        except Exception:
-            pass
-    return None
-
-def seed_initial_products():
-    pass
 
 def login_view(request):
     if request.session.get('is_admin'):
@@ -361,21 +334,17 @@ def add_product(request):
         price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
-        photo = request.FILES.get('photo')
-        
-        saved_url = None
-        if photo:
-            saved_url = upload_photo_to_supabase(photo)
             
         if name and price:
-            if saved_url:
-                Product.objects.create(name=name, category=category, price=price, description=description, image_url=saved_url)
-            elif photo:
-                Product.objects.create(name=name, category=category, price=price, description=description, image_file=photo)
-            else:
-                if not image_url:
-                    image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
-                Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
+            if not image_url:
+                image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
+            Product.objects.create(
+                name=name,
+                category=category,
+                price=price,
+                description=description,
+                image_url=image_url
+            )
                 
     return redirect('admin_dashboard')
 

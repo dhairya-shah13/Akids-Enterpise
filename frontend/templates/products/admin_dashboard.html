@@ -354,7 +354,7 @@
             </button>
         </div>
 
-        <form method="POST" action="{% url 'add_product' %}" enctype="multipart/form-data" class="flex flex-col gap-6">
+        <form method="POST" action="{% url 'add_product' %}" class="flex flex-col gap-6">
             {% csrf_token %}
             <div>
                 <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Product Name *</label>
@@ -379,13 +379,13 @@
 
             <div class="bg-primary/5 p-6 rounded-2xl border border-primary/20 shadow-inner">
                 <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined">add_a_photo</span> Upload Photo (Supabase / Local Disk)
+                    <span class="material-symbols-outlined">link</span> Product Image URL
                 </label>
-                <input type="file" name="photo" accept="image/*" id="photoInput" class="w-full bg-white border border-outline-variant/30 rounded-xl p-3 text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 transition-all cursor-pointer" onchange="previewImage(event)">
-                <span class="font-body-md text-xs opacity-60 mt-2 block text-on-surface-variant">Select PNG, JPG, or WEBP from your computer</span>
+                <input type="url" name="image_url" id="imageUrlInput" placeholder="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary transition-shadow" oninput="previewImageUrl(event)">
+                <span class="font-body-md text-xs opacity-60 mt-2 block text-on-surface-variant">Paste a direct image link from Google Drive, Imgur, or any hosting service</span>
                 
-                <div id="imagePreviewContainer" class="hidden mt-6 text-center">
-                    <p class="font-label-md text-[10px] uppercase tracking-wider mb-2 text-primary">Instant Preview:</p>
+                <div id="imagePreviewContainer" class="hidden mt-4 text-center">
+                    <p class="font-label-md text-[10px] uppercase tracking-wider mb-2 text-primary">Image Preview:</p>
                     <div class="bg-white border border-outline-variant/30 rounded-xl p-2 inline-block shadow-md relative group">
                         <img loading="lazy" id="imagePreview" src="#" alt="Preview" class="max-h-[200px] max-w-full object-contain rounded-lg">
                         <button type="button" onclick="clearImagePreview()" class="absolute -top-3 -right-3 bg-error text-white w-8 h-8 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -398,6 +398,13 @@
             <div>
                 <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface mt-2">Description *</label>
                 <textarea name="description" rows="3" placeholder="Describe safety specs, dimensions, materials..." required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow resize-y"></textarea>
+            </div>
+
+            <div class="bg-surface/50 p-4 rounded-xl border border-outline-variant/20">
+                <p class="font-body-md text-xs text-on-surface-variant flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[16px] text-secondary">info</span>
+                    <strong>Google Drive tip:</strong> Share your image file, copy the link, and replace <code class="bg-white px-1 rounded">file/d/FILE_ID/view</code> with <code class="bg-white px-1 rounded">uc?export=view&id=FILE_ID</code>
+                </p>
             </div>
 
             <div class="flex justify-end gap-4 mt-4 pt-4 border-t border-outline-variant/20">
@@ -442,22 +449,19 @@
         document.getElementById('addModal').classList.add('hidden');
         document.getElementById('addModal').classList.remove('flex');
         clearImagePreview();
-        const photoInput = document.getElementById('photoInput');
-        if (photoInput) photoInput.value = '';
+        const urlInput = document.getElementById('imageUrlInput');
+        if (urlInput) urlInput.value = '';
     }
 
-    function previewImage(event) {
+    function previewImageUrl(event) {
         const input = event.target;
         const container = document.getElementById('imagePreviewContainer');
         const img = document.getElementById('imagePreview');
+        const url = input.value.trim();
 
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                container.classList.remove('hidden');
-            };
-            reader.readAsDataURL(input.files[0]);
+        if (url) {
+            img.src = url;
+            container.classList.remove('hidden');
         } else {
             clearImagePreview();
         }
@@ -466,10 +470,10 @@
     function clearImagePreview() {
         const container = document.getElementById('imagePreviewContainer');
         const img = document.getElementById('imagePreview');
-        const photoInput = document.getElementById('photoInput');
+        const urlInput = document.getElementById('imageUrlInput');
         img.src = '#';
         container.classList.add('hidden');
-        if (photoInput) photoInput.value = '';
+        if (urlInput) urlInput.value = '';
     }
 </script>
 
