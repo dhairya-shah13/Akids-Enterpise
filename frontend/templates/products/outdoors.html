@@ -47,12 +47,6 @@
             </div>
             {% endfor %}
         </div>
-            {% empty %}
-            <div class="col-span-full py-12 text-center text-on-surface-variant font-body-lg">
-                No products found in this category.
-            </div>
-            {% endfor %}
-        </div>
 
         <div class="text-center mt-12 mb-16">
             <a href="{% url 'search' %}?category=OUTDOORS" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">

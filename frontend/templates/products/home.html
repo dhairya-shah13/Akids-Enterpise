@@ -151,13 +151,6 @@
         </div>
         {% endfor %}
     </div>
-        {% empty %}
-        <div class="col-span-full text-center py-12 text-on-surface-variant">
-            <span class="material-symbols-outlined text-6xl mb-4 block opacity-30">inventory_2</span>
-            <p class="text-lg">No products available right now. Check back soon!</p>
-        </div>
-        {% endfor %}
-    </div>
 
     <div class="text-center mt-12">
         <a href="{% url 'search' %}" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
