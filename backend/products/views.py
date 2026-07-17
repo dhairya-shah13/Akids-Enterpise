@@ -34,7 +34,9 @@ def get_env_credentials():
             except Exception:
                 pass
             break
-    return env_email, env_passdef login_view(request):
+    return env_email, env_pass
+
+def login_view(request):
     if request.session.get('is_admin'):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
