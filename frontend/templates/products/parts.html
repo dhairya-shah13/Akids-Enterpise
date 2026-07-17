@@ -45,28 +45,20 @@
     <!-- Product Grid -->
     <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             {% for product in products %}
-            <div class="bg-white rounded-[2rem] p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full">
-                <div class="flex-grow">
-                    <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden border border-outline-variant/20 p-4 flex items-center justify-center relative group-hover:border-primary/30 transition-colors">
-                        <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
-                    </a>
-                    <h3 class="font-headline-md text-xl text-on-surface mb-2 leading-tight line-clamp-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
-                    <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description }}</p>
-                </div>
-                <div class="mt-auto flex flex-col gap-4">
-                    <div class="flex items-center">
-                        <div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">₹{{ product.price }}</div>
-                    </div>
-                    <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">Details</a>
-                </div>
-            </div>
+                {% include "products/product_card.html" with product=product %}
             {% empty %}
             <div class="col-span-full py-12 text-center text-on-surface-variant font-body-lg">
                 No products found in this category.
             </div>
             {% endfor %}
+        </div>
+
+        <div class="text-center mt-12 mb-16">
+            <a href="{% url 'search' %}?category=PARTS" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
+                <span class="material-symbols-outlined">grid_view</span> View All Products
+            </a>
         </div>
     </section>
 

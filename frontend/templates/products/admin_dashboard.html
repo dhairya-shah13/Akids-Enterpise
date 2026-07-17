@@ -31,6 +31,9 @@
             <button onclick="switchTab('products')" id="tab-products" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide">
                 📦 Product Catalog ({{ products|length }})
             </button>
+            <button onclick="switchTab('inquiries')" id="tab-inquiries" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
+                📋 Inquiries ({{ inquiries|length }})
+            </button>
             <button onclick="switchTab('sales')" id="tab-sales" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
                 📈 Sales Reports & Analytics
             </button>
@@ -85,6 +88,123 @@
                             <tr>
                                 <td colspan="6" class="text-center p-12">
                                     <p class="font-body-lg text-on-surface-variant font-bold">No products found in catalog.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: INQUIRIES LIST -->
+        <div id="section-inquiries" class="hidden">
+            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm relative overflow-hidden">
+                <div class="flex justify-between items-center mb-8 flex-wrap gap-4 relative z-10">
+                    <div>
+                        <h2 class="font-display-lg text-3xl text-on-surface">Customer Inquiries</h2>
+                        <p class="font-body-md text-sm text-on-surface-variant mt-1">Manage, contact, and process customer product inquiries.</p>
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-2">
+                        <a href="?status=all" class="font-label-md px-4 py-2 text-xs rounded-full border {% if not current_status_filter or current_status_filter == 'ALL' %}bg-secondary text-on-secondary border-secondary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
+                            All
+                        </a>
+                        <a href="?status=new" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'NEW' %}bg-primary text-on-primary border-primary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
+                            New
+                        </a>
+                        <a href="?status=contacted" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'CONTACTED' %}bg-secondary text-on-secondary border-secondary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
+                            Contacted
+                        </a>
+                        <a href="?status=closed" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'CLOSED' %}bg-on-surface text-white border-on-surface{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
+                            Closed
+                        </a>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
+                                <th class="p-4 rounded-tl-2xl">Product</th>
+                                <th class="p-4">Customer Name</th>
+                                <th class="p-4">Contact Info</th>
+                                <th class="p-4">Quantity</th>
+                                <th class="p-4">Date</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-center rounded-tr-2xl">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-on-surface font-body-md">
+                            {% for inquiry in inquiries %}
+                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
+                                <td class="p-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-lg overflow-hidden border border-outline-variant/20 bg-white p-1 flex items-center justify-center">
+                                            <img src="{{ inquiry.product.display_image }}" alt="{{ inquiry.product.name }}" class="max-h-full object-contain">
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'product_detail' inquiry.product.pk %}" target="_blank" class="font-bold hover:text-primary transition-colors text-sm line-clamp-1">{{ inquiry.product.name }}</a>
+                                            {% if inquiry.product.sku %}
+                                            <span class="text-[10px] uppercase font-bold text-on-surface-variant/70">{{ inquiry.product.sku }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4 font-bold text-sm">{{ inquiry.name }}</td>
+                                <td class="p-4 text-sm font-semibold text-secondary">{{ inquiry.contact_number }}</td>
+                                <td class="p-4 text-sm font-bold">{{ inquiry.quantity }}</td>
+                                <td class="p-4 text-xs text-on-surface-variant">{{ inquiry.created_at|date:"d M Y, h:i A" }}</td>
+                                <td class="p-4">
+                                    <span class="font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider
+                                        {% if inquiry.status == 'NEW' %}
+                                            bg-primary/10 text-primary border border-primary/20
+                                        {% elif inquiry.status == 'CONTACTED' %}
+                                            bg-secondary/10 text-secondary border border-secondary/20
+                                        {% else %}
+                                            bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20
+                                        {% endif %}">
+                                        {{ inquiry.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="p-4">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <!-- Update status form -->
+                                        <form method="POST" action="{% url 'update_inquiry_status' inquiry.pk %}" class="inline-block m-0">
+                                            {% csrf_token %}
+                                            {% if inquiry.status == 'NEW' %}
+                                            <input type="hidden" name="status" value="CONTACTED">
+                                            <button type="submit" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-secondary/20">
+                                                <span class="material-symbols-outlined text-sm">call</span> Contacted
+                                            </button>
+                                            {% elif inquiry.status == 'CONTACTED' %}
+                                            <input type="hidden" name="status" value="CLOSED">
+                                            <button type="submit" class="bg-on-surface/10 text-on-surface hover:bg-on-surface hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-on-surface/20">
+                                                <span class="material-symbols-outlined text-sm">check_circle</span> Close
+                                            </button>
+                                            {% else %}
+                                            <input type="hidden" name="status" value="NEW">
+                                            <button type="submit" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-primary/20">
+                                                <span class="material-symbols-outlined text-sm">restore</span> Reopen
+                                            </button>
+                                            {% endif %}
+                                        </form>
+                                        
+                                        <!-- Delete form -->
+                                        <form method="POST" action="{% url 'delete_inquiry' inquiry.pk %}" onsubmit="return confirm('Delete this inquiry?');" class="inline-block m-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Inquiry">
+                                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center p-12">
+                                    <p class="font-body-lg text-on-surface-variant font-bold">No inquiries found matching this filter.</p>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -228,13 +348,16 @@
 <script>
     function switchTab(tab) {
         document.getElementById('section-products').classList.add('hidden');
+        document.getElementById('section-inquiries').classList.add('hidden');
         document.getElementById('section-sales').classList.add('hidden');
         
         // Reset classes
         const btnProducts = document.getElementById('tab-products');
+        const btnInquiries = document.getElementById('tab-inquiries');
         const btnSales = document.getElementById('tab-sales');
         
         btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
+        btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
         btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
 
         document.getElementById('section-' + tab).classList.remove('hidden');
@@ -242,10 +365,20 @@
         // Set active classes
         if (tab === 'products') {
             btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+        } else if (tab === 'inquiries') {
+            btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
         } else {
             btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
         }
     }
+
+    // Auto-select inquiries tab if status query parameter is present in URL
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('status')) {
+            switchTab('inquiries');
+        }
+    });
 
     function openModal() {
         document.getElementById('addModal').classList.remove('hidden');

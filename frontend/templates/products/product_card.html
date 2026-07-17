@@ -1,0 +1,47 @@
+<div class="bg-white rounded-2xl p-6 border border-outline-variant/30 hover:shadow-lg transition-all group flex flex-col justify-between h-full relative">
+    {% if product.needs_image %}
+    <div class="absolute top-4 right-4 z-20 bg-error/10 text-error border border-error/20 font-label-md text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider font-extrabold flex items-center gap-1 shadow-sm">
+        <span class="material-symbols-outlined text-xs">image</span> Needs Image
+    </div>
+    {% endif %}
+
+    <div class="flex-grow">
+        <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-6 flex items-center justify-center group-hover:border-primary/30 transition-colors">
+            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+        </a>
+        
+        <div class="flex items-center gap-2 mb-3">
+            <span class="bg-secondary/15 text-secondary border border-secondary/20 font-label-md text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                {{ product.category }}
+            </span>
+            <span class="bg-primary/15 text-primary border border-primary/20 font-label-md text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                {{ product.get_source_display }}
+            </span>
+        </div>
+
+        <h4 class="font-display-lg text-on-surface text-lg leading-tight mb-2 min-h-[2.5rem] line-clamp-2">
+            <a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a>
+        </h4>
+        
+        <p class="font-body-md text-sm text-on-surface-variant mb-6 line-clamp-2 leading-relaxed" title="{{ product.description }}">
+            {{ product.description }}
+        </p>
+    </div>
+    
+    <div class="mt-auto flex flex-col gap-4">
+        <div class="flex items-center">
+            {% if product.price > 0 %}
+            <div class="bg-secondary/10 text-secondary border border-secondary/20 px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">
+                ₹{{ product.price }}
+            </div>
+            {% else %}
+            <div class="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">chat_bubble</span> Price on Request
+            </div>
+            {% endif %}
+        </div>
+        <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">
+            Details
+        </a>
+    </div>
+</div>

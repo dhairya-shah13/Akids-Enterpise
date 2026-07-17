@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from .models import Product
+from .models import Product, Inquiry
 from .search import search_products
 
 def get_env_credentials():
@@ -202,10 +202,17 @@ def admin_dashboard(request):
         
     products = Product.objects.all().order_by('-created_at')
     
+    # Handle sorting and filtering for inquiries
+    status_filter = request.GET.get('status', '').strip().upper()
+    inquiries = Inquiry.objects.all()
+    if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:
+        inquiries = inquiries.filter(status=status_filter)
+    inquiries = inquiries.order_by('-created_at')
+    
     sales_data = {
         'total_revenue': '₹28,45,000',
         'total_orders': 142,
-        'active_quotes': 38,
+        'active_quotes': Inquiry.objects.filter(status='NEW').count(),
         'best_seller': 'The Everest Slide',
         'monthly_sales': [
             {'month': 'Jan', 'amount': '₹1,80,000', 'height': '45%'},
@@ -219,6 +226,8 @@ def admin_dashboard(request):
     
     return render(request, 'products/admin_dashboard.html', {
         'products': products,
+        'inquiries': inquiries,
+        'current_status_filter': status_filter,
         'sales': sales_data,
         'admin_email': get_env_credentials()[0]
     })
@@ -268,8 +277,12 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code, stock__gt=0).order_by('-created_at')
-    return render(request, template_name, {'products': products})
+        # Show top 8 products on the splash page
+        products = Product.objects.filter(category=cat_code, stock__gt=0).order_by('-created_at')[:8]
+    return render(request, template_name, {
+        'products': products,
+        'category_code': cat_code
+    })
 
 def indoors_view(request):
     return category_listing(request, 'INDOORS', 'products/listing.html')
@@ -374,4 +387,57 @@ def chat_api(request):
             return JsonResponse({"reply": "Namaste! I'm Mohanlal. I'm having a little trouble connecting right now, but for any urgent queries or larger requirements, please feel free to call us directly at 9924343003!"}, status=200)
     except Exception:
         return JsonResponse({"reply": "Namaste! I'm Mohanlal. I encountered a momentary connection glitch. For any important queries or immediate advice, please call us at 9924343003!"}, status=200)
+
+
+def submit_inquiry(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        name = request.POST.get('name', '').strip()
+        contact_number = request.POST.get('contact_number', '').strip()
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except ValueError:
+            quantity = 1
+            
+        if not product_id or not name or not contact_number:
+            return JsonResponse({'success': False, 'error': 'All fields are required.'}, status=400)
+            
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Product not found.'}, status=404)
+            
+        inquiry = Inquiry.objects.create(
+            product=product,
+            name=name,
+            contact_number=contact_number,
+            quantity=quantity
+        )
+        return JsonResponse({'success': True, 'inquiry_id': inquiry.pk})
+        
+    return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
+
+
+def update_inquiry_status(request, pk):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        inquiry = get_object_or_404(Inquiry, pk=pk)
+        new_status = request.POST.get('status', '').strip().upper()
+        if new_status in ['NEW', 'CONTACTED', 'CLOSED']:
+            inquiry.status = new_status
+            inquiry.save()
+            
+    return redirect('admin_dashboard')
+
+
+def delete_inquiry(request, pk):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        Inquiry.objects.filter(pk=pk).delete()
+        
+    return redirect('admin_dashboard')
 
