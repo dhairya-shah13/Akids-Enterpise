@@ -4,6 +4,14 @@
 
 {% block content %}
 <div class="py-12 max-w-7xl mx-auto px-margin-desktop">
+    <!-- Back Navigation -->
+    <nav class="mb-8">
+        <a href="{% url back_url_name %}" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label-md transition-colors group">
+            <span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <span class="border-b border-transparent group-hover:border-primary transition-colors">Back to {{ back_label }}</span>
+        </a>
+    </nav>
+
     <div class="grid lg:grid-cols-12 gap-12 items-start mb-24">
         <!-- Left: Product Image Gallery -->
         <div class="lg:col-span-5 flex flex-col gap-4">
@@ -13,16 +21,16 @@
                     <span class="material-symbols-outlined text-[200px]">toys</span>
                 </div>
                 
-                <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500">
+                <img id="mainProductImage" src="{{ selected_variant.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500" loading="lazy">
             </div>
             
             <!-- Thumbnails -->
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 hover:border-primary transition-colors">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 1" class="max-h-full object-contain">
+                    <img src="{{ selected_variant.display_image }}" alt="View 1" width="1" height="1" class="max-h-full object-contain" loading="lazy">
                 </div>
                 <div class="bg-background border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 opacity-60 hover:opacity-100 transition-opacity">
-                    <img src="{{ product.display_image }}" alt="Thumbnail 2" class="max-h-full object-contain grayscale">
+                    <img src="{{ product.display_image }}" alt="View 2" width="1" height="1" class="max-h-full object-contain grayscale" loading="lazy">
                 </div>
                 <div class="bg-secondary/10 border border-secondary/20 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 text-secondary hover:bg-secondary/20 transition-colors">
                     <span class="material-symbols-outlined text-4xl">play_circle</span>
@@ -49,26 +57,51 @@
                     <span class="font-bold opacity-60 text-sm text-on-surface-variant">(42 Reviews)</span>
                 </div>
                 
-                {% if product.discount_price %}
-                <div class="flex items-end gap-4 mb-8">
-                    <h2 class="font-display-lg text-4xl text-on-surface">₹{{ product.discount_price }}</h2>
-                    <h3 class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1">₹{{ product.price }}</h3>
+                <!-- Price Display with Variant Awareness -->
+                <div id="priceDisplay">
+                {% if selected_variant.discount_price %}
+                <div class="flex items-end gap-4 mb-4">
+                    <p class="font-display-lg text-4xl text-on-surface" id="variantPrice">₹{{ selected_variant.discount_price }}</p>
+                    <p class="font-display-lg text-2xl text-on-surface-variant opacity-60 line-through mb-1" id="variantOriginalPrice">₹{{ selected_variant.price }}</p>
                 </div>
                 {% else %}
-                <h2 class="font-display-lg text-4xl text-on-surface mb-8">₹{{ product.price }}</h2>
+                <p class="font-display-lg text-4xl text-on-surface mb-4" id="variantPrice">₹{{ selected_variant.price }}</p>
+                {% endif %}
+                </div>
+                
+                <!-- Variant Selector -->
+                {% if variants and variants|length > 1 %}
+                <div class="mb-8">
+                    <h3 class="font-label-md text-xs uppercase tracking-wider text-on-surface-variant mb-3">Available Options</h3>
+                    <div class="flex flex-wrap gap-3" id="variantSelector">
+                        {% for v in variants %}
+                        <a href="{% url 'product_detail' v.pk %}"
+                           class="variant-btn inline-block px-5 py-3 rounded-xl text-sm font-bold border-2 transition-all duration-200 {% if v.pk == variant_pk %}bg-primary text-on-primary border-primary shadow-md shadow-primary/20{% else %}bg-white text-on-surface border-outline-variant/30 hover:border-primary hover:text-primary{% endif %}">
+                            {% if v.parent_product %}
+                                {{ v.variant_name|default:v.name }}
+                            {% else %}
+                                Default
+                            {% endif %}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
                 
-                <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm">
-                    {% if product.sku %}<span class="bg-surface border border-outline-variant px-3 py-1 rounded-md">SKU: {{ product.sku }}</span>{% endif %}
-                    <span class="{% if product.stock > 0 %}text-secondary bg-secondary/10{% else %}text-error bg-error/10{% endif %} px-3 py-1 rounded-md">
-                        {% if product.stock > 0 %}In Stock ({{ product.stock }}){% else %}Out of Stock{% endif %}
+                <!-- SKU & Stock Info (shows selected variant info) -->
+                <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm flex-wrap">
+                    <span id="variantSku" class="bg-surface border border-outline-variant px-3 py-1 rounded-md">
+                        SKU: {% if selected_variant.sku %}{{ selected_variant.sku }}{% else %}{{ product.sku|default:"N/A" }}{% endif %}
+                    </span>
+                    <span id="variantStock" class="{% if selected_variant.stock > 0 %}text-secondary bg-secondary/10{% else %}text-error bg-error/10{% endif %} px-3 py-1 rounded-md">
+                        {% if selected_variant.stock > 0 %}In Stock ({{ selected_variant.stock }}){% else %}Out of Stock{% endif %}
                     </span>
                 </div>
             </div>
 
             <!-- Description Card -->
             <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
-                <h3 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h3>
+                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h2>
                 <p class="font-body-md text-on-surface-variant leading-relaxed mb-4">
                     {{ product.description }}
                 </p>
@@ -112,9 +145,9 @@
 
     <!-- Related Products -->
     {% if related_products %}
-    <div class="mt-16 pt-16 border-t border-outline-variant/30">
+    <div class="mt-16 pt-16 border-t border-outline-variant/30 lazy-section">
         <h2 class="font-display-lg text-3xl mb-8 text-on-surface">You May Also Like</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter stagger-children">
             {% for rel_product in related_products %}
                 {% include "products/product_card.html" with product=rel_product %}
             {% endfor %}

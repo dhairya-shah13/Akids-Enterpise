@@ -65,3 +65,179 @@
 .nav-link:hover::after, .nav-link.active::after {
     width: 100%;
 }
+
+/* ===================== */
+/* Responsive Overrides   */
+/* ===================== */
+
+/* Mobile: reduce padding from 64px to 16px */
+@media (max-width: 640px) {
+    .px-margin-desktop {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    .hero-min-height {
+        min-height: 400px !important;
+    }
+    .hero-heading {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+    .bento-grid-card-image {
+        height: 160px !important;
+    }
+}
+
+/* Tablet: moderate padding */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .px-margin-desktop {
+        padding-left: 32px !important;
+        padding-right: 32px !important;
+    }
+    .hero-min-height {
+        min-height: 500px !important;
+    }
+}
+
+/* Ensure interactive elements meet 48px touch target minimum */
+.touch-target {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+/* Darken primary text on light backgrounds for WCAG AA contrast (4.5:1) */
+.text-primary {
+    color: #A86000 !important;
+}
+
+/* ==========================================================================
+   Lazy Loading & Page Load Optimizations
+   ========================================================================== */
+
+/* Smooth scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== Skeleton / Shimmer Placeholder ===== */
+.skeleton-box {
+    position: relative;
+    overflow: hidden;
+    background-color: #e8e8e8;
+    border-radius: 12px;
+}
+
+.skeleton-box::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%
+    );
+    animation: shimmer 1.8s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Skeleton variants for specific elements */
+.skeleton-image {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 16px;
+}
+
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    width: 80%;
+}
+
+.skeleton-text-short {
+    width: 40%;
+}
+
+.skeleton-text-long {
+    width: 95%;
+}
+
+.skeleton-badge {
+    height: 24px;
+    width: 80px;
+    border-radius: 99px;
+    margin-bottom: 12px;
+}
+
+.skeleton-price {
+    height: 28px;
+    width: 100px;
+    border-radius: 8px;
+}
+
+/* ===== Fade-In on Scroll (Intersection Observer) ===== */
+.fade-in-section {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fade-in-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Faster fade-in for cards in a grid */
+.fade-in-card {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease-out,
+                transform 0.5s ease-out;
+}
+
+.fade-in-card.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== Staggered animation delays for grid items ===== */
+.stagger-children > *:nth-child(1) { transition-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { transition-delay: 0.10s; }
+.stagger-children > *:nth-child(3) { transition-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { transition-delay: 0.20s; }
+.stagger-children > *:nth-child(5) { transition-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { transition-delay: 0.30s; }
+.stagger-children > *:nth-child(7) { transition-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { transition-delay: 0.40s; }
+.stagger-children > *:nth-child(9) { transition-delay: 0.45s; }
+.stagger-children > *:nth-child(10) { transition-delay: 0.50s; }
+.stagger-children > *:nth-child(11) { transition-delay: 0.55s; }
+.stagger-children > *:nth-child(12) { transition-delay: 0.60s; }
+
+/* ===== Content-Visibility for off-screen sections ===== */
+.lazy-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
+}
+
+/* ===== Image Loading Placeholder ===== */
+img[loading="lazy"] {
+    background: #f0f0f0;
+}
+
+/* Subtle blur-up for product images */
+.img-blur-load {
+    filter: blur(10px);
+    transition: filter 0.4s ease-out;
+}
+
+.img-blur-load.loaded {
+    filter: blur(0);
+}
+

@@ -1,80 +1,126 @@
-# Little Fingers - Project Context Document
+# A kids / Little Fingers - Project Context Document
 
-This document provides a comprehensive overview of the **Little Fingers** e-commerce platform for playground equipment and educational furniture. It is designed to help developers and AI agents quickly understand the codebase without spending hours exploring.
+This document provides a comprehensive overview of the **A kids (Little Fingers) / Akids Enterprise** e-commerce platform for playground equipment, educational furniture, sports gear, and spare parts. It is designed to help developers and AI agents quickly understand the codebase, including the product catalogue PDFs.
 
 ---
 
-## 📁 Project Structure
+## 📁 Complete Project Structure
 
 ```
 Akids-Enterpise/
-├── .claude/                    # Claude Code configuration
-├── .git/                       # Git repository
 ├── .env                        # Environment variables (secrets - DO NOT COMMIT)
 ├── .gitignore                  # Git ignore rules
-├── requirements.txt            # Python dependencies
+├── requirements.txt            # Python dependencies (Django 6+, psycopg, pillow, etc.)
 ├── vercel.json                 # Vercel deployment configuration
 ├── context.md                  # THIS FILE
+├── package.json                # Node.js config + Tailwind CSS build script
+├── package-lock.json           # Lockfile
+├── tailwind.config.js          # Tailwind CSS theme configuration
+├── homepage1.html              # Standalone homepage prototype (static, deprecated)
+│
+├── catalogues/                 # 📋 PRODUCT CATALOGUES (PDF - NOT tracked in git)
+│   ├── Indoor Catalogue March 2026-.pdf             (18.6 MB) - Indoor/classroom products
+│   ├── Outdoor Catalogue March 2026-.pdf            (9.4 MB)  - Outdoor play structures
+│   └── new Outdoor & Soft Play Components March 2026-.pdf (4.4 MB) - New soft play additions
+│
 ├── backend/                    # Django backend
 │   ├── manage.py               # Django management script
-│   ├── db.sqlite3              # SQLite database (development)
-│   ├── little_fingers/         # Django project settings
+│   ├── db.sqlite3              # SQLite dev database (gitignored)
+│   │
+│   ├── little_fingers/         # Django project settings package
 │   │   ├── __init__.py
-│   │   ├── asgi.py
-│   │   ├── settings.py         # Main settings file
-│   │   ├── urls.py             # Root URL configuration
-│   │   ├── wsgi.py             # WSGI entry point
-│   │   └── __pycache__/
-│   └── products/               # Products Django app
+│   │   ├── asgi.py             # ASGI entry point
+│   │   ├── settings.py         # Main settings: DB, templates, static files, middleware
+│   │   ├── urls.py             # Root URL config (admin/ + product URLs)
+│   │   └── wsgi.py             # WSGI entry point (used by Vercel)
+│   │
+│   └── products/               # Products Django app (the main app)
 │       ├── __init__.py
-│       ├── admin.py            # Django admin config
+│       ├── admin.py            # Django admin registration (Product, Order, OrderItem)
 │       ├── apps.py             # App configuration
-│       ├── models.py           # Product model
-│       ├── views.py            # All view logic (auth, cart, admin, products)
-│       ├── urls.py             # Product URL routing
-│       ├── tests.py            # Tests placeholder
-│       └── migrations/         # Database migrations
-│           ├── 0001_initial.py
-│           ├── 0002_product_image_file_alter_product_image_url.py
+│       ├── models.py           # Product, Order, OrderItem, Address models
+│       ├── middleware.py       # AdminRestrictMiddleware (restricts admin to admin pages)
+│       ├── search.py           # Product search utility (name/description/SKU)
+│       ├── views.py            # ALL view logic (auth, cart, admin, products, checkout, AI chat)
+│       ├── urls.py             # Product URL routing (~20+ routes)
+│       ├── tests.py            # Tests placeholder (empty)
+│       └── migrations/         # Database migrations (0001 through 0008)
+│           ├── 0001_initial.py        # Initial Product model
+│           ├── 0002_product_image_... # Added image_file, altered image_url
 │           ├── 0003_alter_product_price.py
-│           └── 0004_product_discount_price_product_sku_product_stock.py
+│           ├── 0004_product_discount... # Added discount_price, sku, stock
+│           ├── 0005_order_orderitem.py # Added Order, OrderItem models
+│           ├── 0006_alter_order_status.py
+│           ├── 0007_alter_product_category.py  # RFSPORTS → MRSPORTS rename
+│           ├── 0008_address.py         # Added Address model
+│           └── __init__.py
+│
 └── frontend/                   # Django templates & static assets
     ├── static/
     │   └── css/
-    │       └── main.css        # Design system & utilities (neo-brutalist)
-    ├── media/                  # User uploads (product images)
+    │       ├── tailwind-input.css      # Tailwind source (postcss directives - @tailwind base/components/utilities)
+    │       ├── tailwind-output.css     # Compiled Tailwind CSS (generated by npm run build:css)
+    │       ├── theme.css               # Active design system: custom styles, animations, responsive overrides
+    │       └── main.css                # Legacy neo-brutalist design system (DEPRECATED - not used in templates)
+    │
     └── templates/
-        ├── base.html           # Base template with header/footer/nav
-        ├── 404.html            # Custom 404 page
+        ├── base.html           # Base template: header, footer, nav, AI chat widget, autocomplete search
+        ├── 404.html            # Custom 404 page with decorative elements
+        │
         └── products/
-            ├── admin_dashboard.html   # Admin panel
-            ├── cart.html              # Shopping cart
-            ├── home.html              # Landing page
-            ├── listing.html           # Indoors category
-            ├── outdoors.html          # Outdoors category
-            ├── parts.html             # Parts category
-            ├── rfsports.html          # RF Sports category
-            ├── product_detail.html    # Product detail page
-            ├── login.html             # Login page
-            └── signup.html            # Signup page
+            ├── home.html               # Landing page: hero, bento grid, featured products, consultation CTA
+            ├── listing.html            # Indoors category listing (product grid with search)
+            ├── outdoors.html           # Outdoors category listing (product grid + accessories section)
+            ├── parts.html              # Parts category listing (repair shop theme)
+            ├── mrsports.html           # MR Sports category listing ("Coming Soon" hero + admin catalog)
+            ├── product_detail.html     # Single product: gallery, description, add-to-cart, related products
+            ├── cart.html               # Shopping cart: items, quantity controls, auth-gating modal
+            ├── checkout.html           # Checkout: address selection, contact form, order summary
+            ├── order_confirmation.html # Post-order: success message, order details, items table
+            ├── profile.html            # User profile: email update + address CRUD (max 3)
+            ├── search_results.html     # Paginated search results with category filtering
+            ├── login.html              # Login page: admin + regular user auth
+            ├── signup.html             # Signup page with validation
+            └── admin_dashboard.html    # Admin panel: 3 tabs (Products, Sales Reports, Order Management)
 ```
 
 ---
 
 ## 🛠 Technology Stack
 
-| Layer | Technology | Version |
-|-------|------------|---------|
+| Layer | Technology | Version/Notes |
+|-------|------------|---------------|
 | **Backend Framework** | Django | 6.0.5+ |
-| **Database** | PostgreSQL (Supabase) / SQLite (dev) | - |
+| **Database (Prod)** | PostgreSQL (Supabase) | Via DATABASE_URL |
+| **Database (Dev)** | SQLite | Fallback when no DATABASE_URL |
 | **ORM** | Django ORM | - |
-| **Auth** | Django Auth + Custom session-based admin | - |
+| **Auth** | Django Auth + Custom session-based admin | Two-tier: admin session + user auth |
 | **Static Files** | WhiteNoise | 6.11.0 |
-| **Image Storage** | Supabase Storage | - |
-| **Deployment** | Vercel (Python) | - |
-| **Frontend** | Django Templates + Vanilla CSS/JS | - |
-| **Design System** | Custom CSS (neo-brutalist) | - |
-| **Fonts** | Google Fonts (Nunito, Inter, Fredoka One, Material Symbols) | - |
+| **Image Storage** | Supabase Storage (direct HTTP upload) + local disk fallback | Pure `requests`, no SDK |
+| **AI Chat** | Groq API (Llama 3.3-70b → fallback to Llama 3.1-8b) | Mohanlal mascot personality |
+| **Deployment** | Vercel (Python WSGI) | @vercel/python + @vercel/static |
+| **Frontend** | Django Templates + Tailwind CSS + Vanilla JS | No JS framework |
+| **CSS Framework** | Tailwind CSS (via PostCSS CLI build) | v3.4.19 |
+| **Tailwind Plugins** | @tailwindcss/forms, @tailwindcss/container-queries | - |
+| **Fonts** | Google Fonts (Plus Jakarta Sans, Quicksand, Material Symbols) | - |
+| **Design System** | Custom theme.css + Tailwind utility classes | India-gradient, sparkle anims, bento cards |
+| **Product Catalogues** | PDF format (3 files in `catalogues/` dir) | March 2026 editions |
+
+---
+
+## 📋 Catalogues Folder (`catalogues/`)
+
+The `catalogues/` directory contains **3 PDF product catalogues** that are NOT tracked in git (they appear as untracked). These are the master product reference documents:
+
+| File | Size | Description |
+|------|------|-------------|
+| `Indoor Catalogue March 2026-.pdf` | ~18.6 MB | Complete indoor/classroom product range: furniture, learning tools, storage, soft play |
+| `Outdoor Catalogue March 2026-.pdf` | ~9.4 MB | Outdoor play structures, multi-play stations, adventure equipment |
+| `new Outdoor & Soft Play Components March 2026-.pdf` | ~4.4 MB | New additions: soft play components and outdoor equipment supplements |
+
+**Status**: These are the latest (March 2026) product catalogues from the manufacturer. The database products in the Django app may not yet reflect all items from these catalogues. When adding products to the admin panel, refer to these PDFs for accurate product names, SKUs, descriptions, and pricing.
+
+**Important**: These PDFs are large binary files and are NOT committed to git. They serve as the offline reference for the physical product line.
 
 ---
 
@@ -92,32 +138,33 @@ DATABASE_URL=postgresql://postgres:Akids%4018088@db.raonllwzgumhalpjdmqe.supabas
 SUPABASE_URL=https://raonllwzgumhalpjdmqe.supabase.co
 SUPABASE_KEY=sb_publishable_jm6m6Qn7c5FmnEd0ZC967A_zAvArXRm
 SUPABASE_BUCKET=products
+
+# Groq API (for AI Chat - Mohanlal mascot)
+GROQ_API_KEY=gsk_your_key_here
 ```
 
-> **Security Note**: The `.env` file is in `.gitignore`. Never commit real secrets. Use Vercel environment variables for production.
+> **Security Note**: The `.env` file is in `.gitignore`. Never commit real secrets. Use Vercel environment variables for production. Replace `GROQ_API_KEY` with an actual key for the AI chat to work.
 
 ---
 
 ## 🗄 Database Schema
 
-### Product Model (`backend/products/models.py`)
-
+### Product Model
 ```python
 class Product(models.Model):
     CATEGORY_CHOICES = [
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('RFSPORTS', 'RF Sports'),
+        ('MRSPORTS', 'MR Sports'),  # Renamed from RFSPORTS in migration 0007
     ]
-    
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
     price = models.DecimalField(max_digits=14, decimal_places=2)
     discount_price = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     description = models.TextField()
     image_file = models.ImageField(upload_to='products/', null=True, blank=True)
-    image_url = models.URLField(max_length=1000, null=True, blank=True)
+    image_url = models.URLField(max_length=1000, null=True, blank=True)  # Supabase URL stored here
     sku = models.CharField(max_length=50, null=True, blank=True)
     stock = models.IntegerField(default=10)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -127,43 +174,83 @@ class Product(models.Model):
         """Returns image_file.url > image_url > fallback Unsplash image"""
 ```
 
-### Migration History
-- `0001_initial` - Initial Product model
-- `0002` - Added `image_file`, altered `image_url`
-- `0003` - Altered `price` field
-- `0004` - Added `discount_price`, `sku`, `stock`
+### Order Model
+```python
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('DISPATCHED', 'Dispatched'),
+        ('IN_TRANSIT', 'In Transit'),
+        ('OUT_FOR_DELIVERY', 'Out for Delivery'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+    user = ForeignKey(User, null=True, blank=True)
+    customer_name, customer_email, customer_phone, shipping_address
+    total_amount, status, payment_status, notes
+    created_at, updated_at
+    # Methods: get_next_status_code(), get_next_status_display()
+```
+
+### OrderItem Model
+```python
+class OrderItem(models.Model):
+    order = ForeignKey(Order, related_name='items')
+    product = ForeignKey(Product, null=True, on_delete=SET_NULL)
+    product_name, product_sku  # Snapshotted at purchase time
+    quantity, price, total_price
+```
+
+### Address Model
+```python
+class Address(models.Model):
+    user = ForeignKey(User, related_name='addresses')
+    label = CharField(max_length=50, default='Home')  # Home, School, Office, Other
+    full_address, city, state, pincode, phone
+    is_default = BooleanField(default=False)
+    created_at
+    # Max 3 addresses per user (enforced in view, not model)
+```
+
+### Model Relationships Summary
+```
+User ──→ Address (1:N, max 3)
+User ──→ Order (1:N, optional)
+Order ──→ OrderItem (1:N)
+Product ──→ OrderItem (1:N, nullable on delete)
+```
 
 ---
 
 ## 🌐 URL Routing
 
-### Root URLs (`backend/little_fingers/urls.py`)
-```python
-urlpatterns = [
-    path('admin/', admin.site.urls),           # Django admin
-    path('', include('products.urls')),        # All product routes
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Dev media serving
-```
-
 ### Product URLs (`backend/products/urls.py`)
-| Path | View | Name |
-|------|------|------|
-| `/` | `TemplateView(home.html)` | `home` |
-| `/indoors/` | `indoors_view` | `indoors` |
-| `/outdoors/` | `outdoors_view` | `outdoors` |
-| `/parts/` | `parts_view` | `parts` |
-| `/rfsports/` | `rfsports_view` | `rfsports` |
-| `/product/<pk>/` | `product_detail` | `product_detail` |
-| `/login/` | `login_view` | `admin_login` |
-| `/signup/` | `signup_view` | `signup` |
-| `/logout/` | `logout_view` | `admin_logout` |
-| `/cart/` | `cart_view` | `cart` |
-| `/cart/add/<pk>/` | `add_to_cart` | `add_to_cart` |
-| `/cart/remove/<pk>/` | `remove_from_cart` | `remove_from_cart` |
-| `/cart/update/<pk>/` | `update_cart` | `update_cart` |
-| `/admin-panel/` | `admin_dashboard` | `admin_dashboard` |
-| `/admin-panel/products/add/` | `add_product` | `add_product` |
-| `/admin-panel/products/<pk>/delete/` | `delete_product` | `delete_product` |
+
+| Path | View | Name | Notes |
+|------|------|------|-------|
+| `/` | `home_view` | `home` | Also has a TemplateView fallback for the same path |
+| `/search/` | `search_view` | `search` | Paginated (12/page), category filterable |
+| `/indoors/` | `indoors_view` | `indoors` | Category listing via `category_listing` helper |
+| `/outdoors/` | `outdoors_view` | `outdoors` | Category listing via `category_listing` helper |
+| `/parts/` | `parts_view` | `parts` | Category listing via `category_listing` helper |
+| `/mrsports/` | `mrsports_view` | `mrsports` | Category listing (renamed from RF Sports) |
+| `/product/<pk>/` | `product_detail` | `product_detail` | Dynamic back link by category, 3 related products |
+| `/login/` | `login_view` | `admin_login` | Admin + user auth with `next` param |
+| `/signup/` | `signup_view` | `signup` | User registration with `next` param |
+| `/logout/` | `logout_view` | `admin_logout` | Preserves cart across session flush |
+| `/cart/` | `cart_view` | `cart` | Session-based cart with auth modal |
+| `/cart/add/<pk>/` | `add_to_cart` | `add_to_cart` | POST only, stock-aware, AJAX-enabled |
+| `/cart/remove/<pk>/` | `remove_from_cart` | `remove_from_cart` | POST only |
+| `/cart/update/<pk>/` | `update_cart` | `update_cart` | Stock validation, POST only |
+| `/checkout/` | `checkout_view` | `checkout` | Address selection, stock check, order creation |
+| `/order-confirmation/<pk>/` | `order_confirmation_view` | `order_confirmation` | Post-purchase details |
+| `/profile/` | `profile_view` | `profile` | Profile + address CRUD (max 3) |
+| `/admin-panel/` | `admin_dashboard` | `admin_dashboard` | 3 tabs: Products, Sales, Orders |
+| `/admin-panel/products/add/` | `add_product` | `add_product` | Supabase/disk/URL image upload |
+| `/admin-panel/products/<pk>/delete/` | `delete_product` | `delete_product` | POST only |
+| `/admin-panel/orders/<pk>/update-status/` | `update_order_status` | `update_order_status` | AJAX-enabled |
+| `/api/search-suggestions/` | `search_suggestions_api` | `search_suggestions` | JSON autocomplete (up to 8 results) |
+| `/api/chat/` | `chat_api` | `chat_api` | Groq-powered AI chat, CSRF-exempt |
 
 ---
 
@@ -171,118 +258,153 @@ urlpatterns = [
 
 ### Authentication & Session Management
 
-**Admin Login** (custom, not Django admin):
-- Checks `.env` `ADMIN_EMAIL`/`ADMIN_PASSWORD` first
-- Sets `request.session['is_admin'] = True`
-- Redirects to admin dashboard
+**Admin Login**: Checks `.env` ADMIN_EMAIL/ADMIN_PASSWORD first, sets `request.session['is_admin'] = True`, redirects to admin dashboard. Admin is session-based (NOT Django auth).
 
-**Regular User Auth**:
-- Uses Django's `authenticate()` with email as username
-- Standard `login()`/`logout()` flow
-- Session-based cart persists across auth states
+**Regular User Auth**: Looks up user by email in DB, then authenticates with username via `authenticate()`. Supports `next` parameter (both GET and POST) for redirect-after-login.
 
-**Logout**: Flushes session + Django logout
+**Logout**: Saves cart to a variable → `session.flush()` → `logout(request)` → restores cart. This preserves cart items across login/logout cycles.
+
+**AdminRestrictMiddleware** (`middleware.py`): Intercepts all requests when `is_admin` session key is True. Only allows: `admin_dashboard`, `add_product`, `delete_product`, `update_order_status`, `admin_logout`, `admin_login`. All AJAX requests pass through. All other URLs redirect to `admin_dashboard`.
 
 ### Cart System (Session-based)
 ```python
-# Cart stored in session: request.session['cart'] = { 'product_pk': quantity }
-# Helper: get_cart_data(request) -> (cart_items_list, subtotal)
-# Cart item: { 'product': Product, 'quantity': int, 'total_price': Decimal }
+# Cart stored in session as: { 'product_pk_string': quantity_int }
+# Helper function: get_cart_data(request) -> (cart_items_list, subtotal)
+# Cart persists across login/logout (explicitly saved before session flush)
 ```
 
-### Product Views
-- **Category listings**: `indoors_view`, `outdoors_view`, `parts_view`, `rfsports_view` all use `category_listing()` helper
-- **Product detail**: Shows related products (same category, latest 3)
-- **Admin dashboard**: Hardcoded sales data + product list
-- **Add product**: Handles Supabase upload, local file, or image URL
+**Cart Operations**:
+- **Add**: POST only, increments quantity, clamped to stock level
+- **Remove**: POST only, deletes key from session dict
+- **Update**: POST only, validates quantity > 0, clamps to stock, supports removal if quantity <= 0
+
+### Checkout Flow
+1. Validate cart not empty
+2. Show saved addresses for logged-in users (auto-fill for default address)
+3. On POST: validate stock availability for ALL items first
+4. Create Order with customer details
+5. Create OrderItems with snapshotted product data (name, SKU, price at time of purchase)
+6. Deduct stock from each product
+7. Clear the cart session
+8. Redirect to order confirmation page
+
+### Order Status Workflow
+```
+PENDING → DISPATCHED → IN_TRANSIT → OUT_FOR_DELIVERY → DELIVERED
+Any active status → CANCELLED (not allowed for DELIVERED or already CANCELLED)
+```
+Admin panel uses AJAX for status updates (no page reload). Both "Advance" and "Cancel" buttons trigger XHR requests.
+
+### Admin Dashboard
+- **3-tab interface**: Product Catalog, Sales Reports, Order Management
+- **Product Catalog**: Table of all products with image preview, delete button
+- **Sales Reports**: Real data from orders:
+  - Top metrics: Total Revenue, Completed Orders, Pending Orders, Best Seller
+  - Monthly bar chart (last 6 months with calculated bar heights)
+  - Recent orders table
+- **Order Management**: All orders table with status badges, Advance/Cancel buttons with AJAX (no page reload)
+- **Modals**: Add Product modal with image preview, Supabase upload support
+
+### Profile & Address Management
+- Update email address
+- Full CRUD for addresses (max 3 per user, enforced in view)
+- Address labels: Home, School, Office, Other
+- Default address flag with toggle (un-sets other defaults)
+- Progress bar showing address usage
+- Inline form toggle for add/edit with pre-filled values
+
+### Search
+- Full-text search across name, description, SKU (case-insensitive `icontains`)
+- Category filtering
+- Pagination: 12 per page
+- AJAX autocomplete API: up to 8 suggestions, matches name or SKU, returns JSON with image/price/URL
+
+### AI Chat (Mohanlal Mascot)
+- Groq API integration with `llama-3.3-70b-versatile` (fallback to `llama-3.1-8b-instant`)
+- Conversational context: last 6 messages preserved in history
+- System prompt: Mohanlal is the AI mascot for Little Fingers India
+- Hotline number (9924343003) pushed for urgent/complex queries
+- CSRF-exempt endpoint (`@csrf_exempt`)
+- Chat UI: FAB button, modal window with typing indicators, clickable phone links
 
 ### Image Upload to Supabase
 ```python
-def upload_photo_to_supabase(file_obj):
-    # Uses SUPABASE_URL, SUPABASE_KEY, SUPABASE_BUCKET from env
-    # Generates UUID filename, uploads to Supabase Storage
-    # Returns public URL on success, None on failure
+# Uploads to: {SUPABASE_URL}/storage/v1/object/{bucket}/{uuid}.{ext}
+# Returns public URL: {SUPABASE_URL}/storage/v1/object/public/{bucket}/{filename}
+# Falls back to local disk storage if Supabase upload fails
+# Uses pure requests library (no Supabase SDK)
 ```
+
+**Image Priority (display_image property)**:
+1. `image_file` (local media/ upload)
+2. `image_url` (external URL, including Supabase public URL)
+3. Fallback Unsplash image
 
 ---
 
 ## 🎨 Frontend Architecture
 
-### Design System (`frontend/static/css/main.css`)
+### Design System
+- **Tailwind CSS** (compiled via PostCSS CLI) with custom theme
+- **Custom colors**: Primary (Saffron #FF9933), Secondary (Teal #008080), Tertiary (Fuchsia #C71585)
+- **Custom spacing**: `margin-desktop` (64px), `stack-lg` (48px), `gutter` (24px), etc.
+- **Custom fonts**: Plus Jakarta Sans (headings/display), Quicksand (body)
+- **Active CSS**: `theme.css` - sparkle animations, bento card hover effects, responsive overrides, nav link underline animation, WCAG AA contrast fixes (darker primary #A86000), 48px touch targets
+- **Legacy CSS**: `main.css` - neo-brutalist design (DEPRECATED, not used in any current template)
 
-**Neo-Brutalist Style**:
-- Thick borders (`3px solid #1A1A2E`)
-- Offset shadows (`4px 4px 0 #1A1A2E`)
-- Playful rotations (`rotate-1`, `rotate-2`, etc.)
-- Bounce animations on buttons
-
-**Design Tokens**:
-```css
---primary: #F5A623;      /* Yellow */
---secondary: #2ECC71;    /* Green */
---accent: #3498DB;       /* Blue */
---danger: #E74C3C;       /* Red */
---neutral-dark: #1A1A2E; /* Near black */
---neutral-light: #F8F9FA;
---font-heading: 'Nunito';
---font-body: 'Inter';
---font-accent: 'Fredoka One';
-```
-
-**Utility Classes**: Container, Flex, Grid, Spacing, Colors, Typography, Neo-brutalist helpers
-
-### Base Template (`frontend/templates/base.html`)
-
-**Key Components**:
-1. **Sticky Header** with logo, nav links (desktop), hamburger menu (mobile)
-2. **Responsive Navigation**: Desktop flex nav, mobile slide-down drawer
-3. **Cart/Admin/User actions** in header (context-aware)
-4. **Footer** with grass-border decoration
-5. **FAB** (chat bubble) fixed bottom-right
-6. **Mobile menu toggle** JavaScript
+### Base Template Components (`base.html`)
+1. **Sticky Header**: Logo, desktop nav (Home, Indoors, Outdoors, Parts, MR Sports), search bar with autocomplete dropdown, cart button, profile/sign-in buttons
+2. **Admin-aware Header**: When `is_admin` session is active, shows minimal header with "Admin Panel" label and Exit Admin button (hides nav, search, cart)
+3. **Mobile Drawer**: Full-screen slide-down nav with search, category links, cart, profile/sign-in
+4. **Footer**: 4-column grid (Brand, Products, About, Contact) with copyright
+5. **AI Chat Widget**: Fixed FAB button bottom-right, modal with Mohanlal mascot, Groq API integration, typing indicators, urgent call banner
+6. **Autocomplete Search**: Debounced input (200ms), keyboard navigation (arrows/enter/escape), highlighted matches, loading animations
 
 ### Template Inheritance
 ```
-base.html
-├── home.html           (hero, categories, trending, newsletter)
-├── listing.html        (Indoors grid)
-├── outdoors.html       (Outdoors grid)
-├── parts.html          (Parts grid)
-├── rfsports.html       (RF Sports grid)
-├── product_detail.html (Single product + related)
-├── cart.html           (Cart items, quantities, checkout)
-├── login.html          (Email/password + admin credentials)
-├── signup.html         (Username/email/password)
-├── admin_dashboard.html (Sales stats, product table, add form)
-└── 404.html            (Custom not found)
+base.html (header, footer, nav, chat widget, search autocomplete, password toggle)
+├── home.html              (hero with sparkles, bento category grid, featured products, consultation CTA)
+├── listing.html           (Indoors: hero, search bar, product grid, safety section, newsletter)
+├── outdoors.html          (Outdoors: hero, search bar, product grid, accessories section)
+├── parts.html             (Parts: "Repair Shop" theme, search bar, part-type filters, product grid)
+├── mrsports.html          (MR Sports: "Coming Soon" hero, email signup, admin catalog below)
+├── product_detail.html    (Image gallery, details, description card, add-to-cart, related products, toast)
+├── cart.html              (Cart items, quantity controls, order summary, auth-gating modal)
+├── checkout.html          (Contact/shipping form, saved address selection, order summary)
+├── order_confirmation.html (Success animation, order details, items table, continue shopping)
+├── profile.html           (Profile update, address CRUD up to 3, progress bar)
+├── search_results.html    (Paginated results, category filter, empty state)
+├── login.html             (Email/password + admin credentials, decorative elements)
+├── signup.html            (Username/email/password, decorative elements)
+├── admin_dashboard.html   (3 tabs: Products table, Sales metrics + chart, Order management with AJAX)
+└── 404.html               (Custom not found page with decorative elements)
 ```
 
 ---
 
-## ⚙️ Django Settings Highlights (`backend/little_fingers/settings.py`)
+## ⚙️ Django Settings Highlights
 
 ```python
 # Database: PostgreSQL (Supabase) if DATABASE_URL set, else SQLite
 # Static files: WhiteNoise + frontend/static + staticfiles (collectstatic)
 # Media files: frontend/media
-# Templates: frontend/templates
-# Debug: True (dev)
-# Allowed hosts: ['*']
+# Templates: frontend/templates (BASE_DIR.parent / 'frontend' / 'templates')
+# DEBUG = True (dev)
+# ALLOWED_HOSTS = ['*']
+# SECRET_KEY hardcoded (should use env var in production)
+# dotenv loaded from parent .env file
 ```
 
-### Installed Apps
-- Django defaults (admin, auth, contenttypes, sessions, messages, staticfiles)
-- `products` (custom app)
-
-### Middleware Order
-1. SecurityMiddleware
-2. **WhiteNoiseMiddleware** (static files)
-3. SessionMiddleware
-4. CommonMiddleware
-5. CsrfViewMiddleware
-6. AuthenticationMiddleware
-7. MessageMiddleware
-8. XFrameOptionsMiddleware
+### Middleware Stack (in order)
+1. `SecurityMiddleware` - Security headers
+2. `WhiteNoiseMiddleware` - Static file serving
+3. `SessionMiddleware` - Session management
+4. `CommonMiddleware` - Common HTTP features
+5. `CsrfViewMiddleware` - CSRF protection
+6. `AuthenticationMiddleware` - User authentication
+7. `MessageMiddleware` - Flash messages
+8. `XFrameOptionsMiddleware` - Clickjacking protection
+9. `AdminRestrictMiddleware` - Custom: redirects admin away from public pages
 
 ---
 
@@ -303,52 +425,80 @@ base.html
 }
 ```
 
-**Build Process**: Vercel runs `pip install -r requirements.txt` then serves via WSGI.
+**Build Process**: Vercel runs `pip install -r requirements.txt` then serves via WSGI. Static files are served directly by Vercel's static file server, while all other routes hit the Django WSGI app.
+
+**Important**: After deploying, run `python manage.py collectstatic` to collect static files including the compiled `tailwind-output.css`. The `staticfiles/` directory is created at the project root level.
 
 **Required Vercel Environment Variables**:
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD`
-- `DATABASE_URL`
+- `DATABASE_URL` (Supabase PostgreSQL)
 - `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET`
-- `SECRET_KEY` (generate new for production)
+- `GROQ_API_KEY` (for AI chat)
+- `SECRET_KEY` (generate new for production - don't use the hardcoded dev key)
 
 ---
 
 ## 🔧 Development Commands
 
 ```bash
-# Setup
+# ---- Backend Setup ----
 cd backend
+
+# Create & activate virtual environment
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate  # Linux/Mac
+# or: venv\Scripts\activate  # Windows
+
+# Install dependencies
 pip install -r ../requirements.txt
 
-# Database
+# Database setup
 python manage.py migrate
-python manage.py createsuperuser  # Optional Django admin
+python manage.py createsuperuser  # Optional Django admin (different from custom admin)
 
-# Run server
+# Run development server
 python manage.py runserver
 
-# Static files (for production)
+# ---- Static Files ----
 python manage.py collectstatic
 
-# Create migrations
+# ---- Database Migrations ----
 python manage.py makemigrations products
 python manage.py migrate
+
+# ---- Frontend (Tailwind CSS) ----
+# Build for production (minified)
+npm run build:css
+
+# Watch mode (auto-rebuilds on changes)
+npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static/css/tailwind-output.css --watch
+
+# ---- Testing ----
+# (No tests currently - tests.py is empty)
 ```
 
 ---
 
-## 📦 Key Dependencies (`requirements.txt`)
+## 📦 Key Dependencies
 
+### Python (`requirements.txt`)
 ```
-Django>=6.0.5
-psycopg[binary]>=3.3.4        # PostgreSQL driver
-python-dotenv>=1.2.2          # .env loading
-pillow>=12.2.0                # Image processing
-requests>=2.33.0              # HTTP requests (Supabase upload)
-whitenoise>=6.11.0            # Static file serving
-gunicorn>=25.1.0              # WSGI server (production)
+Django>=6.0.5              # Web framework
+psycopg[binary]>=3.3.4     # PostgreSQL driver
+python-dotenv>=1.2.2       # .env file loading
+pillow>=12.2.0             # Image processing
+requests>=2.33.0           # HTTP client (Supabase upload, Groq API)
+whitenoise>=6.11.0         # Static file serving
+gunicorn>=25.1.0           # WSGI server (production)
+```
+
+### Node.js (`package.json`) - Dev Dependencies
+```
+tailwindcss@^3.4.19         # CSS utility framework
+postcss@^8.5.15             # CSS processor
+autoprefixer@^10.5.2        # CSS vendor prefixing
+@tailwindcss/forms@^0.5.11  # Tailwind form plugin
+@tailwindcss/container-queries@^0.1.1  # Container query plugin
 ```
 
 ---
@@ -356,95 +506,164 @@ gunicorn>=25.1.0              # WSGI server (production)
 ## 🎯 Important Implementation Details
 
 ### 1. Admin vs Regular User
-- **Admin**: Session-based (`request.session['is_admin']`), credentials from `.env`
-- **Regular User**: Django auth (`request.user.is_authenticated`), email as username
-- Both can have carts; admin has access to `/admin-panel/`
+- **Admin**: Session-based (`request.session['is_admin'] = True`), credentials from `.env` file, middleware restricts to admin pages only
+- **Regular User**: Django auth model (`request.user.is_authenticated`), email lookup → username authentication, can browse freely
+- AdminRestrictMiddleware prevents admin users from browsing any public pages (redirects to dashboard)
 
-### 2. Image Handling Priority
+### 2. Two URLs for Home (`urls.py`)
+There are TWO entries for the root path in `urls.py`:
 ```python
-@property
-def display_image(self):
-    if self.image_file:      # 1. Local upload (media/)
-        return self.image_file.url
-    elif self.image_url:     # 2. External URL
-        return self.image_url
-    return "..."             # 3. Fallback Unsplash image
+path('', TemplateView.as_view(template_name='products/home.html'), name='home'),
+path('', views.home_view, name='home'),
+```
+The second one overrides the first since they share the same `name='home'`. The `home_view` in views.py provides featured product context. The TemplateView is effectively unused.
+
+### 3. Image Handling Priority
+```
+1. image_file (local media/ upload)
+2. image_url (external URL, including Supabase public URL)
+3. Fallback Unsplash image
 ```
 
-### 3. Cart Persistence
-- Stored in Django session (`request.session['cart']`)
-- Survives login/logout for regular users
-- Admin session separate from user session
+### 4. Cart Persistence
+- Stored in Django session as `request.session['cart']` (dict of `str(pk): quantity`)
+- Survives login/logout for regular users (cart saved before session flush, restored after)
+- Admin session is separate from user session (different auth mechanisms)
 
-### 4. Category Templates
-Each category has its own template but uses the same `category_listing` view:
-- Indoors → `listing.html`
-- Outdoors → `outdoors.html`
-- Parts → `parts.html`
-- RF Sports → `rfsports.html`
+### 5. Order System
+- Order snapshots product name, SKU, price at purchase time (OrderItem fields)
+- Stock deducted atomically during checkout
+- Status workflow with advance/cancel
+- AJAX-powered status updates in admin panel (updates both Order Management table AND Sales Recent Orders table)
 
-### 5. Supabase Integration
-- **Database**: PostgreSQL via `DATABASE_URL`
-- **Storage**: Product images uploaded to Supabase bucket `products`
-- Uses `requests` library directly (no Supabase SDK)
+### 6. Address System
+- Max 3 addresses per user (enforced in profile view logic)
+- Labels: Home, School, Office, Other
+- Default address flag auto-fills checkout form
+- Full CRUD with inline toggle form, progress bar indicator
+
+### 7. Category Templates
+Each category has its own template but routes through `category_listing` helper:
+- Indoors → `listing.html` (classroom/indoor theme)
+- Outdoors → `outdoors.html` (adventure theme)
+- Parts → `parts.html` (repair shop theme)
+- MR Sports → `mrsports.html` ("Coming Soon" theme + admin catalog)
+
+### 8. Supabase Integration
+- **Database**: PostgreSQL via DATABASE_URL connection string
+- **Storage**: Product images uploaded to Supabase bucket using direct HTTP POST requests (no SDK)
+- Upload endpoint: `{SUPABASE_URL}/storage/v1/object/{bucket}/{filename}`
+- Public URL: `{SUPABASE_URL}/storage/v1/object/public/{bucket}/{filename}`
+
+### 9. Groq AI Chat
+- Chat widget with Mohanlal mascot personality
+- System prompt for playground equipment expertise with Indian context
+- Prompts users to call hotline (9924343003) for urgent/complex queries
+- Fallback from Llama 3.3-70b to Llama 3.1-8b on rate limiting or errors
+- Last 6 messages of conversation history maintained
+- Markdown formatting support (bold, line breaks)
+- Phone number auto-linked in responses
+
+### 10. Tailwind CSS Build
+- Compiled from `tailwind-input.css` → `tailwind-output.css` via PostCSS CLI
+- Custom theme defined in `tailwind.config.js` (colors, spacing, fonts, font sizes)
+- Content paths scanned: `./frontend/templates/**/*.html`, `./homepage1.html`
+- Run `npm run build:css` after template changes
+- Minified output for production (`--minify` flag)
+- Watch mode available for development
+
+### 11. Brand Name: "Little Fingers" vs "A kids"
+- The codebase uses both brand names interchangeably
+- `template/base.html` uses "A kids" as the brand name
+- Older templates and `homepage1.html` reference "Little Fingers"
+- The company operates under both names, with "A kids" being the more current branding
+- The GitHub repo is named `Akids-Enterpise`
+- The Django project is named `little_fingers`
 
 ---
 
 ## 🐛 Known Issues / TODOs
 
-1. **Hardcoded sales data** in `admin_dashboard` view
-2. **No password reset** flow for regular users
-3. **No email verification** for signup
-4. **No order/checkout** system (cart only)
-5. **No product search/filter** functionality
-6. **Admin panel** uses custom session auth, not Django admin
+1. **No password reset** flow for regular users
+2. **No email verification** for signup
+3. **Payment integration** not implemented (manual/offline only)
+4. **No order cancellation** from user side (admin only)
+5. **No order history** view for regular users
+6. **Admin panel** uses custom session auth, not Django admin (intentional design)
 7. **SECRET_KEY** is hardcoded in settings (should use env var in production)
 8. **No tests** in `products/tests.py`
-9. **Stock validation** only on cart add/update, not on checkout (no checkout)
+9. **No email notifications** on order placement
+10. **Shipping cost** not calculated (marked "Calculated later"/"Calculated at checkout")
+11. **Tailwind build** needs to run before deployment (or commit the output file)
+12. **Duplicate home URL** in urls.py (`TemplateView` + `home_view` with same `name='home'`)
+13. **MR Sports** section shows "Coming Soon" as default with no products
+14. **Catalogues not in DB**: The PDF catalogues contain products not yet added to the database
+15. **No product search within category** templates: category pages have their own search bars but they redirect to the general search page with `?category=` param
+16. **`homepage1.html`** is a static prototype (no Django template tags) - may be out of sync with actual templates
+17. **No bulk order** functionality on product detail page ("Request Bulk Quote" button has no backend action)
+18. **No checkout login enforcement** - the cart page has an auth-gating modal but the checkout view itself doesn't require authentication (it handles both guest and logged-in users)
 
 ---
 
-## 🔍 Quick Reference: Adding a New Feature
+## 🔍 Quick Reference: Adding Features
 
 ### New Category
 1. Add to `CATEGORY_CHOICES` in `models.py`
-2. Create template `products/newcategory.html`
-3. Add view in `views.py` (or use `category_listing`)
-4. Add URL in `products/urls.py`
-5. Add nav link in `base.html`
+2. Run `makemigrations` + `migrate`
+3. Create template `frontend/templates/products/newcategory.html`
+4. Add view in `views.py` (or use `category_listing` helper)
+5. Add URL in `products/urls.py`
+6. Add nav link in `base.html` header and mobile drawer
+7. Update home.html category bento grid
 
 ### New Product Field
 1. Add field to `Product` model
 2. Run `makemigrations` + `migrate`
 3. Update `add_product` view to handle new field
-4. Update templates to display field
+4. Update templates to display field (product_detail, listing, etc.)
 
 ### New Page
 1. Create template in `frontend/templates/products/`
 2. Add view function in `views.py`
 3. Add URL pattern in `products/urls.py`
-4. Extend `base.html` and use design system classes
+4. Extend `base.html` and use Tailwind utility classes
+
+### Add Products from Catalogues
+1. Open the relevant PDF in `catalogues/` folder
+2. Use Admin Dashboard → Add New Product modal
+3. Enter product details (name, category, price, description, SKU)
+4. Upload image from computer (goes to Supabase)
+5. Product appears immediately in the catalog
 
 ---
 
-## 📝 Recent Commits Context
+## 📝 Key Changes History
 
-| Commit | Description |
+| Change | Description |
 |--------|-------------|
-| `60cbc2f` | images |
-| `3ce8731` | Merge PR #3 |
-| `d1d5281` | photus |
-| `b706ad8` | Merge PR #2 |
-| `8c76064` | login-cart-view-details page |
+| **RF Sports → MR Sports** | Category renamed across models, migration 0007, views, URLs, templates |
+| **Order System** | Full order tracking with status workflow (Order, OrderItem models) |
+| **Checkout Flow** | Stock validation, order creation, stock deduction, confirmation page |
+| **Address Management** | User addresses (max 3), CRUD, default flag, checkout auto-fill |
+| **Profile Page** | Email update, address management with progress bar |
+| **Admin Dashboard** | 3-tab interface, real sales analytics from orders, AJAX order management |
+| **Search Autocomplete** | Debounced JSON endpoint, keyboard navigation, highlighted matches |
+| **AI Chat Widget** | Groq API integration with Mohanlal mascot personality |
+| **Auth Improvements** | `next` parameter support, email-based user lookup, cart persistence |
+| **Tailwind CSS Setup** | npm-based build pipeline, custom theme, replacement of CDN/inline CSS |
+| **AdminRestrictMiddleware** | Prevents admin users from browsing regular pages |
+| **UI Polish** | Sparkle animations, bento cards, rainbow text, India gradient, responsive design |
+| **Product Catalogues** | 3 PDF catalogues (March 2026) added to `catalogues/` folder |
 
 ---
 
 ## 📞 Support Contacts
 
-- **Repository**: GitHub (origin)
+- **Repository**: GitHub - `dhairya-shah13/Akids-Enterpise`
 - **Database**: Supabase project `raonllwzgumhalpjdmqe`
 - **Deployment**: Vercel
+- **Hotline**: +91 9924343003 (for urgent/complex queries - mentioned in AI chat)
 
 ---
 
-*Generated on 2026-06-27. Update this document when significant changes are made to the codebase.*
+*Generated on 2026-07-05. Update this document when significant changes are made to the codebase.*

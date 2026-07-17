@@ -20,12 +20,12 @@
                 <div class="bg-white rounded-xl p-6 border border-outline-variant/30 flex flex-col sm:flex-row gap-6 items-center shadow-sm group hover:border-primary/20 transition-all">
                     <!-- Product Image -->
                     <a href="{% url 'product_detail' item.product.pk %}" class="shrink-0 w-full sm:w-32 h-32 bg-background rounded-2xl p-2 flex items-center justify-center border border-outline-variant/10 relative overflow-hidden">
-                        <img src="{{ item.product.display_image }}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500" alt="{{ item.product.name }}">
+                        <img loading="lazy" src="{{ item.product.display_image }}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform duration-500" alt="{{ item.product.name }}" width="1" height="1">
                     </a>
                     
                     <!-- Product Info -->
                     <div class="flex-1 w-full flex flex-col justify-center">
-                        <h3 class="font-headline-md text-xl mb-1"><a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a></h3>
+                        <h2 class="font-headline-md text-xl mb-1"><a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a></h2>
                         <p class="text-on-surface-variant text-sm mb-4">Category: <span class="font-bold">{{ item.product.category }}</span></p>
                         
                         <div class="flex flex-wrap items-center justify-between gap-4 w-full">
@@ -33,9 +33,9 @@
                             <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="m-0">
                                 {% csrf_token %}
                                 <div class="flex items-center bg-background border border-outline-variant/50 rounded-xl overflow-hidden shadow-inner">
-                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors">-</button>
+                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" aria-label="Decrease quantity">-</button>
                                     <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly>
-                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>+</button>
+                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} aria-label="Increase quantity">+</button>
                                 </div>
                             </form>
                             
@@ -44,7 +44,7 @@
                                 <div class="font-display-lg text-2xl text-on-surface">₹{{ item.total_price }}</div>
                                 <form method="POST" action="{% url 'remove_from_cart' item.product.pk %}" class="m-0">
                                     {% csrf_token %}
-                                    <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors w-10 h-10 rounded-full flex items-center justify-center shadow-sm" title="Remove item">
+                                    <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors w-12 h-12 min-w-[48px] min-h-[48px] rounded-full flex items-center justify-center shadow-sm" title="Remove item">
                                         <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
                                 </form>
@@ -84,9 +84,9 @@
                     <span class="text-primary">₹{{ total|default:"0.00" }}</span>
                 </div>
                 
-                <button id="checkoutBtn" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform" {% if not cart_items %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
+                <a href="{% url 'checkout' %}" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform {% if not cart_items %}pointer-events-none opacity-50{% endif %}" {% if not cart_items %}onclick="return false;"{% endif %}>
                     Checkout <span class="material-symbols-outlined text-[24px]">shopping_cart_checkout</span>
-                </button>
+                </a>
 
                 <div class="mt-6 flex items-center justify-center gap-2 text-on-surface-variant text-sm opacity-80">
                     <span class="material-symbols-outlined text-[18px]">lock</span> Secure Checkout
@@ -129,8 +129,8 @@
         if (checkoutBtn) {
             checkoutBtn.addEventListener('click', function() {
                 if (isAuthenticated) {
-                    // In a real app, this would submit the order or go to payment page.
-                    alert("Proceeding to secure checkout! (Mock Success)");
+                    // Redirect to checkout page
+                    window.location.href = "{% url 'checkout' %}";
                 } else {
                     // Show modal
                     authModal.classList.remove('hidden');

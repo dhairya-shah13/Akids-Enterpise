@@ -1,9 +1,9 @@
 import os
 import json
-import uuid
 import requests
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -34,35 +34,7 @@ def get_env_credentials():
             except Exception:
                 pass
             break
-    return env_email, env_pass
-
-def upload_photo_to_supabase(file_obj):
-    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    supabase_key = os.getenv("SUPABASE_KEY", "").strip()
-    bucket = os.getenv("SUPABASE_BUCKET", "products").strip()
-    
-    if supabase_url and supabase_key:
-        ext = file_obj.name.split('.')[-1] if '.' in file_obj.name else 'jpg'
-        filename = f"{uuid.uuid4().hex}.{ext}"
-        upload_url = f"{supabase_url}/storage/v1/object/{bucket}/{filename}"
-        
-        headers = {
-            "Authorization": f"Bearer {supabase_key}",
-            "apikey": supabase_key,
-            "Content-Type": getattr(file_obj, 'content_type', 'application/octet-stream'),
-        }
-        try:
-            resp = requests.post(upload_url, headers=headers, data=file_obj.read(), timeout=10)
-            if resp.status_code in (200, 201):
-                return f"{supabase_url}/storage/v1/object/public/{bucket}/{filename}"
-        except Exception:
-            pass
-    return None
-
-def seed_initial_products():
-    pass
-
-def login_view(request):
+    return env_email, env_passdef login_view(request):
     if request.session.get('is_admin'):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
@@ -80,7 +52,6 @@ def login_view(request):
             return redirect('admin_dashboard')
             
         # 2. Check regular user credentials
-        # We will use email as the username for regular authentication
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
@@ -90,6 +61,7 @@ def login_view(request):
             error = "Invalid email or password."
             
     return render(request, 'products/login.html', {'error': error})
+
 
 def signup_view(request):
     if request.session.get('is_admin'):
@@ -117,8 +89,8 @@ def signup_view(request):
     return render(request, 'products/signup.html', {'error': error})
 
 def logout_view(request):
-    request.session.flush() # Flush admin session
-    logout(request) # Log out regular user
+    request.session.flush()
+    logout(request)
     return redirect('home')
 
 def get_cart_data(request):

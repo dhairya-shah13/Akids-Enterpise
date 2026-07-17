@@ -36,7 +36,7 @@
 
     <!-- Results Grid -->
     {% if page_obj %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16" stagger-children stagger-children>
         {% for product in page_obj %}
             {% include "products/product_card.html" with product=product %}
         {% endfor %}
