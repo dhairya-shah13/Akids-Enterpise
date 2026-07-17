@@ -144,11 +144,8 @@
         if (inquiryBtn) {
             inquiryBtn.addEventListener('click', function() {
                 if (isAuthenticated) {
-                    // Redirect to contact page with inquiry info
                     window.location.href = "{% url 'home' %}";
-                    alert('Please submit inquiries from individual product pages. Visit a product and use the "Submit Inquiry" form.');
                 } else {
-                    // Show login modal
                     authModal.classList.remove('hidden');
                     authModal.classList.add('flex');
                 }
