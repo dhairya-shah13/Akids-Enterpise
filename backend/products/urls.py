@@ -9,8 +9,9 @@ urlpatterns = [
     path('indoors/', views.indoors_view, name='indoors'),
     path('outdoors/', views.outdoors_view, name='outdoors'),
     path('parts/', views.parts_view, name='parts'),
-    path('mrsports/', views.mrsports_view, name='mrsports'),
+    path('rfsports/', views.rfsports_view, name='rfsports'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('inquiry/submit/', views.submit_inquiry, name='submit_inquiry'),
     
     # Admin & Auth Routes
     path('login/', views.login_view, name='admin_login'),
@@ -23,10 +24,7 @@ urlpatterns = [
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/products/add/', views.add_product, name='add_product'),
     path('admin-panel/products/<int:pk>/delete/', views.delete_product, name='delete_product'),
-    path('admin-panel/orders/<int:pk>/update-status/', views.update_order_status, name='update_order_status'),
-    path('profile/', views.profile_view, name='profile'),
-    path('checkout/', views.checkout_view, name='checkout'),
-    path('order-confirmation/<int:pk>/', views.order_confirmation_view, name='order_confirmation'),
-    path('api/search-suggestions/', views.search_suggestions_api, name='search_suggestions'),
+    path('admin-panel/inquiries/<int:pk>/status/', views.update_inquiry_status, name='update_inquiry_status'),
+    path('admin-panel/inquiries/<int:pk>/delete/', views.delete_inquiry, name='delete_inquiry'),
     path('api/chat/', views.chat_api, name='chat_api'),
 ]

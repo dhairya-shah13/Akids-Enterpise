@@ -115,15 +115,15 @@
             </div>
         </div>
 
-        <!-- MR Sports Inventory Card -->
-        <div onclick="window.location.href='{% url 'mrsports' %}'" class="bg-surface rounded-[2.5rem] p-8 bento-card border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
+        <!-- RF Sports Inventory Card -->
+        <div onclick="window.location.href='{% url 'rfsports' %}'" class="bg-surface rounded-[2.5rem] p-8 bento-card border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
             <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:rotate-12 transition-transform shadow-lg">
                 <span class="material-symbols-outlined text-2xl">sports_soccer</span>
             </span>
-            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-surface font-extrabold group-hover:text-secondary transition-colors">MR Sports</h3>
+            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-surface font-extrabold group-hover:text-secondary transition-colors">RF Sports</h3>
             <p class="text-xs mt-3 font-bold text-on-surface-variant">Interactive Sports Gear</p>
             <div class="mt-6 text-secondary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
-                Explore MR Sports <span class="material-symbols-outlined text-xs">arrow_forward</span>
+                Explore RF Sports <span class="material-symbols-outlined text-xs">arrow_forward</span>
             </div>
         </div>
     </div>
@@ -141,43 +141,21 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter stagger-children">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter mb-8">
         {% for product in featured_products %}
-        <div class="bg-white rounded-2xl p-6 border border-outline-variant/30 hover:shadow-md transition-shadow group flex flex-col justify-between h-full">
-            <a href="{% url 'product_detail' product.pk %}" class="aspect-square bg-background rounded-xl mb-6 overflow-hidden relative border border-outline-variant/10 flex items-center justify-center p-4">
-                <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-105 transition-transform duration-500" loading="lazy">
-            </a>
-            <div class="space-y-3">
-                <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] rounded-full font-bold uppercase tracking-wider">{{ product.category }}</span>
-                <h3 class="font-headline-md text-on-surface text-xl group-hover:text-primary transition-colors"><a href="{% url 'product_detail' product.pk %}">{{ product.name }}</a></h3>
-                {% with variant_count=product.variants.count %}
-                {% if variant_count > 0 %}
-                <span class="inline-block bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">
-                    {{ variant_count }} variant{{ variant_count|pluralize:"s" }}
-                </span>
-                {% endif %}
-                {% endwith %}
-                <div class="flex justify-between items-center pt-2">
-                    {% if product.discount_price %}
-                    <p class="text-primary font-bold text-lg">₹{{ product.discount_price }}</p>
-                    {% else %}
-                    <p class="text-primary font-bold text-lg">₹{{ product.price }}</p>
-                    {% endif %}
-                    <form method="POST" action="{% url 'add_to_cart' product.pk %}" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary transition-all">
-                            <span class="material-symbols-outlined text-xl">add_shopping_cart</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+            {% include "products/product_card.html" with product=product %}
         {% empty %}
         <div class="col-span-full text-center py-12 text-on-surface-variant">
             <span class="material-symbols-outlined text-6xl mb-4 block opacity-30">inventory_2</span>
             <p class="text-lg">No products available right now. Check back soon!</p>
         </div>
         {% endfor %}
+    </div>
+
+    <div class="text-center mt-12">
+        <a href="{% url 'search' %}" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
+            <span class="material-symbols-outlined">grid_view</span> View All Products
+        </a>
     </div>
 </section>
 

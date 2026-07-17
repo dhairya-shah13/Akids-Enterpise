@@ -145,7 +145,7 @@
                 <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
                 <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
                 <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Parts</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'mrsports' %}active{% endif %}" href="{% url 'mrsports' %}">MR Sports</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">MR Sports</a>
             </nav>
             {% endif %}
             
@@ -206,7 +206,7 @@
                 <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-primary{% endif %}">Indoors</a>
                 <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-primary{% endif %}">Outdoors</a>
                 <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-primary{% endif %}">Parts</a>
-                <a href="{% url 'mrsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'mrsports' %}active text-primary{% endif %}">MR Sports</a>
+                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-primary{% endif %}">MR Sports</a>
                 
                 <a href="{% url 'cart' %}" class="bg-primary text-on-primary py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
                 {% if request.user.is_authenticated %}
@@ -253,7 +253,7 @@
                         <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Indoor</a>
                         <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Outdoor Play</a>
                         <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Parts</a>
-                        <a href="{% url 'mrsports' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">MR Sports</a>
+                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">MR Sports</a>
                     </nav>
                 </div>
                 <div class="space-y-4">

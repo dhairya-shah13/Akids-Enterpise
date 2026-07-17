@@ -8,10 +8,16 @@
     <!-- Search Header -->
     <div class="mb-12">
         <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">
-            Search Results for "<span class="text-primary">{{ q }}</span>"
+            {% if q %}
+                Search Results for "<span class="text-primary">{{ q }}</span>"
+            {% elif category %}
+                All Products in <span class="text-secondary">{{ category|title }}</span>
+            {% else %}
+                All Play Equipment
+            {% endif %}
         </h1>
         
-        {% if category %}
+        {% if category and q %}
         <div class="bg-secondary/10 border border-secondary/20 rounded-xl p-4 flex flex-wrap items-center gap-4 inline-block mb-6">
             <div class="flex items-center gap-2 text-secondary font-bold">
                 <span class="material-symbols-outlined">filter_list</span>
@@ -24,7 +30,7 @@
         {% endif %}
         
         <p class="font-body-md text-on-surface-variant text-lg">
-            Found {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+            Found {{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}
         </p>
     </div>
 
@@ -32,31 +38,7 @@
     {% if page_obj %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16" stagger-children stagger-children>
         {% for product in page_obj %}
-        <div class="bg-white rounded-2xl p-6 md:p-8 border border-outline-variant/30 hover:shadow-lg transition-shadow group flex flex-col justify-between h-full fade-in-card">
-            <div class="flex-grow">
-                <a href="{% url 'product_detail' product.pk %}" class="block aspect-[4/3] bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-4 flex items-center justify-center group-hover:border-primary/30 transition-colors">
-                    <img loading="lazy" src="{{ product.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
-                </a>
-                <h3 class="font-headline-md text-on-surface text-xl leading-tight mb-2"><a href="{% url 'product_detail' product.pk %}" class="hover:text-primary transition-colors">{{ product.name }}</a></h3>
-                <p class="font-body-md text-sm text-on-surface-variant mb-6 break-all line-clamp-2">{{ product.description|truncatechars:65 }}</p>
-                {% with variant_count=product.variants.count %}
-                {% if variant_count > 0 %}
-                <div class="mb-3">
-                    <span class="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full inline-flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">tune</span>
-                        {{ variant_count }} variant{{ variant_count|pluralize:"s" }} available
-                    </span>
-                </div>
-                {% endif %}
-                {% endwith %}
-            </div>
-            <div class="mt-auto flex flex-col gap-4">
-                <div class="flex items-center">
-                    <div class="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">₹{{ product.price }}</div>
-                </div>
-                <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-secondary text-secondary font-label-md px-4 py-3 rounded-xl hover:bg-secondary hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">View Item</a>
-            </div>
-        </div>
+            {% include "products/product_card.html" with product=product %}
         {% endfor %}
     </div>
 

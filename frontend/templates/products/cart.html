@@ -76,7 +76,7 @@
                 </div>
                 <div class="flex justify-between mb-6 font-body-md text-on-surface-variant">
                     <span>Shipping</span>
-                    <span class="font-bold text-on-surface">Calculated at checkout</span>
+                    <span class="font-bold text-on-surface">Contact for quote</span>
                 </div>
                 
                 <div class="flex justify-between mb-8 font-display-lg text-3xl text-on-surface border-t border-outline-variant/30 pt-6">
@@ -84,12 +84,12 @@
                     <span class="text-primary">₹{{ total|default:"0.00" }}</span>
                 </div>
                 
-                <a href="{% url 'checkout' %}" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform {% if not cart_items %}pointer-events-none opacity-50{% endif %}" {% if not cart_items %}onclick="return false;"{% endif %}>
-                    Checkout <span class="material-symbols-outlined text-[24px]">shopping_cart_checkout</span>
-                </a>
+                <button id="inquiryBtn" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform {% if not cart_items %}pointer-events-none opacity-50{% endif %}" {% if not cart_items %}disabled{% endif %}>
+                    Submit Inquiry <span class="material-symbols-outlined text-[24px]">chat_bubble</span>
+                </button>
 
                 <div class="mt-6 flex items-center justify-center gap-2 text-on-surface-variant text-sm opacity-80">
-                    <span class="material-symbols-outlined text-[18px]">lock</span> Secure Checkout
+                    <span class="material-symbols-outlined text-[18px]">call</span> Call 9924343003 for bulk orders
                 </div>
             </div>
         </div>
@@ -104,7 +104,7 @@
             <span class="material-symbols-outlined text-[32px]">lock</span>
         </div>
         <h2 class="font-display-lg text-3xl text-center mb-3 text-on-surface">Login Required</h2>
-        <p class="font-body-md text-center text-on-surface-variant mb-8 px-4">You must be logged in to proceed to checkout and secure your order.</p>
+        <p class="font-body-md text-center text-on-surface-variant mb-8 px-4">Please log in to submit an inquiry for your selected products.</p>
         
         <div class="flex flex-col gap-4">
             <a href="{% url 'admin_login' %}?next={% url 'cart' %}" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 text-center tracking-wide">
@@ -119,30 +119,36 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const checkoutBtn = document.getElementById('checkoutBtn');
         const authModal = document.getElementById('authModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
-        
-        // Check django auth state
+        const inquiryBtn = document.getElementById('inquiryBtn');
         const isAuthenticated = {% if request.user.is_authenticated or request.session.is_admin %}true{% else %}false{% endif %};
-
-        if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', function() {
-                if (isAuthenticated) {
-                    // Redirect to checkout page
-                    window.location.href = "{% url 'checkout' %}";
-                } else {
-                    // Show modal
-                    authModal.classList.remove('hidden');
-                    authModal.classList.add('flex');
-                }
-            });
-        }
-
+        
         if (closeModalBtn) {
             closeModalBtn.addEventListener('click', function() {
                 authModal.classList.add('hidden');
                 authModal.classList.remove('flex');
+            });
+        }
+        
+        // If user clicks outside modal, close it
+        if (authModal) {
+            authModal.addEventListener('click', function(e) {
+                if (e.target === authModal) {
+                    authModal.classList.add('hidden');
+                    authModal.classList.remove('flex');
+                }
+            });
+        }
+        
+        if (inquiryBtn) {
+            inquiryBtn.addEventListener('click', function() {
+                if (isAuthenticated) {
+                    window.location.href = "{% url 'home' %}";
+                } else {
+                    authModal.classList.remove('hidden');
+                    authModal.classList.add('flex');
+                }
             });
         }
     });

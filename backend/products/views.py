@@ -3,16 +3,13 @@ import json
 import requests
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from django.db.models import Sum, Count, Q
-from django.contrib import messages
-from .models import Product, Order, OrderItem, Address
+from .models import Product, Inquiry
 from .search import search_products
 
 def get_env_credentials():
@@ -42,8 +39,7 @@ def login_view(request):
     if request.session.get('is_admin'):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
-        next_url = request.GET.get('next', 'home')
-        return redirect(next_url)
+        return redirect('cart')
         
     error = None
     if request.method == 'POST':
@@ -56,28 +52,23 @@ def login_view(request):
             request.session['is_admin'] = True
             return redirect('admin_dashboard')
             
-        # 2. Check regular user credentials — look up by email, then authenticate by username
-        try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(request, username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            user = None
-        
+        # 2. Check regular user credentials
+        user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next', 'home')
+            next_url = request.GET.get('next', 'cart')
             return redirect(next_url)
         else:
             error = "Invalid email or password."
             
-    return render(request, 'products/login.html', {'error': error, 'next': request.GET.get('next', '')})
+    return render(request, 'products/login.html', {'error': error})
+
 
 def signup_view(request):
     if request.session.get('is_admin'):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
-        next_url = request.GET.get('next', 'home')
-        return redirect(next_url)
+        return redirect('cart')
         
     error = None
     if request.method == 'POST':
@@ -92,21 +83,15 @@ def signup_view(request):
         elif email and password and username:
             user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next', 'home')
-            return redirect(next_url)
+            return redirect('cart')
         else:
             error = "Please fill in all fields."
             
-    return render(request, 'products/signup.html', {'error': error, 'next': request.GET.get('next', '')})
+    return render(request, 'products/signup.html', {'error': error})
 
 def logout_view(request):
-    # Preserve cart before flush
-    cart = request.session.get('cart', {})
     request.session.flush()
     logout(request)
-    # Restore cart for next session
-    request.session['cart'] = cart
-    request.session.modified = True
     return redirect('home')
 
 def get_cart_data(request):
@@ -190,139 +175,35 @@ def admin_dashboard(request):
         
     products = Product.objects.all().order_by('-created_at')
     
-    # Real sales data from orders
-    orders = Order.objects.all()
-    completed_orders = orders.filter(status='DELIVERED')
-    
-    total_revenue = completed_orders.aggregate(total=Sum('total_amount'))['total'] or 0
-    total_orders = completed_orders.count()
-    pending_orders = orders.filter(status='PENDING').count()
-    
-    # Best seller: the product with the most ordered quantity
-    best_seller_data = OrderItem.objects.filter(
-        order__status='DELIVERED'
-    ).values('product_name').annotate(
-        total_qty=Sum('quantity')
-    ).order_by('-total_qty').first()
-    best_seller = best_seller_data['product_name'] if best_seller_data else 'N/A'
-    best_seller_qty = best_seller_data['total_qty'] if best_seller_data else 0
-    
-    # Monthly sales (last 6 months)
-    from django.utils import timezone
-    from calendar import monthrange
-    
-    now = timezone.now()
-    monthly_data = []
-    
-    for i in range(5, -1, -1):
-        month_num = now.month - i
-        year_offset = 0
-        while month_num < 1:
-            month_num += 12
-            year_offset -= 1
-        
-        month_start = now.replace(
-            year=now.year + year_offset,
-            month=month_num,
-            day=1, hour=0, minute=0, second=0, microsecond=0
-        )
-        _, last_day = monthrange(month_start.year, month_start.month)
-        month_end = month_start.replace(day=last_day, hour=23, minute=59, second=59, microsecond=999999)
-        
-        month_orders = completed_orders.filter(
-            created_at__gte=month_start,
-            created_at__lte=month_end
-        )
-        month_total = month_orders.aggregate(total=Sum('total_amount'))['total'] or 0
-        month_name = month_start.strftime('%b')
-        monthly_data.append({
-            'month': month_name,
-            'amount': month_total,
-        })
-    
-    # Calculate max for bar heights
-    max_monthly = max((m['amount'] for m in monthly_data), default=0)
-    for m in monthly_data:
-        if max_monthly > 0:
-            pct = (m['amount'] / max_monthly) * 100
-            m['height'] = f'{pct:.0f}%'
-        else:
-            m['height'] = '0%'
-    
-    # Recent orders for the table
-    recent_orders = orders[:10]
+    # Handle sorting and filtering for inquiries
+    status_filter = request.GET.get('status', '').strip().upper()
+    inquiries = Inquiry.objects.all()
+    if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:
+        inquiries = inquiries.filter(status=status_filter)
+    inquiries = inquiries.order_by('-created_at')
     
     sales_data = {
-        'total_revenue': total_revenue,
-        'total_orders': total_orders,
-        'pending_orders': pending_orders,
-        'best_seller': best_seller,
-        'best_seller_qty': best_seller_qty,
-        'monthly_sales': monthly_data,
-        'recent_orders': recent_orders,
+        'total_revenue': '₹28,45,000',
+        'total_orders': 142,
+        'active_quotes': Inquiry.objects.filter(status='NEW').count(),
+        'best_seller': 'The Everest Slide',
+        'monthly_sales': [
+            {'month': 'Jan', 'amount': '₹1,80,000', 'height': '45%'},
+            {'month': 'Feb', 'amount': '₹2,20,000', 'height': '55%'},
+            {'month': 'Mar', 'amount': '₹3,10,000', 'height': '78%'},
+            {'month': 'Apr', 'amount': '₹2,90,000', 'height': '72%'},
+            {'month': 'May', 'amount': '₹3,80,000', 'height': '95%'},
+            {'month': 'Jun', 'amount': '₹4,10,000', 'height': '100%'},
+        ]
     }
-    
-    # All orders for the Orders management tab
-    all_orders = Order.objects.all()
     
     return render(request, 'products/admin_dashboard.html', {
         'products': products,
+        'inquiries': inquiries,
+        'current_status_filter': status_filter,
         'sales': sales_data,
-        'all_orders': all_orders,
         'admin_email': get_env_credentials()[0]
     })
-
-def update_order_status(request, pk):
-    if not request.session.get('is_admin'):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'success': False, 'message': 'Not authenticated'}, status=403)
-        return redirect('admin_login')
-    
-    if request.method == 'POST':
-        order = get_object_or_404(Order, pk=pk)
-        action = request.POST.get('action', '').strip()
-        
-        success = False
-        message = ''
-        
-        if action == 'cancel':
-            if order.status in ('DELIVERED', 'CANCELLED'):
-                message = f'Order #{order.id} cannot be cancelled (status: {order.get_status_display()}).'
-            else:
-                order.status = 'CANCELLED'
-                order.save()
-                success = True
-                message = f'Order #{order.id} has been cancelled.'
-        elif action == 'advance':
-            next_status = order.get_next_status_code()
-            if next_status:
-                order.status = next_status
-                order.save()
-                success = True
-                message = f'Order #{order.id} status advanced to {order.get_status_display()}.'
-            else:
-                message = f'Order #{order.id} cannot be advanced further (status: {order.get_status_display()}).'
-        else:
-            message = 'Invalid action.'
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({
-                'success': success,
-                'message': message,
-                'order_id': order.id,
-                'new_status': order.status,
-                'new_status_display': order.get_status_display(),
-                'next_status_code': order.get_next_status_code(),
-                'next_status_display': order.get_next_status_display(),
-            })
-        
-        if success:
-            messages.success(request, message)
-        else:
-            messages.error(request, message)
-    
-    return redirect('admin_dashboard')
-
 
 def add_product(request):
     if not request.session.get('is_admin'):
@@ -334,17 +215,21 @@ def add_product(request):
         price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
+        photo = request.FILES.get('photo')
+        
+        saved_url = None
+        if photo:
+            saved_url = upload_photo_to_supabase(photo)
             
         if name and price:
-            if not image_url:
-                image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
-            Product.objects.create(
-                name=name,
-                category=category,
-                price=price,
-                description=description,
-                image_url=image_url
-            )
+            if saved_url:
+                Product.objects.create(name=name, category=category, price=price, description=description, image_url=saved_url)
+            elif photo:
+                Product.objects.create(name=name, category=category, price=price, description=description, image_file=photo)
+            else:
+                if not image_url:
+                    image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
+                Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
                 
     return redirect('admin_dashboard')
 
@@ -357,7 +242,7 @@ def delete_product(request, pk):
     return redirect('admin_dashboard')
 
 def home_view(request):
-    featured_products = Product.objects.filter(parent_product__isnull=True, stock__gt=0).order_by('-created_at')[:6]
+    featured_products = Product.objects.filter(stock__gt=0).order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
 def category_listing(request, cat_code, template_name):
@@ -365,8 +250,12 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code, parent_product__isnull=True, stock__gt=0).order_by('-created_at')
-    return render(request, template_name, {'products': products})
+        # Show top 8 products on the splash page
+        products = Product.objects.filter(category=cat_code, stock__gt=0).order_by('-created_at')[:8]
+    return render(request, template_name, {
+        'products': products,
+        'category_code': cat_code
+    })
 
 def indoors_view(request):
     return category_listing(request, 'INDOORS', 'products/listing.html')
@@ -377,60 +266,19 @@ def outdoors_view(request):
 def parts_view(request):
     return category_listing(request, 'PARTS', 'products/parts.html')
 
-def mrsports_view(request):
-    return category_listing(request, 'MRSPORTS', 'products/mrsports.html')
+def rfsports_view(request):
+    return category_listing(request, 'RFSPORTS', 'products/rfsports.html')
 
 def product_detail(request, pk):
     try:
         product = Product.objects.get(pk=pk)
     except Product.DoesNotExist:
         return render(request, '404.html', status=404)
-
-    # If this is a variant product, redirect the URL to the parent product's page for cleaner navigation
-    # but still show the variant as pre-selected
-    parent_product = product.parent_product
-    
-    # Determine the back link based on product category
-    category_url_map = {
-        'INDOORS': ('indoors', 'Indoor Equipment'),
-        'OUTDOORS': ('outdoors', 'Outdoor Equipment'),
-        'PARTS': ('parts', 'Spare Parts'),
-        'MRSPORTS': ('mrsports', 'MR Sports'),
-    }
-    
-    if parent_product:
-        # Use parent's category for back link
-        back_url_name, back_label = category_url_map.get(parent_product.category, ('home', 'Home'))
-        # Get all variants including the parent
-        variants = list(parent_product.variants.all())
-        # Prepend the parent as default
-        all_variant_choices = [parent_product] + variants
-        # Current selected variant
-        selected_variant = product
-        current_product = parent_product  # Show parent info for main details
-        variant_pk = product.pk  # Track which variant is selected
-    else:
-        back_url_name, back_label = category_url_map.get(product.category, ('home', 'Home'))
-        variants = list(product.variants.all())
-        all_variant_choices = [product] + variants if variants else [product]
-        selected_variant = product
-        current_product = product
-        variant_pk = product.pk
-    
-    related_products = Product.objects.filter(
-        category=current_product.category
-    ).exclude(pk=current_product.pk).exclude(stock__lte=0).filter(
-        parent_product__isnull=True
-    ).order_by('-created_at')[:3]
-    
+        
+    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).exclude(stock__lte=0).order_by('-created_at')[:3]
     return render(request, 'products/product_detail.html', {
-        'product': current_product,
-        'variants': all_variant_choices,
-        'selected_variant': selected_variant,
-        'variant_pk': variant_pk,
-        'related_products': related_products,
-        'back_url_name': back_url_name,
-        'back_label': back_label,
+        'product': product,
+        'related_products': related_products
     })
 
 def search_view(request):
@@ -451,224 +299,6 @@ def search_view(request):
         'q': q,
         'category': category,
     })
-def profile_view(request):
-    """User profile with address management (max 3 addresses)."""
-    if not request.user.is_authenticated:
-        return redirect(reverse('admin_login') + '?next=' + request.path)
-
-    addresses = Address.objects.filter(user=request.user)
-    error = None
-    success = None
-
-    if request.method == 'POST':
-        action = request.POST.get('action', '')
-
-        if action == 'update_profile':
-            email = request.POST.get('email', '').strip()
-            new_username = request.POST.get('username', '').strip()
-
-            if email:
-                if User.objects.filter(email=email).exclude(pk=request.user.pk).exists():
-                    error = 'This email is already taken.'
-                else:
-                    request.user.email = email
-                    request.user.save()
-                    success = 'Profile updated successfully!'
-
-        elif action == 'add_address':
-            if addresses.count() >= 3:
-                error = 'You can only save up to 3 addresses.'
-            else:
-                label = request.POST.get('label', 'Home').strip()
-                full_address = request.POST.get('full_address', '').strip()
-                city = request.POST.get('city', '').strip()
-                state = request.POST.get('state', '').strip()
-                pincode = request.POST.get('pincode', '').strip()
-                phone = request.POST.get('phone', '').strip()
-                is_default = request.POST.get('is_default') == 'on'
-
-                if full_address and city and state and pincode:
-                    # If setting as default, unset other defaults
-                    if is_default:
-                        addresses.filter(is_default=True).update(is_default=False)
-                    Address.objects.create(
-                        user=request.user,
-                        label=label,
-                        full_address=full_address,
-                        city=city,
-                        state=state,
-                        pincode=pincode,
-                        phone=phone,
-                        is_default=is_default,
-                    )
-                    success = f'Address "{label}" added successfully!'
-                else:
-                    error = 'Please fill in all required address fields.'
-
-        elif action == 'edit_address':
-            addr_id = request.POST.get('address_id')
-            try:
-                addr = Address.objects.get(pk=addr_id, user=request.user)
-                addr.label = request.POST.get('label', addr.label).strip()
-                addr.full_address = request.POST.get('full_address', '').strip() or addr.full_address
-                addr.city = request.POST.get('city', '').strip() or addr.city
-                addr.state = request.POST.get('state', '').strip() or addr.state
-                addr.pincode = request.POST.get('pincode', '').strip() or addr.pincode
-                addr.phone = request.POST.get('phone', '').strip()
-                is_default = request.POST.get('is_default') == 'on'
-                if is_default:
-                    addresses.filter(is_default=True).update(is_default=False)
-                addr.is_default = is_default
-                addr.save()
-                success = f'Address "{addr.label}" updated!'
-            except Address.DoesNotExist:
-                error = 'Address not found.'
-
-        elif action == 'delete_address':
-            addr_id = request.POST.get('address_id')
-            try:
-                addr = Address.objects.get(pk=addr_id, user=request.user)
-                addr.delete()
-                success = f'Address "{addr.label}" deleted.'
-            except Address.DoesNotExist:
-                error = 'Address not found.'
-
-        # Re-fetch after changes
-        addresses = Address.objects.filter(user=request.user)
-
-    return render(request, 'products/profile.html', {
-        'addresses': addresses,
-        'error': error,
-        'success': success,
-        'address_limit': 3,
-        'addresses_remaining': max(0, 3 - addresses.count()),
-    })
-
-
-def checkout_view(request):
-    cart_items, subtotal = get_cart_data(request)
-    
-    if not cart_items:
-        messages.error(request, 'Your cart is empty!')
-        return redirect('cart')
-    
-    # Get saved addresses for logged-in users
-    saved_addresses = []
-    if request.user.is_authenticated:
-        saved_addresses = Address.objects.filter(user=request.user)
-    
-    if request.method == 'POST':
-        customer_name = request.POST.get('customer_name', '').strip()
-        customer_email = request.POST.get('customer_email', '').strip()
-        customer_phone = request.POST.get('customer_phone', '').strip()
-        shipping_address = request.POST.get('shipping_address', '').strip()
-        
-        # For logged-in users, use their info
-        if request.user.is_authenticated:
-            if not customer_name:
-                customer_name = request.user.username
-            if not customer_email:
-                customer_email = request.user.email
-        
-        if not customer_name or not customer_email:
-            messages.error(request, 'Please provide your name and email.')
-            return render(request, 'products/checkout.html', {
-                'cart_items': cart_items,
-                'subtotal': subtotal,
-                'total': subtotal,
-            })
-        
-        # Validate stock availability before creating order
-        for item in cart_items:
-            product = item['product']
-            if product.stock < item['quantity']:
-                messages.error(request, f'Insufficient stock for "{product.name}". Only {product.stock} available.')
-                return redirect('cart')
-        
-        # Create the order
-        order = Order.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            customer_name=customer_name,
-            customer_email=customer_email,
-            customer_phone=customer_phone,
-            shipping_address=shipping_address,
-            total_amount=subtotal,
-            status='PENDING',
-            payment_status='PENDING',
-        )
-        
-        # Create order items and deduct stock
-        for item in cart_items:
-            product = item['product']
-            price = float(product.discount_price) if product.discount_price else float(product.price)
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=product.name,
-                product_sku=product.sku or '',
-                quantity=item['quantity'],
-                price=price,
-                total_price=float(item['total_price']),
-            )
-            # Deduct stock
-            if product.stock:
-                product.stock -= item['quantity']
-                if product.stock < 0:
-                    product.stock = 0
-                product.save()
-        
-        # Clear the cart
-        request.session['cart'] = {}
-        request.session.modified = True
-        
-        messages.success(request, 'Order placed successfully!')
-        return redirect('order_confirmation', pk=order.pk)
-    
-    return render(request, 'products/checkout.html', {
-        'cart_items': cart_items,
-        'subtotal': subtotal,
-        'total': subtotal,
-        'saved_addresses': saved_addresses,
-    })
-
-
-def order_confirmation_view(request, pk):
-    order = get_object_or_404(Order, pk=pk)
-    return render(request, 'products/order_confirmation.html', {
-        'order': order
-    })
-
-
-def search_suggestions_api(request):
-    """Return JSON autocomplete suggestions for products."""
-    q = request.GET.get('q', '').strip()
-    category = request.GET.get('category', '').strip()
-
-    if len(q) < 1:
-        return JsonResponse({'results': []})
-
-    products = Product.objects.filter(
-        Q(name__icontains=q) | Q(sku__icontains=q),
-        parent_product__isnull=True  # Only show parent products in suggestions
-    )
-    if category:
-        products = products.filter(category=category)
-
-    products = products.order_by('-created_at')[:8]
-
-    results = []
-    for p in products:
-        results.append({
-            'id': p.pk,
-            'name': p.name,
-            'price': str(p.discount_price) if p.discount_price else str(p.price),
-            'image': p.display_image,
-            'url': reverse('product_detail', args=[p.pk]),
-        })
-
-    return JsonResponse({'results': results})
-
-
 @csrf_exempt
 def chat_api(request):
     if request.method != "POST":
@@ -688,7 +318,7 @@ def chat_api(request):
     
     system_prompt = (
         "You are Mohanlal, the friendly, enthusiastic, and knowledgeable AI assistant and mascot for Little Fingers India / Mohanlal website. "
-        "We specialize in premium children's playground equipment, indoor & outdoor toys, MR sports gear, educational furniture, and spare parts. "
+        "We specialize in premium children's playground equipment, indoor & outdoor toys, RF sports gear, educational furniture, and spare parts. "
         "Your goal is to engage warmly with customers, give them expert advice on playground products, answer their queries with enthusiasm, and help them find the right equipment. "
         "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: 9924343003. "
         "Keep your tone upbeat, helpful, and concise. Format your advice clearly using markdown if appropriate."
@@ -730,4 +360,57 @@ def chat_api(request):
             return JsonResponse({"reply": "Namaste! I'm Mohanlal. I'm having a little trouble connecting right now, but for any urgent queries or larger requirements, please feel free to call us directly at 9924343003!"}, status=200)
     except Exception:
         return JsonResponse({"reply": "Namaste! I'm Mohanlal. I encountered a momentary connection glitch. For any important queries or immediate advice, please call us at 9924343003!"}, status=200)
+
+
+def submit_inquiry(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        name = request.POST.get('name', '').strip()
+        contact_number = request.POST.get('contact_number', '').strip()
+        try:
+            quantity = int(request.POST.get('quantity', 1))
+        except ValueError:
+            quantity = 1
+            
+        if not product_id or not name or not contact_number:
+            return JsonResponse({'success': False, 'error': 'All fields are required.'}, status=400)
+            
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Product not found.'}, status=404)
+            
+        inquiry = Inquiry.objects.create(
+            product=product,
+            name=name,
+            contact_number=contact_number,
+            quantity=quantity
+        )
+        return JsonResponse({'success': True, 'inquiry_id': inquiry.pk})
+        
+    return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
+
+
+def update_inquiry_status(request, pk):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        inquiry = get_object_or_404(Inquiry, pk=pk)
+        new_status = request.POST.get('status', '').strip().upper()
+        if new_status in ['NEW', 'CONTACTED', 'CLOSED']:
+            inquiry.status = new_status
+            inquiry.save()
+            
+    return redirect('admin_dashboard')
+
+
+def delete_inquiry(request, pk):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+        
+    if request.method == 'POST':
+        Inquiry.objects.filter(pk=pk).delete()
+        
+    return redirect('admin_dashboard')
 
