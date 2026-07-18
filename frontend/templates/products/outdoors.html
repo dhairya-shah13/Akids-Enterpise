@@ -1,34 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
+<div class="py-12 bg-gradient-to-b from-sea/5 via-white to-background min-h-screen">
     <!-- Hero Header -->
-    <section class="relative text-center mb-16 px-margin-desktop">
-        <div class="absolute -top-8 right-20 opacity-20 text-primary hidden md:block">
-            <span class="material-symbols-outlined text-[80px]">wb_sunny</span>
-        </div>
-        <div class="absolute top-12 left-32 opacity-20 rotate-12 text-secondary hidden md:block">
-            <span class="material-symbols-outlined text-[60px]">cloud</span>
-        </div>
-        
-        <h1 class="font-display-lg text-4xl md:text-5xl lg:text-6xl text-on-surface mb-4 relative z-10 inline-block">
+    <section class="relative text-center mb-12 px-margin-desktop fade-in-section">
+        <h1 class="font-display-lg text-4xl md:text-5xl lg:text-6xl text-on-surface mb-4">
             Great Outdoor Adventures
         </h1>
-        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto mt-6 mb-8 text-lg">
+        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto mt-4 text-lg">
             Built for heavy play and high spirits. Discover our safety-certified structures designed to transform any backyard into a playground.
         </p>
-        <div class="flex flex-wrap justify-center gap-4 mt-6">
-            <span class="bg-primary-container text-on-primary-container px-6 py-2 rounded-full font-bold shadow-sm border border-primary/20">UV Protected</span>
-            <span class="bg-secondary-container text-on-secondary-container px-6 py-2 rounded-full font-bold shadow-sm border border-secondary/20">Safety First</span>
+        <div class="flex flex-wrap justify-center gap-3 mt-6">
+            <span class="bg-tangerine/10 text-tangerine px-4 py-1.5 rounded-full font-bold text-xs border border-tangerine/20">UV Protected</span>
+            <span class="bg-sea/10 text-sea px-4 py-1.5 rounded-full font-bold text-xs border border-sea/20">Safety First</span>
         </div>
     </section>
 
-    <!-- Category Search Bar -->
-    <section class="max-w-3xl mx-auto px-margin-desktop mb-16">
+    <!-- Search -->
+    <section class="max-w-2xl mx-auto px-margin-desktop mb-12 fade-in-section">
         <form action="{% url 'search' %}" method="GET" class="relative search-wrapper">
             <input type="hidden" name="category" value="OUTDOORS">
-            <input type="text" name="q" placeholder="Search outdoor gear..." required autocomplete="off" class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
-            <button type="submit" class="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
+            <input type="text" name="q" placeholder="Search outdoor gear..." required autocomplete="off" class="w-full bg-white border border-outline-variant/20 rounded-full py-3.5 pr-5 pl-12 focus:ring-2 focus:ring-tangerine outline-none shadow-sm text-on-surface">
+            <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-tangerine transition-colors">
                 <span class="material-symbols-outlined text-xl">search</span>
             </button>
             <div class="autocomplete-dropdown"></div>
@@ -36,56 +29,56 @@
     </section>
 
     <!-- Product Grid -->
-    <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+    <section class="max-w-7xl mx-auto px-margin-desktop mb-20">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
             {% for product in products %}
                 {% include "products/product_card.html" with product=product %}
             {% empty %}
-            <div class="col-span-full py-12 text-center text-on-surface-variant font-body-lg">
+            <div class="col-span-full py-16 text-center text-on-surface-variant font-body-lg">
+                <span class="material-symbols-outlined text-5xl mb-3 block opacity-30">inventory_2</span>
                 No products found in this category.
             </div>
             {% endfor %}
         </div>
 
-        <div class="text-center mt-12 mb-16">
-            <a href="{% url 'search' %}?category=OUTDOORS" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
+        <div class="text-center mt-10">
+            <a href="{% url 'search' %}?category=OUTDOORS" class="bg-tangerine text-white font-label-md px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
                 <span class="material-symbols-outlined">grid_view</span> View All Products
             </a>
         </div>
     </section>
 
     <!-- Divider -->
-    <div class="max-w-5xl mx-auto border-b border-outline-variant/30 my-20"></div>
+    <div class="max-w-4xl mx-auto border-b border-outline-variant/20 my-16"></div>
 
     <!-- Accessories Section -->
-    <section class="max-w-6xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-12 items-center">
+    <section class="max-w-6xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-10 items-center fade-in-section">
         <div class="flex-1">
-            <h3 class="font-display-lg text-4xl mb-4 text-on-surface">Complete the Set</h3>
-            <p class="font-body-lg text-on-surface-variant text-lg mb-8 max-w-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
-            <ul class="space-y-4">
-                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
-                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+            <h3 class="font-display-lg text-3xl mb-3 text-on-surface">Complete the Set</h3>
+            <p class="font-body-lg text-on-surface-variant mb-6 max-w-lg">From rubber mulching to safety mats, we provide everything to ensure your outdoor adventure is as safe as it is fun.</p>
+            <ul class="space-y-3">
+                <li class="flex items-center gap-2.5 text-on-surface font-bold">
+                    <span class="material-symbols-outlined text-sea">check_circle</span>
                     Impact-Resistant Matting
                 </li>
-                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
-                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+                <li class="flex items-center gap-2.5 text-on-surface font-bold">
+                    <span class="material-symbols-outlined text-sea">check_circle</span>
                     Weatherproof Covers
                 </li>
-                <li class="flex items-center gap-3 text-on-surface font-bold text-lg">
-                    <span class="material-symbols-outlined text-secondary text-2xl">check_circle</span>
+                <li class="flex items-center gap-2.5 text-on-surface font-bold">
+                    <span class="material-symbols-outlined text-sea">check_circle</span>
                     Custom Ground Anchors
                 </li>
             </ul>
         </div>
-        <div class="flex-1 grid grid-cols-2 gap-6 w-full md:w-auto">
-            <div class="aspect-square bg-tertiary text-on-tertiary rounded-2xl p-6 flex flex-col justify-center items-center shadow-md border border-tertiary/20">
-                <span class="material-symbols-outlined text-[64px] mb-4">shield</span>
-                <div class="font-bold text-lg">Safety Gear</div>
+        <div class="flex-1 grid grid-cols-2 gap-4 w-full">
+            <div class="aspect-square bg-gradient-to-br from-blush to-blush/80 text-white rounded-xl p-5 flex flex-col justify-center items-center shadow-md">
+                <span class="material-symbols-outlined text-5xl mb-3">shield</span>
+                <div class="font-bold">Safety Gear</div>
             </div>
-            <div class="aspect-square bg-primary text-on-primary rounded-2xl p-6 flex flex-col justify-center items-center shadow-md border border-primary/20 mt-8">
-                <span class="material-symbols-outlined text-[64px] mb-4">construction</span>
-                <div class="font-bold text-lg">Tools</div>
+            <div class="aspect-square bg-gradient-to-br from-tangerine to-tangerine/80 text-white rounded-xl p-5 flex flex-col justify-center items-center shadow-md mt-6">
+                <span class="material-symbols-outlined text-5xl mb-3">construction</span>
+                <div class="font-bold">Tools</div>
             </div>
         </div>
     </section>
