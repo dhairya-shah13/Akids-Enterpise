@@ -1,180 +1,234 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="relative hero-min-height min-h-[600px] lg:min-h-[750px] flex items-center overflow-hidden bg-white">
-    <!-- Sparkle Layer -->
-    <div class="absolute inset-0 pointer-events-none z-20">
-        <div class="sparkle-particle sparkle-1 bg-primary/40"></div>
-        <div class="sparkle-particle sparkle-2 bg-secondary/40"></div>
-        <div class="sparkle-particle sparkle-3 bg-tertiary/40"></div>
-        <div class="sparkle-particle sparkle-4 bg-primary/40"></div>
-        <div class="sparkle-particle sparkle-5 bg-secondary/40"></div>
-    </div>
-    
-    <div class="absolute inset-0 z-0">
-        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCULu8BD0XvN1aDsAGAg6Wy91cGbdP2fz-FFwhugT_NOwV8QsLweDJm0fEI6nN91l5jl4skQ85ffrUMP0DoC5FKX_VvS3FrBUH4hGaV7gmeqJduHmg4tD6EXQssKIwm12vagW3KhKY7yUa57DKaDweUhdZkBwhQF3HTk820SORqXrB2XXZ4VZYXyRpQ_C85tpTor7piyIg_vEr_hvEtttPxl5LIc7t0_pkYSAem-54ggR0CDICW9Pzd-ST05m01k6mB_5CeHK_dGA" alt="Indian Playground Equipment" class="w-full h-full object-contain opacity-25 lg:opacity-40 scale-110" loading="lazy">
-        <div class="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
+<!-- ===================== HERO SECTION ===================== -->
+<section id="homepage-hero" class="relative min-h-[85vh] flex items-center overflow-hidden bg-butter/20">
+    <!-- Subtle background pattern -->
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-butter/20 via-background to-sea/10"></div>
+        <div class="absolute top-1/4 -left-24 w-96 h-96 bg-tangerine/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-1/4 -right-24 w-80 h-80 bg-sea/5 rounded-full blur-3xl"></div>
     </div>
 
-    <div class="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full py-20">
-        <div class="max-w-2xl space-y-6">
-            <div class="inline-flex items-center gap-2 bg-primary-container/40 text-on-primary-container px-5 py-1.5 rounded-full font-label-md border border-primary/20">
-                <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
-                <span>Safety Certified Play Solutions</span>
+    <div class="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full py-20 flex flex-col items-center justify-center text-center">
+        <!-- Three Hero Words -->
+        <div class="max-w-5xl mx-auto flex flex-col items-center">
+            <div class="hero-words flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-4 lg:gap-6 mb-8">
+                <span class="hero-word-safe font-display-lg text-6xl md:text-7xl lg:text-8xl font-extrabold text-tangerine leading-none">
+                    Safe.
+                </span>
+                <span class="hero-word-durable font-display-lg text-6xl md:text-7xl lg:text-8xl font-extrabold text-sea leading-none">
+                    Durable.
+                </span>
+                <span class="hero-word-playful font-display-lg text-6xl md:text-7xl lg:text-8xl font-extrabold text-blush leading-none">
+                    Playful.
+                </span>
             </div>
-            
-            <h1 class="font-display-lg hero-heading text-5xl lg:text-7xl text-on-surface leading-[1.1]">
-                Crafting <span class="rainbow-text">Magical Spaces</span> for Tiny Explorers
-            </h1>
-            
-            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
-                India's leading manufacturer of premium kindergarten furniture and playground equipment. We blend safety with vibrant innovation.
+
+            <!-- Tagline -->
+            <p class="font-body-lg text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-10 opacity-0" style="animation: fadeInUp 0.6s ease 0.7s both;">
+                India's premier manufacturer of playground equipment, educational furniture, and sports gear — built for schools, daycare centers, and homes.
             </p>
-            
-            <div class="flex flex-wrap gap-4 pt-6">
-                <button onclick="document.getElementById('explore-world').scrollIntoView({behavior: 'smooth'})" class="bg-primary text-on-primary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:scale-105 shadow-xl shadow-primary/20 transition-all">
-                    Explore Catalog
+
+            <!-- CTAs -->
+            <div class="flex flex-wrap justify-center gap-4 opacity-0" style="animation: fadeInUp 0.6s ease 0.9s both;">
+                <button onclick="document.getElementById('train-section').scrollIntoView({behavior: 'smooth'})" class="bg-tangerine text-white px-10 py-4 rounded-full font-label-md text-lg hover:scale-105 active:scale-95 shadow-xl shadow-tangerine/20 transition-all inline-flex items-center gap-2">
+                    Explore Our Range
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
                 </button>
-                <button onclick="if(typeof toggleMohanlalChat === 'function') { toggleMohanlalChat(); } else { window.location.href='#explore-world'; }" class="bg-surface border-2 border-secondary text-secondary px-10 py-4 rounded-full font-label-md btn-chunky text-lg hover:bg-secondary/5 transition-all">
-                    Consult an Expert
+                <button onclick="if(typeof toggleMohanlalChat === 'function') toggleMohanlalChat();" class="bg-white border-2 border-sea text-sea px-10 py-4 rounded-full font-label-md text-lg hover:bg-sea/5 active:scale-95 transition-all">
+                    Chat with Mohanlal
                 </button>
+            </div>
+        </div>
+
+        <!-- Subtle scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 animate-fade-in" style="animation: fadeIn 1s ease 1.5s both;">
+            <div class="flex flex-col items-center gap-2 text-on-surface-variant/40">
+                <span class="text-xs uppercase tracking-widest font-bold">Scroll</span>
+                <span class="material-symbols-outlined animate-bounce">keyboard_arrow_down</span>
             </div>
         </div>
     </div>
 
-    <!-- Product Highlight Overlay -->
-    <div class="absolute right-margin-desktop top-1/2 -translate-y-1/2 hidden xl:block z-20">
-        <div class="bg-white p-6 rounded-2xl shadow-lg border border-primary/10 max-w-md">
-            <div class="relative overflow-hidden rounded-2xl">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11I2xi2JvyuEGQIiqMf6sIWq3NbFczZpejP1DfgbUG8AT_ZrG6SSB6hpkGeXIDboqtEu6zYcTdV20Rieg6izxriusL8cz4JlzuDY5XNdyAN5eY_rQPGmZF9pBOgaZh5n-1E1Irfuh6rJGttcbauPk6G2K7UwydnvALlDPTTUJxC2-rJ9kfODB3aUAnvWFrmyEqlT1eaXz5vx0RVA0hBQh-qNbiEfitKhQY9bpIeOcw9026KilTe6b64inFyVkf3Bivn803kJuHQ" alt="Workbench LF 1428" class="w-full h-auto" loading="lazy">
-                <div class="absolute top-4 right-4 bg-tertiary text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">New Arrival</div>
-            </div>
-            <div class="mt-6 text-center">
-                <p class="font-display-lg text-2xl text-secondary">Creative Play Workbench</p>
-                <p class="text-on-surface-variant mt-1">Nurturing Skills through Discovery</p>
-            </div>
-        </div>
-    </div>
+    <!-- Decorative floating shapes -->
+    <div class="absolute right-8 top-1/4 w-20 h-20 rounded-full border-2 border-tangerine/20 opacity-50 hidden lg:block"></div>
+    <div class="absolute left-12 bottom-1/4 w-12 h-12 rounded-lg border-2 border-sea/20 rotate-12 opacity-50 hidden lg:block"></div>
 </section>
 
-<!-- Category Bento Grid -->
-<section id="explore-world" class="py-stack-lg px-margin-desktop max-w-7xl mx-auto scroll-mt-24">
-    <div class="text-center mb-16">
-        <span class="text-primary font-bold uppercase tracking-widest text-sm mb-2 block">Our Expertise</span>
-        <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Explore the Little Fingers World</h2>
-        <div class="h-1.5 w-24 india-gradient mx-auto mt-6 rounded-full"></div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter h-auto md:h-[650px]">
-        <!-- Outdoors Inventory Card -->
-        <div onclick="window.location.href='{% url 'outdoors' %}'" class="md:col-span-2 md:row-span-2 bg-secondary-container/10 rounded-[2.5rem] p-8 flex flex-col justify-between bento-card relative overflow-hidden group border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 cursor-pointer">
-            <div class="relative z-10">
-                <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">landscape</span>
-                </span>
-                <h3 class="font-display-lg text-3xl text-on-secondary-container group-hover:text-secondary transition-colors">Outdoors</h3>
-                <p class="font-body-md text-on-surface-variant mt-3 max-w-xs text-lg">Multi-play stations & outdoor adventure equipment designed for Indian conditions.</p>
-            </div>
-            <div class="relative h-72 bento-grid-card-image mt-6 overflow-hidden rounded-[2rem] border-8 border-white shadow-2xl">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9ljQJ6UOMpuleaUUkoCu0rfy_pog3CPDrPXtddUoFtHOHs0NpLymycbngGBEHXwKHa8gyVA4-hPsiWAq7jLLIQVFYkja9M9HH2r9USLVs9t5uBjxoI32ph9Tb0x4it-mUJPXGYliM4u6faKO1DAYNJgwmXf4FIvAnJVKp3smruBqKpKFlwvhL2Duz15NTCqhJHDNgGXrzVPK7Tps9GP9H8FU3iFUGhSNogtlJo0I2HZS743Vj7ncrlK5X_I85tlqswYlS-z7KJA" alt="Outdoors Inventory" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy">
-            </div>
-            <div class="relative z-10 self-start mt-8 bg-secondary text-on-secondary px-8 py-3 rounded-full font-label-md sticker-shadow btn-chunky group-hover:bg-primary group-hover:text-on-primary transition-colors flex items-center gap-2">
-                Explore Outdoors <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </div>
+<!-- ===================== TRAIN SECTION (Categories) ===================== -->
+<section id="train-section" class="py-24 lg:py-32 bg-gradient-to-b from-butter/40 via-butter/20 to-white overflow-hidden">
+    <div class="px-margin-desktop max-w-7xl mx-auto">
+        <div class="text-center mb-16 fade-in-section">
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Our World</h2>
+            <p class="text-on-surface-variant text-lg max-w-xl mx-auto">Four interconnected categories — each built with the same promise of quality and safety.</p>
         </div>
 
-        <!-- Indoors Inventory Card -->
-        <div onclick="window.location.href='{% url 'indoors' %}'" class="md:col-span-2 bg-primary-container/10 rounded-[2.5rem] p-8 flex items-center justify-between bento-card overflow-hidden group border-2 border-primary/20 hover:border-primary hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 cursor-pointer">
-            <div class="flex-1 pr-4">
-                <span class="bg-primary text-on-primary w-14 h-14 flex items-center justify-center rounded-2xl mb-6 shadow-lg group-hover:scale-110 transition-transform">
-                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
-                </span>
-                <h3 class="font-display-lg text-2xl text-on-primary-container group-hover:text-primary transition-colors">Indoors</h3>
-                <p class="font-body-md text-on-surface-variant mt-2 text-lg">Smart, stackable, and safe units & toys.</p>
-                <div class="mt-6 inline-flex items-center gap-2 text-primary font-bold group-hover:gap-4 transition-all">
-                    Explore Indoors <span class="material-symbols-outlined">arrow_forward</span>
+        <!-- One complete train: locomotive + four category carriages -->
+        <div class="train-stage">
+        <div class="train-set flex flex-col md:flex-row md:items-stretch gap-5 md:gap-0 relative">
+            <!-- 1. Indoor -->
+            <div onclick="window.location.href='{% url 'indoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl md:rounded-none p-8 border border-outline-variant/20 hover:border-tangerine/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative md:mr-0" style="z-index:4">
+                <!-- Connector dot (visible on mobile as a badge) -->
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-tangerine rounded-full border-2 border-white shadow-md z-10"></div>
+                <div class="flex flex-col h-full">
+                    <div class="bg-tangerine/10 text-tangerine w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+                    </div>
+                    <h3 class="font-display-lg text-2xl text-on-surface mb-2 group-hover:text-tangerine transition-colors">Indoor</h3>
+                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Smart, stackable classroom furniture and soft play — designed for early learners.</p>
+                    <div class="mt-6 text-tangerine font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all">
+                        Browse Indoors <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </div>
                 </div>
             </div>
-            <div class="w-2/5 p-2 transform group-hover:-translate-x-2 transition-transform">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxTYIe7Pt4M62-_5sfV93rxqQTF5Kx3nqYbahAvFoe7YXS8gFD18GbDKeUDCdShQbumfQbggjwXSu-A0ehUnqja5ubKWBGEz0dCCueh5NAcl6KiP9ztoEazbHA-4bHIUy4eYLwBKlm5D3JL5p-nIP5tetFZYg3cASkbzDaFMhlHrkNOTQ78wIgS5WDybb5NuTg191mdXljI_Hh_aakm6WBr6WpocIfvNbhcx8Run-l4DrhCUC-e7YAxjYQVS8ZKoKf95XnWpUZ1g" alt="Indoors Inventory" class="w-full rounded-2xl shadow-xl border-4 border-white" loading="lazy">
+
+            <!-- 2. Outdoor -->
+            <div onclick="window.location.href='{% url 'outdoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl md:rounded-none p-8 border border-outline-variant/20 hover:border-sea/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative md:mr-0" style="z-index:3">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-sea rounded-full border-2 border-white shadow-md z-10"></div>
+                <div class="flex flex-col h-full">
+                    <div class="bg-sea/10 text-sea w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">landscape</span>
+                    </div>
+                    <h3 class="font-display-lg text-2xl text-on-surface mb-2 group-hover:text-sea transition-colors">Outdoor</h3>
+                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Multi-play stations, adventure structures, and safety surfacing for all-weather fun.</p>
+                    <div class="mt-6 text-sea font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all">
+                        Explore Outdoors <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </div>
+                </div>
             </div>
+
+            <!-- 3. Components (was Parts) -->
+            <div onclick="window.location.href='{% url 'parts' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl md:rounded-none p-8 border border-outline-variant/20 hover:border-blush/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative md:mr-0" style="z-index:2">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-blush rounded-full border-2 border-white shadow-md z-10"></div>
+                <div class="flex flex-col h-full">
+                    <div class="bg-blush/10 text-blush w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">handyman</span>
+                    </div>
+                    <h3 class="font-display-lg text-2xl text-on-surface mb-2 group-hover:text-blush transition-colors">Components</h3>
+                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Genuine replacement parts, precision joints, and maintenance kits for every setup.</p>
+                    <div class="mt-6 text-blush font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all">
+                        Shop Components <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. RF Sports -->
+            <div onclick="window.location.href='{% url 'rfsports' %}'" class="train-compartment flex-1 bg-white rounded-2xl md:rounded-none md:rounded-r-2xl p-8 border border-outline-variant/20 hover:border-matcha/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative" style="z-index:1">
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-matcha rounded-full border-2 border-white shadow-md z-10"></div>
+                <div class="flex flex-col h-full">
+                    <div class="bg-matcha/10 text-matcha-dark w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">sports_soccer</span>
+                    </div>
+                    <h3 class="font-display-lg text-2xl text-on-surface mb-2 group-hover:text-matcha-dark transition-colors">RF Sports</h3>
+                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Professional-grade sports gear designed for the next generation of champions.</p>
+                    <div class="mt-6 text-matcha-dark font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all">
+                        View Sports <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </div>
+                </div>
+            </div>
+            <div class="train-engine hidden md:flex" aria-hidden="true">
+                <span class="material-symbols-outlined text-5xl">train</span>
+                <span class="train-engine-window"></span>
+                <span class="train-engine-smoke"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+        </div>
         </div>
 
-        <!-- Parts Inventory Card -->
-        <div onclick="window.location.href='{% url 'parts' %}'" class="bg-tertiary-container/10 rounded-[2.5rem] p-8 bento-card border-2 border-tertiary/20 hover:border-tertiary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
-            <span class="bg-tertiary text-on-tertiary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:scale-110 transition-transform shadow-lg">
-                <span class="material-symbols-outlined text-2xl">shield</span>
-            </span>
-            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-tertiary-container font-extrabold group-hover:text-tertiary transition-colors">Parts</h3>
-            <div class="w-24 h-24 overflow-hidden rounded-2xl my-4 border-4 border-white shadow-lg group-hover:scale-105 transition-transform">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbs4IhNEaHOfVNhTTXP-kyEWq5O7eJUgFGZsxJbxADsSLup5ics9FZ_6kZgl72PRePdiw38hU8o7ifL1kgsd350nNmsVWYuM946rTi3d9E8r9hE9dQJXhKFKTp_Z3sOCoCuAen9SdgUU2euCFfEHb5_FjFzGKHvXCAfq7MKrmRZvhN7AG3sYjWt3pByedb6ty6qxYZNHIe998duQs9lcwh-uUKLsY_fydfmjSfh6sRnHueNFnmazNllDGshAKdZWIJK4l6bA9M2A" alt="Parts Inventory" width="1" height="1" class="w-full h-full object-cover" loading="lazy">
-            </div>
-            <div class="mt-4 text-tertiary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
-                Explore Parts <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </div>
-        </div>
-
-        <!-- RF Sports Inventory Card -->
-        <div onclick="window.location.href='{% url 'rfsports' %}'" class="bg-surface rounded-[2.5rem] p-8 bento-card border-2 border-secondary/20 hover:border-secondary hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col justify-center items-center text-center group cursor-pointer">
-            <span class="bg-secondary text-on-secondary w-14 h-14 flex items-center justify-center rounded-full mb-4 group-hover:rotate-12 transition-transform shadow-lg">
-                <span class="material-symbols-outlined text-2xl">sports_soccer</span>
-            </span>
-            <h3 class="font-display-lg text-base uppercase tracking-widest text-on-surface font-extrabold group-hover:text-secondary transition-colors">RF Sports</h3>
-            <p class="text-xs mt-3 font-bold text-on-surface-variant">Interactive Sports Gear</p>
-            <div class="mt-6 text-secondary text-sm font-bold flex items-center gap-1 group-hover:gap-2 transition-all">
-                Explore RF Sports <span class="material-symbols-outlined text-xs">arrow_forward</span>
-            </div>
-        </div>
+        <div class="train-track" aria-hidden="true"></div>
     </div>
 </section>
 
-<!-- Product Highlight Cards -->
-<section class="py-stack-lg px-margin-desktop max-w-7xl mx-auto">
-    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+<!-- ===================== TOP SELECTIONS ===================== -->
+<section class="py-24 px-margin-desktop max-w-7xl mx-auto bg-white">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4 fade-in-section">
         <div>
-            <h3 class="font-display-lg text-4xl text-on-surface">Top Selection for Schools</h3>
-            <p class="text-on-surface-variant mt-2 text-lg">Tested for Indian conditions and heavy classroom usage.</p>
+            <span class="text-tangerine font-bold uppercase tracking-widest text-sm mb-2 block">Handpicked for you</span>
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Top Selections</h2>
+            <p class="text-on-surface-variant mt-2 max-w-xl">Our best-selling products, trusted by schools and parents across India.</p>
         </div>
-        <a href="#explore-world" class="text-secondary font-bold flex items-center hover:translate-x-2 transition-transform group">
-            View All Categories <span class="material-symbols-outlined ml-2 group-hover:ml-4 transition-all">arrow_forward</span>
+        <a href="{% url 'search' %}" class="text-sea font-bold flex items-center hover:translate-x-2 transition-transform group text-sm">
+            View All <span class="material-symbols-outlined ml-1 group-hover:ml-3 transition-all text-lg">arrow_forward</span>
         </a>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 stagger-children">
         {% for product in featured_products %}
-            {% include "products/product_card.html" with product=product %}
+            <div class="selection-card">
+                {% include "products/product_card.html" with product=product %}
+            </div>
         {% empty %}
-        <div class="col-span-full text-center py-12 text-on-surface-variant">
+        <div class="col-span-full text-center py-16 text-on-surface-variant">
             <span class="material-symbols-outlined text-6xl mb-4 block opacity-30">inventory_2</span>
-            <p class="text-lg">No products available right now. Check back soon!</p>
+            <p class="text-lg font-bold">No products available right now. Check back soon!</p>
         </div>
         {% endfor %}
     </div>
 
-    <div class="text-center mt-12">
-        <a href="{% url 'search' %}" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
-            <span class="material-symbols-outlined">grid_view</span> View All Products
+    <div class="text-center mt-12 fade-in-section">
+        <a href="{% url 'search' %}" class="bg-tangerine text-white font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-3 uppercase tracking-wider text-sm font-bold">
+            <span class="material-symbols-outlined">apps</span> Browse Full Catalog
         </a>
     </div>
 </section>
 
-<!-- Consultation Section -->
-<section class="py-20 px-margin-desktop bg-tertiary/5 relative overflow-hidden lazy-section">
-    <div class="max-w-4xl mx-auto text-center relative z-10 space-y-6">
-        <h3 class="font-display-lg text-4xl lg:text-5xl text-on-surface leading-tight">Ready to Design a <span class="text-tertiary">Dream Campus?</span></h3>
-        <p class="text-body-lg text-on-surface-variant max-w-2xl mx-auto">Get a personalized 3D layout and expert consulting for your educational facility at no cost.</p>
-        
-        <form class="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto pt-8">
-            <input type="text" placeholder="Your school or organization name..." class="flex-1 bg-white border-2 border-outline-variant/30 rounded-2xl px-6 py-4 focus:border-secondary focus:ring-0 text-on-surface shadow-sm">
-            <button type="button" class="bg-secondary text-on-secondary px-10 py-3 rounded-full font-label-md hover:shadow-md transition-shadow">
-                Get Free Quote
-            </button>
-        </form>
-    </div>
-    
-    <!-- Decorative particles -->
-    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"></div>
-    <div class="absolute -top-10 -left-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
-</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Train compartment observer — sequential reveal with slight stagger
+    document.addEventListener('DOMContentLoaded', function() {
+        const hero = document.getElementById('homepage-hero');
+        const heroWords = hero && hero.querySelector('.hero-words');
+        if (heroWords) {
+            window.setTimeout(() => heroWords.classList.add('is-entering'), 350);
+            let heroWordFrame;
+            const updateHeroWords = () => {
+                heroWordFrame = undefined;
+                heroWords.classList.toggle('is-scrolled-away', window.scrollY > 80);
+            };
+            const scheduleHeroWordUpdate = () => {
+                if (heroWordFrame === undefined) heroWordFrame = window.requestAnimationFrame(updateHeroWords);
+            };
+            updateHeroWords();
+            window.addEventListener('scroll', scheduleHeroWordUpdate, { passive: true });
+        }
+
+        const trainObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.querySelector('.train-set').classList.add('is-visible');
+                    trainObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '-50px',
+            threshold: 0.15
+        });
+
+        // Observe the stationary stage, not the off-screen train itself.
+        document.querySelectorAll('.train-stage').forEach(el => {
+            trainObserver.observe(el);
+        });
+
+        // Selection cards observer
+        const selectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    selectionObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            rootMargin: '0px 0px -40px 0px',
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.selection-card').forEach(el => {
+            selectionObserver.observe(el);
+        });
+    });
+</script>
 {% endblock %}

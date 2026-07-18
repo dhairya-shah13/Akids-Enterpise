@@ -15,106 +15,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     
     <!-- Design System & Theme CSS -->
-    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}?v=20260718" rel="stylesheet">
     
-    <!-- Autocomplete Search Styles -->
+    <!-- Inline critical styles -->
     <style>
-        .search-wrapper {
-            position: relative;
-        }
+        .search-wrapper { position: relative; }
         .search-wrapper .autocomplete-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: #fff;
-            border: 2px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 16px 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-            max-height: 360px;
-            overflow-y: auto;
-            display: none;
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+            background: #fff; border: 2px solid #e0e0e0; border-top: none;
+            border-radius: 0 0 16px 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 360px; overflow-y: auto; display: none;
         }
-        .search-wrapper .autocomplete-dropdown.active {
-            display: block;
-        }
+        .search-wrapper .autocomplete-dropdown.active { display: block; }
         .search-wrapper .autocomplete-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            cursor: pointer;
-            transition: background 0.15s;
-            border-bottom: 1px solid #f0f0f0;
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #f0f0f0;
         }
-        .search-wrapper .autocomplete-item:last-child {
-            border-bottom: none;
-            border-radius: 0 0 14px 14px;
-        }
+        .search-wrapper .autocomplete-item:last-child { border-bottom: none; border-radius: 0 0 14px 14px; }
         .search-wrapper .autocomplete-item:hover,
-        .search-wrapper .autocomplete-item.highlighted {
-            background: #FFFDF9;
-        }
+        .search-wrapper .autocomplete-item.highlighted { background: #FFFDF9; }
         .search-wrapper .autocomplete-item img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #f5f5f5;
-            flex-shrink: 0;
-            border: 1px solid #eee;
+            width: 40px; height: 40px; object-fit: contain; border-radius: 8px;
+            background: #f5f5f5; flex-shrink: 0; border: 1px solid #eee;
         }
-        .search-wrapper .autocomplete-item .item-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .search-wrapper .autocomplete-item .item-info { flex: 1; min-width: 0; }
         .search-wrapper .autocomplete-item .item-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1C1C18;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 13px; font-weight: 700; color: #1C1C18;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .search-wrapper .autocomplete-item .item-price {
-            font-size: 11px;
-            font-weight: 600;
-            color: #A86000;
-            margin-top: 2px;
+            font-size: 11px; font-weight: 600; color: #A86000; margin-top: 2px;
         }
         .search-wrapper .autocomplete-item .item-category {
-            font-size: 10px;
-            color: #727782;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
+            font-size: 10px; color: #727782; text-transform: uppercase;
+            letter-spacing: 0.5px; font-weight: 600;
         }
         .search-wrapper .autocomplete-empty {
-            padding: 20px;
-            text-align: center;
-            color: #727782;
-            font-size: 13px;
+            padding: 20px; text-align: center; color: #727782; font-size: 13px;
         }
-        .search-wrapper .autocomplete-loading {
-            padding: 16px;
-            text-align: center;
-        }
-        .search-wrapper .autocomplete-loading .dots {
-            display: inline-flex;
-            gap: 4px;
-        }
+        .search-wrapper .autocomplete-loading { padding: 16px; text-align: center; }
+        .search-wrapper .autocomplete-loading .dots { display: inline-flex; gap: 4px; }
         .search-wrapper .autocomplete-loading .dots span {
-            width: 6px;
-            height: 6px;
-            background: #FF9933;
-            border-radius: 50%;
+            width: 6px; height: 6px; background: #F08C21; border-radius: 50%;
             animation: ac-bounce 1.2s infinite;
         }
         .search-wrapper .autocomplete-loading .dots span:nth-child(2) { animation-delay: 0.2s; }
         .search-wrapper .autocomplete-loading .dots span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes ac-bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     </style>
     
     {% block extra_head %}{% endblock %}
@@ -122,38 +71,38 @@
 <body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
     <!-- Header / Navbar -->
-    <header class="bg-surface sticky top-0 z-50 border-b-2 border-outline-variant/30 backdrop-blur-md bg-white/95">
-        <div class="flex justify-between items-center px-margin-desktop py-4 max-w-7xl mx-auto gap-4 lg:gap-8">
-            <div class="flex items-center gap-4 shrink-0">
+    <header class="bg-butter/40 backdrop-blur-md sticky top-0 z-50 border-b border-tangerine/20 shadow-sm">
+        <div class="flex justify-between items-center px-margin-desktop py-3 max-w-7xl mx-auto gap-4 lg:gap-8">
+            <div class="flex items-center gap-3 shrink-0">
                 <a href="{% url 'home' %}" class="flex items-center gap-2">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-10 w-auto" loading="lazy">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-9 w-auto" loading="lazy">
                     <div class="flex flex-col">
-                        <span class="font-display-lg text-3xl font-extrabold tracking-tight text-primary leading-none">A kids</span>
-                        <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">India's Play Experts</span>
+                        <span class="font-display-lg text-2xl font-extrabold tracking-tight text-tangerine leading-none">A kids</span>
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-0.5">India's Play Experts</span>
                     </div>
                 </a>
             </div>
             
             {% if request.session.is_admin %}
-            <!-- Minimal Admin Header: no nav links, no search, no cart -->
-            <nav class="hidden lg:flex items-center gap-6 xl:gap-8">
-                <span class="text-sm text-primary font-bold uppercase tracking-wider">Admin Panel</span>
+            <!-- Minimal Admin Header -->
+            <nav class="hidden lg:flex items-center gap-6">
+                <span class="text-sm text-tangerine font-bold uppercase tracking-wider">Admin Panel</span>
             </nav>
             {% else %}
-            <nav class="hidden lg:flex items-center gap-6 xl:gap-8">
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Parts</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-primary transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">MR Sports</a>
+            <nav class="hidden lg:flex items-center gap-5 xl:gap-7">
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Components</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">RF Sports</a>
             </nav>
             {% endif %}
             
             {% if not request.session.is_admin %}
             <div class="hidden md:flex items-center flex-1 max-w-xs mx-4 relative">
                 <form action="{% url 'search' %}" method="GET" class="w-full relative search-wrapper">
-                    <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-full py-2 pl-4 pr-10 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface shadow-inner">
-                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
+                    <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-full py-2 pl-4 pr-10 outline-none focus:ring-2 focus:ring-tangerine text-sm text-on-surface shadow-inner">
+                    <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-tangerine hover:opacity-100 transition-colors">
                         <span class="material-symbols-outlined text-[20px]">search</span>
                     </button>
                     <div class="autocomplete-dropdown"></div>
@@ -161,60 +110,60 @@
             </div>
             {% endif %}
             
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 {% if not request.session.is_admin %}
-                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-primary text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-primary hover:text-primary transition-colors hidden sm:flex">
+                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors hidden sm:flex">
                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
                     <span class="text-sm font-bold">Cart</span>
                 </a>
                 {% endif %}
                 
                 {% if request.session.is_admin %}
-                <a href="{% url 'admin_logout' %}" class="bg-error text-white px-6 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 shadow-md shadow-error/30 hidden sm:block">
+                <a href="{% url 'admin_logout' %}" class="bg-[#ba1a1a] text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
                     Exit Admin
                 </a>
                 {% elif request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20 hidden sm:block flex items-center gap-2">
+                <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">person</span> Profile
                 </a>
                 {% else %}
-                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 shadow-lg shadow-secondary/20 hidden sm:block">
+                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
                     Sign In
                 </a>
                 {% endif %}
 
-                <!-- Mobile Hamburger Button -->
+                <!-- Mobile Hamburger -->
                 {% if not request.session.is_admin %}
-                <button id="mobileMenuBtn" class="lg:hidden bg-primary text-on-primary w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shadow-lg flex items-center justify-center shadow-sm hover:shadow-md transition-shadow" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
+                <button id="mobileMenuBtn" class="lg:hidden bg-tangerine text-white w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shadow-lg flex items-center justify-center hover:shadow-md transition-shadow" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
                 {% endif %}
             </div>
             
-            <!-- Mobile Navigation Drawer (non-admin only) -->
+            <!-- Mobile Navigation Drawer -->
             {% if not request.session.is_admin %}
-            <div id="mobileDrawer" class="hidden absolute top-full left-0 right-0 bg-white border-t-4 border-primary shadow-2xl p-6 flex-col gap-4 z-50 rounded-b-3xl">
+            <div id="mobileDrawer" class="hidden absolute top-full left-0 right-0 bg-white border-t-4 border-tangerine shadow-2xl p-6 flex-col gap-4 z-50 rounded-b-3xl">
                 <form action="{% url 'search' %}" method="GET" class="w-full relative mb-2 search-wrapper">
-                    <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-xl py-3 pl-4 pr-12 outline-none focus:ring-2 focus:ring-primary text-on-surface">
-                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-primary">
+                    <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-xl py-3 pl-4 pr-12 outline-none focus:ring-2 focus:ring-tangerine text-on-surface">
+                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-tangerine">
                         <span class="material-symbols-outlined">search</span>
                     </button>
                     <div class="autocomplete-dropdown"></div>
                 </form>
                 
-                <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-primary{% endif %}">Home</a>
-                <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-primary{% endif %}">Indoors</a>
-                <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-primary{% endif %}">Outdoors</a>
-                <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-primary{% endif %}">Parts</a>
-                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-primary{% endif %}">MR Sports</a>
+                <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-tangerine{% endif %}">Home</a>
+                <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-tangerine{% endif %}">Indoors</a>
+                <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-tangerine{% endif %}">Outdoors</a>
+                <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-tangerine{% endif %}">Components</a>
+                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-tangerine{% endif %}">RF Sports</a>
                 
-                <a href="{% url 'cart' %}" class="bg-primary text-on-primary py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
+                <a href="{% url 'cart' %}" class="bg-tangerine text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
                 {% if request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="bg-secondary text-on-secondary py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2 flex items-center justify-center gap-2">
+                <a href="{% url 'profile' %}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">person</span> Profile
                 </a>
                 {% else %}
-                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-secondary text-on-secondary py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Sign In</a>
+                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Sign In</a>
                 {% endif %}
             </div>
             {% endif %}
@@ -227,57 +176,73 @@
         {% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-surface border-t-8 border-primary py-16 mt-20">
-        <div class="max-w-7xl mx-auto px-margin-desktop grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div class="space-y-6 md:col-span-1">
-                <div class="flex flex-col">
-                    <span class="font-display-lg text-3xl font-extrabold text-primary leading-none">A kids</span>
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-secondary mt-1">Quality Play Environments</span>
+    <!-- Footer - calm, settled, minimal animation -->
+    <footer class="fade-in-section bg-matcha/10 border-t-4 border-tangerine/20 pt-16 pb-8 mt-20 relative">
+        <!-- Subtle top gradient -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-1 bg-gradient-to-r from-transparent via-tangerine/30 to-transparent"></div>
+        
+        <div class="max-w-7xl mx-auto px-margin-desktop">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-outline-variant/20">
+                <!-- Brand -->
+                <div class="md:col-span-4 space-y-5">
+                    <div class="flex flex-col">
+                        <span class="font-display-lg text-2xl font-extrabold text-tangerine leading-none">A kids</span>
+                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-1">Quality Play Environments</span>
+                    </div>
+                    <p class="font-body-md text-on-surface-variant text-sm leading-relaxed max-w-sm">Manufacturing Excellence in India. Creating safe, vibrant, and skill-building environments for the leaders of tomorrow.</p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 min-w-[40px] min-h-[40px] bg-sea/5 rounded-full flex items-center justify-center text-sea hover:bg-sea hover:text-white transition-all" aria-label="Email">
+                            <span class="material-symbols-outlined text-lg">mail</span>
+                        </a>
+                        <a href="#" class="w-10 h-10 min-w-[40px] min-h-[40px] bg-sea/5 rounded-full flex items-center justify-center text-sea hover:bg-sea hover:text-white transition-all" aria-label="Phone">
+                            <span class="material-symbols-outlined text-lg">call</span>
+                        </a>
+                    </div>
+                    <!-- Hotline -->
+                    <div class="bg-butter/20 rounded-xl p-4 border border-butter/30">
+                        <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Hotline</p>
+                        <a href="tel:+919924343003" class="text-tangerine font-extrabold text-xl hover:underline">+91 9924343003</a>
+                    </div>
                 </div>
-                <p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Manufacturing Excellence in India. Creating safe, vibrant, and skill-building environments for the leaders of tomorrow.</p>
-                <div class="flex gap-4">
-                    <a href="#" class="w-12 h-12 min-w-[48px] min-h-[48px] bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all" aria-label="Social Share">
-                        <span class="material-symbols-outlined text-xl">share</span>
-                    </a>
-                    <a href="#" class="w-12 h-12 min-w-[48px] min-h-[48px] bg-secondary/5 rounded-full flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-all" aria-label="Email">
-                        <span class="material-symbols-outlined text-xl">mail</span>
-                    </a>
+                
+                <!-- Quick Links -->
+                <div class="md:col-span-3 space-y-4">
+                    <h5 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Products</h5>
+                    <nav class="flex flex-col gap-3">
+                        <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Indoor</a>
+                        <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Outdoor Play</a>
+                        <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Components</a>
+                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">RF Sports</a>
+                    </nav>
+                </div>
+                
+                <div class="md:col-span-2 space-y-4">
+                    <h5 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Company</h5>
+                    <nav class="flex flex-col gap-3">
+                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">About Us</a>
+                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Safety Standards</a>
+                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Testimonials</a>
+                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Contact</a>
+                    </nav>
+                </div>
+                
+                <div class="md:col-span-3 space-y-4">
+                    <h5 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Contact</h5>
+                    <div class="space-y-3 text-sm text-on-surface-variant">
+                        <p>Plot No. 42, Industrial Area,<br>Phase 1, New Delhi - 110020</p>
+                        <p class="font-bold text-tangerine">+91 9924343003</p>
+                        <a href="mailto:hello@littlefingersindia.com" class="text-sea underline hover:text-tangerine transition-colors">hello@littlefingersindia.com</a>
+                    </div>
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 md:col-span-3 gap-12">
-                <div class="space-y-4">
-                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Products</h5>
-                    <nav class="flex flex-col gap-3">
-                        <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Indoor</a>
-                        <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Outdoor Play</a>
-                        <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">Parts</a>
-                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-primary text-sm transition-colors">MR Sports</a>
-                    </nav>
+            <!-- Bottom bar -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8">
+                <p class="text-on-surface-variant font-body-md text-xs">© 2026 A kids India. All rights reserved. Designed for Safety.</p>
+                <div class="flex gap-6 text-xs text-on-surface-variant">
+                    <a href="#" class="hover:text-tangerine transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-tangerine transition-colors">Terms of Service</a>
                 </div>
-                <div class="space-y-4">
-                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">About</h5>
-                    <nav class="flex flex-col gap-3">
-                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Our Factory</a>
-                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Safety Standards</a>
-                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Success Stories</a>
-                        <a href="#" class="text-on-surface-variant hover:text-secondary text-sm transition-colors">Contact Us</a>
-                    </nav>
-                </div>
-                <div class="space-y-4 col-span-2 md:col-span-1">
-                    <h5 class="font-display-lg text-sm uppercase tracking-widest text-on-surface font-extrabold">Contact</h5>
-                    <p class="text-sm text-on-surface-variant">Plot No. 42, Industrial Area,<br>Phase 1, New Delhi - 110020</p>
-                    <p class="text-sm font-bold text-primary">+91 98765 43210</p>
-                    <p class="text-sm text-secondary underline">hello@littlefingersindia.com</p>
-                </div>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-margin-desktop mt-16 pt-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-on-surface-variant font-body-md text-xs">© 2026 A kids India. All rights reserved. Designed for Safety.</p>
-            <div class="flex gap-6 text-xs text-on-surface-variant">
-                <a href="#" class="hover:text-primary">Privacy Policy</a>
-                <a href="#" class="hover:text-primary">Terms of Service</a>
             </div>
         </div>
     </footer>
@@ -285,17 +250,17 @@
     <!-- Mohanlal AI Mascot Chat Widget -->
     <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
         <!-- Chat Modal Window -->
-        <div id="mohanlalChatModal" class="hidden w-80 md:w-96 bg-surface text-on-surface rounded-3xl border-t-[5px] border-r-[5px] border-b-[2px] border-l-[2px] border-primary/40 shadow-lg overflow-hidden transition-all duration-300 mb-4 flex flex-col" style="height: 520px; max-height: 80vh;">
+        <div id="mohanlalChatModal" class="hidden w-80 md:w-96 bg-surface text-on-surface rounded-3xl border-t-[5px] border-r-[5px] border-b-[2px] border-l-[2px] border-tangerine/40 shadow-lg overflow-hidden transition-all duration-300 mb-4 flex flex-col" style="height: 520px; max-height: 80vh;">
             <!-- Header -->
-            <div class="bg-primary text-on-primary p-4 flex items-center justify-between">
+            <div class="bg-gradient-to-r from-tangerine to-tangerine/90 text-white p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-xl shadow-md">
                         🤖
                     </div>
                     <div>
                         <h4 class="font-bold text-base leading-tight">Mohanlal</h4>
-                        <p class="text-[11px] text-on-primary/80 font-medium flex items-center gap-1">
-                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> AI Mascot & Guide
+                        <p class="text-[11px] text-white/80 font-medium flex items-center gap-1">
+                            <span class="w-2 h-2 rounded-full bg-matcha animate-pulse"></span> AI Mascot & Guide
                         </p>
                     </div>
                 </div>
@@ -308,40 +273,41 @@
             <div id="mohanlalChatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-surface-variant/20 text-sm font-body">
                 <!-- Welcome Message -->
                 <div class="flex items-start gap-2">
-                    <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">M</div>
+                    <div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div>
                     <div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface">
-                        <p class="font-semibold text-xs text-primary mb-1">Mohanlal</p>
+                        <p class="font-semibold text-xs text-tangerine mb-1">Mohanlal</p>
                         <p>Namaste! 🙏 I'm <b>Mohanlal</b>, your AI assistant & mascot! Looking for playground equipment, toys, or advice? Ask me anything!</p>
                     </div>
                 </div>
             </div>
 
             <!-- Urgent Call Banner -->
-            <div class="bg-yellow-50 border-t border-outline-variant px-3 py-1.5 text-[11px] text-amber-900 font-medium flex items-center justify-between">
+            <div class="bg-butter/10 border-t border-outline-variant px-3 py-1.5 text-[11px] text-amber-900 font-medium flex items-center justify-between">
                 <span>⚠️ Larger query or urgent matter?</span>
-                <a href="tel:9924343003" class="font-bold underline text-primary flex items-center gap-0.5">📞 9924343003</a>
+                <a href="tel:9924343003" class="font-bold underline text-tangerine flex items-center gap-0.5">📞 9924343003</a>
             </div>
 
             <!-- Input Bar -->
             <form id="mohanlalChatForm" onsubmit="sendMohanlalMessage(event)" class="p-3 bg-white border-t border-outline-variant flex gap-2 items-center">
-                <input type="text" id="mohanlalChatInput" placeholder="Ask Mohanlal..." class="flex-1 px-3 py-2 bg-surface-variant/30 rounded-full border border-outline-variant text-sm focus:outline-none focus:border-primary transition-colors placeholder:text-on-surface-variant/60">
-                <button type="submit" id="mohanlalSendBtn" class="bg-primary text-on-primary min-w-[48px] min-h-[48px] px-5 py-3 rounded-full font-bold shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center" aria-label="Send message">
+                <input type="text" id="mohanlalChatInput" placeholder="Ask Mohanlal..." class="flex-1 px-3 py-2 bg-surface-variant/30 rounded-full border border-outline-variant text-sm focus:outline-none focus:border-tangerine transition-colors placeholder:text-on-surface-variant/60">
+                <button type="submit" id="mohanlalSendBtn" class="bg-tangerine text-white min-w-[48px] min-h-[48px] px-5 py-3 rounded-full font-bold shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center" aria-label="Send message">
                     <span class="material-symbols-outlined text-sm">send</span>
                 </button>
             </form>
         </div>
 
         <!-- FAB Button -->
-        <button onclick="toggleMohanlalChat()" class="bg-primary text-on-primary w-16 h-16 min-w-[48px] min-h-[48px] rounded-full shadow-xl flex items-center justify-center group hover:scale-110 transition-transform" aria-label="Chat with Mohanlal">
+        <button onclick="toggleMohanlalChat()" class="bg-tangerine text-white w-16 h-16 min-w-[48px] min-h-[48px] rounded-full shadow-xl flex items-center justify-center group hover:scale-110 hover:shadow-tangerine/30 transition-all" aria-label="Chat with Mohanlal">
             <span class="material-symbols-outlined text-3xl group-hover:rotate-12 transition-transform">chat_bubble</span>
-            <div class="absolute -top-2 -right-2 bg-secondary text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md text-on-secondary">Support</div>
+            <div class="absolute -top-2 -right-2 bg-sea text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md text-white">Support</div>
         </button>
     </div>
 
     <script>
+        // Keep content readable if JavaScript fails; opt into entrance states only when it runs.
+        document.documentElement.classList.add('js-animations');
         // ===== Global Lazy Loading: Intersection Observer for scroll animations =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Fade-in sections
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -358,7 +324,6 @@
                 observer.observe(el);
             });
 
-            // Progressive image loading: blur-up effect
             document.querySelectorAll('.img-blur-load').forEach(img => {
                 if (img.complete) {
                     img.classList.add('loaded');
@@ -377,10 +342,8 @@
 
             var wrapper = inputEl.closest('.search-wrapper');
             if (!wrapper) return;
-
             var dropdown = wrapper.querySelector('.autocomplete-dropdown');
             if (!dropdown) return;
-
             var form = inputEl.closest('form');
             var categoryInput = form ? form.querySelector('input[name="category"]') : null;
             var debounceTimer = null;
@@ -388,39 +351,26 @@
             var currentResults = [];
 
             function fetchSuggestions(query) {
-                if (query.length < 1) {
-                    dropdown.classList.remove('active');
-                    dropdown.innerHTML = '';
-                    return;
-                }
-
+                if (query.length < 1) { dropdown.classList.remove('active'); dropdown.innerHTML = ''; return; }
                 dropdown.innerHTML = '<div class="autocomplete-loading"><div class="dots"><span></span><span></span><span></span></div></div>';
                 dropdown.classList.add('active');
                 selectedIndex = -1;
-
                 var params = new URLSearchParams({ q: query });
-                if (categoryInput && categoryInput.value) {
-                    params.set('category', categoryInput.value);
-                }
-
+                if (categoryInput && categoryInput.value) params.set('category', categoryInput.value);
                 fetch('/api/search-suggestions/?' + params.toString())
                     .then(function(r) { return r.json(); })
                     .then(function(data) {
                         currentResults = data.results || [];
                         renderDropdown(currentResults, query);
                     })
-                    .catch(function() {
-                        dropdown.classList.remove('active');
-                    });
+                    .catch(function() { dropdown.classList.remove('active'); });
             }
 
             function renderDropdown(results, query) {
                 if (!results.length) {
                     dropdown.innerHTML = '<div class="autocomplete-empty">No products found</div>';
-                    dropdown.classList.add('active');
-                    return;
+                    dropdown.classList.add('active'); return;
                 }
-
                 var html = '';
                 for (var i = 0; i < results.length; i++) {
                     var r = results[i];
@@ -429,8 +379,7 @@
                         + '<div class="item-info">'
                         + '<div class="item-name">' + highlightMatch(r.name, query) + '</div>'
                         + '<div class="item-price">₹' + r.price + '</div>'
-                        + '</div>'
-                        + '</a>';
+                        + '</div></a>';
                 }
                 dropdown.innerHTML = html;
                 dropdown.classList.add('active');
@@ -441,7 +390,7 @@
                 var escaped = escapeHtml(text);
                 var safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 var re = new RegExp('(' + safeQuery + ')', 'gi');
-                return escaped.replace(re, '<strong style="color:#008080">$1</strong>');
+                return escaped.replace(re, '<strong style="color:#6698CC">$1</strong>');
             }
 
             function escapeHtml(str) {
@@ -452,17 +401,13 @@
 
             function selectItem(index) {
                 var items = dropdown.querySelectorAll('.autocomplete-item');
-                if (index >= 0 && index < items.length) {
-                    window.location.href = items[index].getAttribute('href');
-                }
+                if (index >= 0 && index < items.length) window.location.href = items[index].getAttribute('href');
             }
 
             function highlightItem(index) {
                 var items = dropdown.querySelectorAll('.autocomplete-item');
                 items.forEach(function(el) { el.classList.remove('highlighted'); });
-                if (index >= 0 && index < items.length) {
-                    items[index].classList.add('highlighted');
-                }
+                if (index >= 0 && index < items.length) items[index].classList.add('highlighted');
             }
 
             inputEl.addEventListener('input', function() {
@@ -471,77 +416,47 @@
                 if (val.length >= 1) {
                     debounceTimer = setTimeout(function() { fetchSuggestions(val); }, 200);
                 } else {
-                    dropdown.classList.remove('active');
-                    dropdown.innerHTML = '';
+                    dropdown.classList.remove('active'); dropdown.innerHTML = '';
                 }
             });
 
             inputEl.addEventListener('keydown', function(e) {
                 var items = dropdown.querySelectorAll('.autocomplete-item');
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-                    highlightItem(selectedIndex);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    selectedIndex = Math.max(selectedIndex - 1, -1);
-                    highlightItem(selectedIndex);
-                } else if (e.key === 'Enter') {
-                    if (selectedIndex >= 0 && items.length > 0) {
-                        e.preventDefault();
-                        selectItem(selectedIndex);
-                    }
-                } else if (e.key === 'Escape') {
-                    dropdown.classList.remove('active');
-                    selectedIndex = -1;
-                }
+                if (e.key === 'ArrowDown') { e.preventDefault(); selectedIndex = Math.min(selectedIndex + 1, items.length - 1); highlightItem(selectedIndex); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); selectedIndex = Math.max(selectedIndex - 1, -1); highlightItem(selectedIndex); }
+                else if (e.key === 'Enter') { if (selectedIndex >= 0 && items.length > 0) { e.preventDefault(); selectItem(selectedIndex); } }
+                else if (e.key === 'Escape') { dropdown.classList.remove('active'); selectedIndex = -1; }
             });
 
-            inputEl.addEventListener('blur', function() {
-                setTimeout(function() { dropdown.classList.remove('active'); }, 200);
-            });
-
+            inputEl.addEventListener('blur', function() { setTimeout(function() { dropdown.classList.remove('active'); }, 200); });
             inputEl.addEventListener('focus', function() {
                 if (currentResults.length > 0 || this.value.trim().length >= 1) {
-                    if (currentResults.length > 0) {
-                        dropdown.classList.add('active');
-                    } else if (this.value.trim().length >= 1) {
-                        fetchSuggestions(this.value.trim());
-                    }
+                    if (currentResults.length > 0) dropdown.classList.add('active');
+                    else if (this.value.trim().length >= 1) fetchSuggestions(this.value.trim());
                 }
             });
         }
 
-        // Initialize all search inputs on page load
         document.addEventListener('DOMContentLoaded', function() {
             var inputs = document.querySelectorAll('.search-wrapper input[name="q"]');
-            for (var i = 0; i < inputs.length; i++) {
-                initAutocomplete(inputs[i]);
-            }
+            for (var i = 0; i < inputs.length; i++) { initAutocomplete(inputs[i]); }
         });
 
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileDrawer');
             if (!drawer) return;
             if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-                drawer.style.display = 'flex';
+                drawer.classList.remove('hidden'); drawer.style.display = 'flex';
             } else {
-                drawer.classList.add('hidden');
-                drawer.style.display = 'none';
+                drawer.classList.add('hidden'); drawer.style.display = 'none';
             }
         }
 
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.textContent = 'visibility_off';
-            } else {
-                input.type = 'password';
-                icon.textContent = 'visibility';
-            }
+            if (input.type === 'password') { input.type = 'text'; icon.textContent = 'visibility_off'; }
+            else { input.type = 'password'; icon.textContent = 'visibility'; }
         }
 
         let mohanlalHistory = [];
@@ -551,13 +466,8 @@
             if (!modal) return;
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
-                setTimeout(() => {
-                    const inp = document.getElementById('mohanlalChatInput');
-                    if (inp) inp.focus();
-                }, 100);
-            } else {
-                modal.classList.add('hidden');
-            }
+                setTimeout(() => { const inp = document.getElementById('mohanlalChatInput'); if (inp) inp.focus(); }, 100);
+            } else { modal.classList.add('hidden'); }
         }
 
         async function sendMohanlalMessage(e) {
@@ -567,90 +477,51 @@
             const sendBtn = document.getElementById('mohanlalSendBtn');
             const text = input.value.trim();
             if (!text) return;
-
-            input.value = '';
-            input.disabled = true;
-            sendBtn.disabled = true;
+            input.value = ''; input.disabled = true; sendBtn.disabled = true;
 
             const userDiv = document.createElement('div');
             userDiv.className = 'flex items-start justify-end gap-2';
-            userDiv.innerHTML = `
-                <div class="bg-primary text-on-primary p-3 rounded-2xl rounded-tr-md shadow-sm max-w-[85%] text-sm">
-                    ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
-                </div>
-            `;
+            userDiv.innerHTML = `<div class="bg-tangerine text-white p-3 rounded-2xl rounded-tr-md shadow-sm max-w-[85%] text-sm">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
             msgBox.appendChild(userDiv);
             msgBox.scrollTop = msgBox.scrollHeight;
 
             const loadingDiv = document.createElement('div');
             loadingDiv.id = 'mohanlalLoading';
             loadingDiv.className = 'flex items-start gap-2';
-            loadingDiv.innerHTML = `
-                <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">M</div>
-                <div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm text-on-surface flex items-center gap-1.5">
-                    <span class="w-2 h-2 bg-primary rounded-full animate-bounce"></span>
-                    <span class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                    <span class="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                </div>
-            `;
+            loadingDiv.innerHTML = `<div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div><div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm text-on-surface flex items-center gap-1.5"><span class="w-2 h-2 bg-tangerine rounded-full animate-bounce"></span><span class="w-2 h-2 bg-tangerine rounded-full animate-bounce [animation-delay:0.2s]"></span><span class="w-2 h-2 bg-tangerine rounded-full animate-bounce [animation-delay:0.4s]"></span></div>`;
             msgBox.appendChild(loadingDiv);
             msgBox.scrollTop = msgBox.scrollHeight;
 
             try {
                 const res = await fetch('/api/chat/', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: text,
-                        history: mohanlalHistory
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, history: mohanlalHistory })
                 });
                 const data = await res.json();
-                
                 const lDiv = document.getElementById('mohanlalLoading');
                 if (lDiv) lDiv.remove();
-
                 const reply = data.reply || "I am having a little connectivity trouble right now. For urgent queries or larger requirements, please call us at 9924343003!";
-                
                 mohanlalHistory.push({ role: "user", content: text });
                 mohanlalHistory.push({ role: "assistant", content: reply });
-
                 let formattedReply = reply.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
-                formattedReply = formattedReply.replace(/(9924343003)/g, '<a href="tel:9924343003" class="font-extrabold text-primary underline">$1</a>');
+                formattedReply = formattedReply.replace(/(9924343003)/g, '<a href="tel:9924343003" class="font-extrabold text-tangerine underline">$1</a>');
                 formattedReply = formattedReply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-
                 const botDiv = document.createElement('div');
                 botDiv.className = 'flex items-start gap-2';
-                botDiv.innerHTML = `
-                    <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">M</div>
-                    <div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm leading-relaxed">
-                        <p class="font-semibold text-xs text-primary mb-1">Mohanlal</p>
-                        <div>${formattedReply}</div>
-                    </div>
-                `;
+                botDiv.innerHTML = `<div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div><div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm leading-relaxed"><p class="font-semibold text-xs text-tangerine mb-1">Mohanlal</p><div>${formattedReply}</div></div>`;
                 msgBox.appendChild(botDiv);
                 msgBox.scrollTop = msgBox.scrollHeight;
             } catch (err) {
                 const lDiv = document.getElementById('mohanlalLoading');
                 if (lDiv) lDiv.remove();
-
                 const errDiv = document.createElement('div');
                 errDiv.className = 'flex items-start gap-2';
-                errDiv.innerHTML = `
-                    <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">M</div>
-                    <div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm">
-                        <p class="font-semibold text-xs text-primary mb-1">Mohanlal</p>
-                        <p>Oops! Network issue. For larger queries or immediate help, please call us directly at <a href="tel:9924343003" class="font-bold text-primary underline">9924343003</a>.</p>
-                    </div>
-                `;
+                errDiv.innerHTML = `<div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div><div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm"><p class="font-semibold text-xs text-tangerine mb-1">Mohanlal</p><p>Oops! Network issue. For larger queries or immediate help, please call us directly at <a href="tel:9924343003" class="font-bold text-tangerine underline">9924343003</a>.</p></div>`;
                 msgBox.appendChild(errDiv);
                 msgBox.scrollTop = msgBox.scrollHeight;
             } finally {
-                input.disabled = false;
-                sendBtn.disabled = false;
-                input.focus();
+                input.disabled = false; sendBtn.disabled = false; input.focus();
             }
         }
     </script>

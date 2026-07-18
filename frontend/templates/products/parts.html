@@ -1,81 +1,70 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="py-16 bg-gradient-to-b from-secondary/30 to-background min-h-screen">
+<div class="py-12 bg-gradient-to-b from-blush/5 via-white to-background min-h-screen">
     <!-- Header Section -->
-    <header class="relative text-center mb-12 px-margin-desktop">
-        <div class="absolute top-4 left-10 opacity-10 pointer-events-none text-on-surface">
-            <span class="material-symbols-outlined text-[120px]">settings</span>
+    <header class="relative text-center mb-12 px-margin-desktop fade-in-section">
+        <div class="inline-block bg-gradient-to-br from-tangerine to-tangerine/90 text-white rounded-xl px-6 py-3 shadow-sm mb-5">
+            <h1 class="font-display-lg text-3xl md:text-4xl">Components & Spares</h1>
         </div>
-        <div class="absolute top-12 right-0 opacity-10 pointer-events-none hidden md:block text-on-surface">
-            <span class="material-symbols-outlined text-[80px]">build</span>
-        </div>
-        
-        <div class="inline-block bg-primary text-on-primary rounded-2xl p-4 shadow-sm border border-primary/20 mb-6">
-            <h1 class="font-display-lg text-4xl md:text-5xl">The Repair Shop</h1>
-        </div>
-        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto text-lg mb-8">
+        <p class="font-body-lg text-on-surface-variant max-w-2xl mx-auto text-lg mb-6">
             Keeping play alive. Genuine replacement parts, precision joints, and complete maintenance kits for every Little Fingers setup.
         </p>
-        
-        <div class="flex justify-center gap-6 mt-4">
-            <span class="material-symbols-outlined text-secondary text-[40px]">construction</span>
-            <span class="material-symbols-outlined text-primary text-[40px]">architecture</span>
-            <span class="material-symbols-outlined text-tertiary text-[40px]">handyman</span>
+        <div class="flex justify-center gap-4">
+            <span class="material-symbols-outlined text-sea text-3xl">construction</span>
+            <span class="material-symbols-outlined text-tangerine text-3xl">architecture</span>
+            <span class="material-symbols-outlined text-blush text-3xl">handyman</span>
         </div>
     </header>
 
-    <!-- Search & Filter Bar -->
-    <section class="max-w-4xl mx-auto px-margin-desktop mb-16 flex flex-col md:flex-row gap-6">
+    <!-- Search & Filter -->
+    <section class="max-w-4xl mx-auto px-margin-desktop mb-12 flex flex-col md:flex-row gap-4 fade-in-section">
         <form action="{% url 'search' %}" method="GET" class="flex-grow relative search-wrapper">
             <input type="hidden" name="category" value="PARTS">
-            <input type="text" name="q" placeholder="Search for bolts, joints, or kit names..." required autocomplete="off" class="w-full bg-white border border-outline-variant/30 rounded-full py-4 pr-6 pl-14 focus:ring-2 focus:ring-primary outline-none shadow-inner text-on-surface">
-            <button type="submit" class="absolute left-5 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-primary hover:opacity-100 transition-colors">
+            <input type="text" name="q" placeholder="Search for bolts, joints, or kit names..." required autocomplete="off" class="w-full bg-white border border-outline-variant/20 rounded-full py-3.5 pr-5 pl-12 focus:ring-2 focus:ring-tangerine outline-none shadow-sm text-on-surface">
+            <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-tangerine transition-colors">
                 <span class="material-symbols-outlined text-xl">search</span>
             </button>
             <div class="autocomplete-dropdown"></div>
         </form>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide shrink-0">
-            <button class="bg-secondary text-on-secondary border border-secondary/20 shadow-sm px-6 py-2 rounded-full font-bold whitespace-nowrap">All Parts</button>
-            <button class="bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-background px-6 py-2 rounded-full font-bold whitespace-nowrap transition-colors">Hardware</button>
-            <button class="bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-background px-6 py-2 rounded-full font-bold whitespace-nowrap transition-colors">Connectors</button>
-            <button class="bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-background px-6 py-2 rounded-full font-bold whitespace-nowrap transition-colors">Kits</button>
+        <div class="flex gap-2 overflow-x-auto pb-1 shrink-0">
+            <button class="bg-sea text-white border border-sea/20 shadow-sm px-5 py-2 rounded-full font-bold whitespace-nowrap text-sm">All Components</button>
+            <button class="bg-white border border-outline-variant/20 text-on-surface-variant hover:bg-background px-5 py-2 rounded-full font-bold whitespace-nowrap transition-colors text-sm">Hardware</button>
+            <button class="bg-white border border-outline-variant/20 text-on-surface-variant hover:bg-background px-5 py-2 rounded-full font-bold whitespace-nowrap transition-colors text-sm">Connectors</button>
+            <button class="bg-white border border-outline-variant/20 text-on-surface-variant hover:bg-background px-5 py-2 rounded-full font-bold whitespace-nowrap transition-colors text-sm">Kits</button>
         </div>
     </section>
 
     <!-- Product Grid -->
-    <section class="max-w-7xl mx-auto px-margin-desktop mb-24">
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+    <section class="max-w-7xl mx-auto px-margin-desktop mb-20">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
             {% for product in products %}
                 {% include "products/product_card.html" with product=product %}
             {% empty %}
-            <div class="col-span-full py-12 text-center text-on-surface-variant font-body-lg">
+            <div class="col-span-full py-16 text-center text-on-surface-variant font-body-lg">
+                <span class="material-symbols-outlined text-5xl mb-3 block opacity-30">handyman</span>
                 No products found in this category.
             </div>
             {% endfor %}
         </div>
 
-        <div class="text-center mt-12 mb-16">
-            <a href="{% url 'search' %}?category=PARTS" class="bg-primary text-on-primary font-label-md px-10 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
-                <span class="material-symbols-outlined">grid_view</span> View All Products
+        <div class="text-center mt-10">
+            <a href="{% url 'search' %}?category=PARTS" class="bg-tangerine text-white font-label-md px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
+                <span class="material-symbols-outlined">grid_view</span> View All Components
             </a>
         </div>
     </section>
 
     <!-- Contact Section -->
-    <section class="max-w-5xl mx-auto px-margin-desktop mb-12">
-        <div class="bg-surface border border-outline-variant/30 rounded-2xl p-12 text-center relative overflow-hidden bento-card">
-            <div class="absolute -bottom-10 -right-10 opacity-5 text-on-surface-variant">
-                <span class="material-symbols-outlined text-[240px]">question_mark</span>
+    <section class="max-w-4xl mx-auto px-margin-desktop mb-12 fade-in-section">
+        <div class="bg-white border border-outline-variant/20 rounded-xl p-10 text-center relative overflow-hidden shadow-sm">
+            <div class="absolute -bottom-8 -right-8 opacity-5 text-on-surface-variant">
+                <span class="material-symbols-outlined text-[200px]">question_mark</span>
             </div>
-            
-            <div class="relative z-10 max-w-2xl mx-auto">
-                <h3 class="font-display-lg text-3xl lg:text-4xl mb-4 text-on-surface">Can't find a specific bolt?</h3>
-                <p class="font-body-lg text-lg text-on-surface-variant mb-8">
-                    Our custom fabrication shop can match any vintage Little Fingers part. Just send us a photo of the joint!
-                </p>
-                <button class="bg-error text-white px-8 py-3 rounded-full font-label-md hover:shadow-md transition-shadow whitespace-nowrap">
+            <div class="relative z-10 max-w-xl mx-auto">
+                <h3 class="font-display-lg text-2xl lg:text-3xl mb-3 text-on-surface">Can't find a specific bolt?</h3>
+                <p class="font-body-lg text-on-surface-variant mb-6">Our custom fabrication shop can match any vintage Little Fingers part. Just send us a photo of the joint!</p>
+                <button class="bg-blush text-white px-6 py-3 rounded-full font-label-md hover:shadow-md transition-shadow whitespace-nowrap text-sm">
                     Contact the Engineers
                 </button>
             </div>
