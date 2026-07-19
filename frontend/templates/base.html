@@ -91,10 +91,10 @@
             {% else %}
             <nav class="hidden lg:flex items-center gap-5 xl:gap-7">
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
+                {% include "products/nav_dropdown.html" with label="Indoors" module_type="indoor" online_url="indoors" current_module=module_type %}
+                {% include "products/nav_dropdown.html" with label="Outdoors" module_type="outdoor" online_url="outdoors" current_module=module_type %}
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Components</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">RF Sports</a>
+                {% include "products/nav_dropdown.html" with label="RF Sports" module_type="rf_sports" online_url="rfsports" current_module=module_type %}
             </nav>
             {% endif %}
             
@@ -524,6 +524,202 @@
                 input.disabled = false; sendBtn.disabled = false; input.focus();
             }
         }
+
+        // --- GLOBAL DROPDOWN SYSTEM ---
+        let activeDropdownTimer = null;
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        function toggleNavDropdown(event, type) {
+            event.stopPropagation();
+            const btn = document.getElementById(`nav-btn-${type}`);
+            const menu = document.getElementById(`nav-menu-${type}`);
+            const isOpen = !menu.classList.contains('hidden');
+            
+            // If opened by hover on desktop, click is a no-op
+            if (!isTouchDevice && isOpen) {
+                return;
+            }
+
+            closeAllNavDropdowns();
+            
+            if (!isOpen) {
+                menu.classList.remove('hidden');
+                btn.setAttribute('aria-expanded', 'true');
+                setTimeout(() => {
+                    menu.classList.remove('scale-95', 'opacity-0');
+                    menu.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        }
+        
+        function closeAllNavDropdowns() {
+            const menus = document.querySelectorAll('[id^="nav-menu-"]');
+            const btns = document.querySelectorAll('[id^="nav-btn-"]');
+            
+            menus.forEach(menu => {
+                menu.classList.add('hidden', 'scale-95', 'opacity-0');
+                menu.classList.remove('scale-100', 'opacity-100');
+            });
+            
+            btns.forEach(btn => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        function closeAllNavDropdownsExcept(activeMenu) {
+            const menus = document.querySelectorAll('[id^="nav-menu-"]');
+            const btns = document.querySelectorAll('[id^="nav-btn-"]');
+            
+            menus.forEach(menu => {
+                if (menu !== activeMenu) {
+                    menu.classList.add('hidden', 'scale-95', 'opacity-0');
+                    menu.classList.remove('scale-100', 'opacity-100');
+                }
+            });
+            
+            btns.forEach(btn => {
+                const type = btn.id.replace('nav-btn-', '');
+                const correspondingMenu = document.getElementById(`nav-menu-${type}`);
+                if (correspondingMenu !== activeMenu) {
+                    btn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        function setupDropdownHover() {
+            const containers = document.querySelectorAll('.nav-dropdown-container');
+            containers.forEach(container => {
+                const btn = container.querySelector('[id^="nav-btn-"]');
+                const menu = container.querySelector('[id^="nav-menu-"]');
+
+                container.addEventListener('mouseenter', () => {
+                    if (activeDropdownTimer) {
+                        clearTimeout(activeDropdownTimer);
+                        activeDropdownTimer = null;
+                    }
+                    closeAllNavDropdownsExcept(menu);
+                    
+                    if (menu.classList.contains('hidden')) {
+                        menu.classList.remove('hidden');
+                        btn.setAttribute('aria-expanded', 'true');
+                        setTimeout(() => {
+                            menu.classList.remove('scale-95', 'opacity-0');
+                            menu.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                    }
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    if (activeDropdownTimer) {
+                        clearTimeout(activeDropdownTimer);
+                    }
+                    activeDropdownTimer = setTimeout(() => {
+                        closeAllNavDropdowns();
+                    }, 200); // 200ms delay to avoid flickering
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', setupDropdownHover);
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAllNavDropdowns();
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.nav-dropdown-container')) {
+                closeAllNavDropdowns();
+            }
+        });
+    </script>
+    <!-- Global Toast System -->
+    <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:360px;pointer-events:none;"></div>
+    <script>
+        function showToast(message, type) {
+            type = type || 'success';
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            // Use inline styles to avoid Tailwind JIT compilation dependency
+            const colorMap = {
+                success: { border: '#34d399', text: '#065f46', icon: 'check_circle' },
+                info:    { border: '#38bdf8', text: '#0c4a6e', icon: 'info' },
+                error:   { border: '#f87171', text: '#991b1b', icon: 'error' }
+            };
+            const colors = colorMap[type] || colorMap.success;
+
+            toast.style.cssText = `
+                pointer-events: auto;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 20px;
+                border-radius: 16px;
+                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -5px rgba(0,0,0,0.1);
+                border: 2px solid ${colors.border};
+                background: #fff;
+                color: ${colors.text};
+                transform: translateX(120%);
+                opacity: 0;
+                transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
+            `;
+
+            toast.innerHTML = `
+                <span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">${colors.icon}</span>
+                <span style="font-size:13px;font-weight:700;line-height:1.4;">${message}</span>
+            `;
+            container.appendChild(toast);
+
+            // Animate in (double-rAF to ensure styles are applied first)
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    toast.style.transform = 'translateX(0)';
+                    toast.style.opacity = '1';
+                });
+            });
+
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(40px)';
+                setTimeout(() => toast.remove(), 350);
+            }, 3000);
+        }
+
+        // Auto-show toast from URL parameter (e.g. ?toast=added)
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const toastType = params.get('toast');
+            if (toastType === 'added') {
+                showToast('Item added to cart', 'success');
+                // Clean URL without reload
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
+            } else if (toastType === 'checkout') {
+                showToast('Redirecting to checkout...', 'info');
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
+            } else if (toastType === 'login-required') {
+                showToast('Please log in before checking out.', 'info');
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
+            } else if (toastType === 'out-of-stock') {
+                showToast('This product is out of stock.', 'error');
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
+            } else if (toastType === 'unavailable') {
+                showToast('Remove unavailable items before checking out.', 'error');
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
+            }
+        })();
     </script>
 
     {% block extra_js %}{% endblock %}

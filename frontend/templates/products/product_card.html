@@ -4,6 +4,11 @@
         <span class="material-symbols-outlined text-xs">image</span> Needs Image
     </div>
     {% endif %}
+    {% if product.stock <= 0 %}
+    <div class="absolute top-4 left-4 z-20 bg-error text-white font-label-md text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider font-extrabold shadow-sm">
+        Out of Stock
+    </div>
+    {% endif %}
 
     <div class="flex-grow">
         <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-tangerine/5 to-sea/5 rounded-2xl mb-5 overflow-hidden relative border border-outline-variant/20 p-6 flex items-center justify-center group-hover:border-tangerine/30 transition-colors">
@@ -28,20 +33,38 @@
         </p>
     </div>
     
-    <div class="mt-auto flex flex-col gap-4">
+    <div class="mt-auto flex flex-col gap-3">
+        {% if product.price > 0 %}
         <div class="flex items-center">
-            {% if product.price > 0 %}
             <div class="bg-sea/10 text-sea border border-sea/20 px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide">
                 ₹{{ product.price }}
             </div>
-            {% else %}
-            <div class="bg-tangerine/10 text-tangerine border border-tangerine/20 px-3 py-1.5 rounded-lg font-bold text-sm tracking-wide flex items-center gap-1">
-                <span class="material-symbols-outlined text-xs">chat_bubble</span> Price on Request
-            </div>
-            {% endif %}
         </div>
-        <a href="{% url 'product_detail' product.pk %}" class="bg-surface border-2 border-sea text-sea font-label-md px-4 py-3 rounded-xl hover:bg-sea hover:text-white transition-all text-center block w-full uppercase text-sm tracking-wider shadow-sm hover:shadow-md font-bold">
-            Details
-        </a>
+        {% endif %}
+
+        {% if product.stock <= 0 %}
+        <div class="rounded-xl border border-error/30 bg-error/10 px-3 py-3 text-center text-xs font-bold text-error">
+            Out of Stock — unavailable to purchase
+        </div>
+        {% else %}
+        <div class="flex flex-col xl:flex-row gap-2">
+            <!-- Add to Cart -->
+            <form method="POST" action="{% url 'add_to_cart' product.pk %}?next=stay" class="m-0 flex-grow xl:w-1/2">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="w-full whitespace-nowrap bg-surface border-2 border-sea text-sea font-label-md px-2 py-2.5 rounded-xl hover:bg-sea hover:text-white transition-all text-center uppercase text-[10px] tracking-wider shadow-sm hover:shadow-md font-bold flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">add_shopping_cart</span> Add Cart
+                </button>
+            </form>
+            <!-- Buy Now -->
+            <form method="POST" action="{% url 'add_to_cart' product.pk %}?next=checkout" class="m-0 flex-grow xl:w-1/2">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="w-full whitespace-nowrap bg-sea text-white font-label-md px-2 py-2.5 rounded-xl hover:bg-sea/90 transition-all text-center uppercase text-[10px] tracking-wider shadow-sm hover:shadow-md font-bold flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">shopping_cart_checkout</span> Buy Now
+                </button>
+            </form>
+        </div>
+        {% endif %}
     </div>
 </div>

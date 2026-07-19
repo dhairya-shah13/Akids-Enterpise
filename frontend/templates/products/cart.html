@@ -27,6 +27,9 @@
                     <div class="flex-1 w-full flex flex-col justify-center">
                         <h2 class="font-headline-md text-xl mb-1"><a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a></h2>
                         <p class="text-on-surface-variant text-sm mb-4">Category: <span class="font-bold">{{ item.product.category }}</span></p>
+                        {% if not item.is_available %}
+                        <p class="mb-4 rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-xs font-bold text-error">No longer available — remove this item to continue.</p>
+                        {% endif %}
                         
                         <div class="flex flex-wrap items-center justify-between gap-4 w-full">
                             <!-- Quantity Controls -->
@@ -35,7 +38,7 @@
                                 <div class="flex items-center bg-background border border-outline-variant/50 rounded-xl overflow-hidden shadow-inner">
                                     <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" aria-label="Decrease quantity">-</button>
                                     <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly>
-                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} aria-label="Increase quantity">+</button>
+                                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if not item.is_available or item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} aria-label="Increase quantity">+</button>
                                 </div>
                             </form>
                             
@@ -76,7 +79,7 @@
                 </div>
                 <div class="flex justify-between mb-6 font-body-md text-on-surface-variant">
                     <span>Shipping</span>
-                    <span class="font-bold text-on-surface">Contact for quote</span>
+                    <span class="font-bold text-on-surface">Calculated at checkout</span>
                 </div>
                 
                 <div class="flex justify-between mb-8 font-display-lg text-3xl text-on-surface border-t border-outline-variant/30 pt-6">
@@ -84,73 +87,13 @@
                     <span class="text-primary">₹{{ total|default:"0.00" }}</span>
                 </div>
                 
-                <button id="inquiryBtn" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform {% if not cart_items %}pointer-events-none opacity-50{% endif %}" {% if not cart_items %}disabled{% endif %}>
-                    Submit Inquiry <span class="material-symbols-outlined text-[24px]">chat_bubble</span>
-                </button>
-
-                <div class="mt-6 flex items-center justify-center gap-2 text-on-surface-variant text-sm opacity-80">
-                    <span class="material-symbols-outlined text-[18px]">call</span> Call 9924343003 for bulk orders
-                </div>
+                <a href="{% if cart_items and not has_unavailable_items %}{% url 'checkout' %}{% else %}#{% endif %}" class="w-full bg-secondary text-on-secondary font-label-md uppercase text-lg py-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-xl shadow-secondary/20 flex items-center justify-center gap-3 transition-transform {% if not cart_items or has_unavailable_items %}pointer-events-none opacity-50{% endif %}" {% if not cart_items or has_unavailable_items %}aria-disabled="true"{% endif %}>
+                    Buy Now <span class="material-symbols-outlined text-[24px]">shopping_cart_checkout</span>
+                </a>
             </div>
         </div>
     </div>
 </div>
 </div>
 
-<!-- Authentication Gating Modal -->
-<div id="authModal" class="fixed inset-0 bg-on-surface/80 z-[1000] hidden items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white p-10 rounded-2xl max-w-md w-full relative shadow-sm border border-outline-variant/20 -rotate-1">
-        <div class="bg-secondary text-on-secondary w-16 h-16 rounded-full mx-auto flex items-center justify-center mb-6 shadow-md border border-secondary/20">
-            <span class="material-symbols-outlined text-[32px]">lock</span>
-        </div>
-        <h2 class="font-display-lg text-3xl text-center mb-3 text-on-surface">Login Required</h2>
-        <p class="font-body-md text-center text-on-surface-variant mb-8 px-4">Please log in to submit an inquiry for your selected products.</p>
-        
-        <div class="flex flex-col gap-4">
-            <a href="{% url 'admin_login' %}?next={% url 'cart' %}" class="bg-primary text-on-primary font-label-md uppercase py-4 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 text-center tracking-wide">
-                Go to Login
-            </a>
-            <button id="closeModalBtn" class="bg-surface border-2 border-outline-variant/30 text-on-surface-variant font-label-md uppercase py-4 rounded-xl hover:bg-background transition-colors tracking-wide">
-                Stay on Cart
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const authModal = document.getElementById('authModal');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const inquiryBtn = document.getElementById('inquiryBtn');
-        const isAuthenticated = {% if request.user.is_authenticated or request.session.is_admin %}true{% else %}false{% endif %};
-        
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', function() {
-                authModal.classList.add('hidden');
-                authModal.classList.remove('flex');
-            });
-        }
-        
-        // If user clicks outside modal, close it
-        if (authModal) {
-            authModal.addEventListener('click', function(e) {
-                if (e.target === authModal) {
-                    authModal.classList.add('hidden');
-                    authModal.classList.remove('flex');
-                }
-            });
-        }
-        
-        if (inquiryBtn) {
-            inquiryBtn.addEventListener('click', function() {
-                if (isAuthenticated) {
-                    window.location.href = "{% url 'home' %}";
-                } else {
-                    authModal.classList.remove('hidden');
-                    authModal.classList.add('flex');
-                }
-            });
-        }
-    });
-</script>
 {% endblock %}

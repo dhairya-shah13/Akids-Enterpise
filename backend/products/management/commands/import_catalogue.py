@@ -323,7 +323,7 @@ class Command(BaseCommand):
                     Product.objects.create(
                         name=name,
                         sku=sku,
-                        price=Decimal('0.00'), # Price on Request
+                        price=Decimal('0.00'),
                         description=f"Premium wooden educational play material. {size_desc}. Designed for Montessori, nursery, and preschool classrooms.",
                         category=category,
                         source='catalogue',
