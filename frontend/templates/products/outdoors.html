@@ -16,6 +16,21 @@
         </div>
     </section>
 
+    <!-- View All Catalog Banner -->
+    <section class="max-w-2xl mx-auto px-margin-desktop mb-6 fade-in-section">
+        <div class="bg-primary-container text-on-primary-container p-5 rounded-2xl border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-primary text-2xl shrink-0">info</span>
+                <p class="font-body-md text-sm text-left leading-relaxed">
+                    Looking for something specific or planning a bulk order? Browse our complete catalogue below and share your requirements with us directly.
+                </p>
+            </div>
+            <a href="{% url 'view_all_products' 'outdoor' %}" class="bg-primary text-on-primary font-label-md text-xs px-5 py-2.5 rounded-full hover:scale-105 transition-transform shadow-sm flex items-center gap-1.5 shrink-0 uppercase tracking-wider font-bold">
+                View All Products <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+        </div>
+    </section>
+
     <!-- Search -->
     <section class="max-w-2xl mx-auto px-margin-desktop mb-12 fade-in-section">
         <form action="{% url 'search' %}" method="GET" class="relative search-wrapper">

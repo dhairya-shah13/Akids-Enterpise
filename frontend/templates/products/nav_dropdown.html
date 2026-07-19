@@ -1,0 +1,28 @@
+<div class="relative inline-block text-left nav-dropdown-container">
+    <button type="button" 
+            class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors flex items-center gap-1 focus:outline-none focus:text-tangerine group {% if request.resolver_match.url_name == online_url or module_type == current_module %}active{% endif %}"
+            id="nav-btn-{{ module_type }}"
+            aria-expanded="false" 
+            aria-haspopup="true"
+            onclick="toggleNavDropdown(event, '{{ module_type }}')">
+        {{ label }}
+        <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-300 pointer-events-none">keyboard_arrow_down</span>
+    </button>
+
+    <div id="nav-menu-{{ module_type }}" 
+         class="absolute left-0 mt-2.5 w-48 rounded-xl bg-white border border-outline-variant/30 shadow-xl hidden flex-col py-2 z-[100] transform origin-top-left transition-all scale-95 opacity-0 duration-200"
+         role="menu" 
+         aria-orientation="vertical" 
+         aria-labelledby="nav-btn-{{ module_type }}">
+        <a href="{% url online_url %}" 
+           class="px-4 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2" 
+           role="menuitem">
+            <span class="material-symbols-outlined text-[16px]">local_mall</span> Order Online
+        </a>
+        <a href="{% url 'view_all_products' module_type %}" 
+           class="px-4 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2 border-t border-outline-variant/10" 
+           role="menuitem">
+            <span class="material-symbols-outlined text-[16px]">visibility</span> View All Products
+        </a>
+    </div>
+</div>

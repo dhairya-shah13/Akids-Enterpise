@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Order Placed Successfully | Little Fingers{% endblock %}
+
+{% block content %}
+<div class="py-16 bg-gradient-to-b from-secondary/10 to-background min-h-[85vh] flex items-center justify-center">
+    <div class="max-w-3xl w-full px-margin-desktop text-center">
+        <!-- Success Check Icon -->
+        <div class="bg-secondary text-on-secondary w-24 h-24 rounded-full mx-auto flex items-center justify-center mb-8 shadow-lg shadow-secondary/30 relative">
+            <span class="material-symbols-outlined text-[56px] animate-[bounce_1.5s_infinite]">check_circle</span>
+            <div class="absolute -top-1 -right-1 bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold rotate-12 border-2 border-white">
+                🎉
+            </div>
+        </div>
+
+        <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-3">Order Placed Successfully!</h1>
+        <p class="font-body-lg text-on-surface-variant max-w-lg mx-auto mb-8">
+            Thank you for your order. We are preparing to dispatch your high-quality play gear to set up the ultimate playzone!
+        </p>
+
+        <!-- Order Information Card -->
+        <div class="bg-white border border-outline-variant/30 rounded-3xl p-8 mb-8 text-left shadow-sm max-w-xl mx-auto flex flex-col gap-6">
+            <div class="flex justify-between items-center border-b border-outline-variant/20 pb-4">
+                <div>
+                    <span class="text-xs text-on-surface-variant/70 uppercase font-bold tracking-wider">Order Number</span>
+                    <h3 class="font-display-lg text-lg text-primary mt-1">{{ order.order_no }}</h3>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-on-surface-variant/70 uppercase font-bold tracking-wider">Total Paid</span>
+                    <h3 class="font-display-lg text-lg text-on-surface mt-1">₹{{ order.total_amount }}</h3>
+                </div>
+            </div>
+
+            <div>
+                <span class="text-xs text-on-surface-variant/70 uppercase font-bold tracking-wider block mb-1">Deliver & Install To:</span>
+                <p class="font-body-md text-sm text-on-surface font-semibold">{{ order.customer_name }}</p>
+                <p class="font-body-md text-sm text-on-surface-variant whitespace-pre-line mt-1">{{ order.shipping_address }}</p>
+            </div>
+
+            <div class="bg-surface-variant/20 border border-outline-variant/20 rounded-xl p-4 flex gap-3 text-on-surface-variant">
+                <span class="material-symbols-outlined text-[20px] text-secondary shrink-0">local_shipping</span>
+                <span class="text-xs">
+                    An email copy of your invoice details and dispatch tracking number will be sent shortly. 
+                    If you have custom layout configurations, our site support team will call you.
+                </span>
+            </div>
+        </div>
+
+        <!-- Call to Action Buttons -->
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{% url 'home' %}" class="bg-primary text-on-primary font-label-md uppercase px-8 py-4 rounded-full shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 tracking-wider">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

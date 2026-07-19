@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module_label }} Catalogue | Little Fingers{% endblock %}
+
+{% block content %}
+<div class="py-12 bg-gradient-to-b from-primary/5 via-white to-background min-h-screen">
+    <div class="max-w-7xl mx-auto px-margin-desktop">
+        <!-- Back and Page Header -->
+        <div class="flex items-center justify-between mb-8">
+            <a href="{% if module_type == 'indoor' %}{% url 'indoors' %}{% elif module_type == 'outdoor' %}{% url 'outdoors' %}{% else %}{% url 'rfsports' %}{% endif %}" 
+               class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-label-md text-sm">
+                <span class="material-symbols-outlined text-lg">arrow_back</span> Back to Storefront
+            </a>
+            <span class="bg-primary/10 text-primary border border-primary/20 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                Catalogue Flow
+            </span>
+        </div>
+
+        <div class="mb-10 text-left">
+            <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-3">
+                {{ module_label }} Collection
+            </h1>
+            <p class="font-body-lg text-on-surface-variant max-w-3xl">
+                Explore our full professional catalogue. Review specifications, codes, layouts, and place direct inquiries for custom packages or bulk shipments below.
+            </p>
+        </div>
+
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <!-- Left Side: Catalog Viewer (Col span 8) -->
+            <div class="lg:col-span-8 bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm min-h-[500px] flex flex-col">
+                <div class="flex items-center justify-between mb-4 border-b border-outline-variant/10 pb-4">
+                    <h2 class="font-display-lg text-xl text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">menu_book</span> {{ module_label }} Brochure
+                    </h2>
+                    {% if pdf_url %}
+                    <a href="{{ pdf_url }}" download class="text-xs font-bold text-secondary hover:text-primary transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">download</span> Download PDF
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="flex-1 w-full relative">
+                    {% if pdf_url %}
+                    <!-- Scrollable PDF Viewport -->
+                    <div class="w-full h-[650px] rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
+                        <iframe src="{{ pdf_url }}#toolbar=0" class="w-full h-full border-none" type="application/pdf"></iframe>
+                    </div>
+                    {% else %}
+                    <!-- RF Sports Placeholder Coming Soon -->
+                    <div class="w-full h-[550px] rounded-2xl bg-background/50 border border-outline-variant/25 border-dashed flex flex-col items-center justify-center text-center p-8">
+                        <div class="w-20 h-20 rounded-full bg-secondary-container text-secondary flex items-center justify-center mb-6 relative animate-pulse">
+                            <span class="material-symbols-outlined text-5xl">sports_soccer</span>
+                        </div>
+                        <h3 class="font-display-lg text-2xl text-on-surface mb-3">Catalogue Coming Soon!</h3>
+                        <p class="font-body-md text-on-surface-variant max-w-md mb-6 leading-relaxed">
+                            Our team is currently finalizing our Junior Pro sports inventory brochure. You can still inquire about customized set pieces or browse sports products online.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Side: Persistent Action Form Sidebar (Col span 4) -->
+            <div class="lg:col-span-4 lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
+                <!-- Header -->
+                <div class="border-b border-outline-variant/25 pb-4">
+                    <h3 class="font-display-lg text-2xl text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[28px]">assignment</span> Bulk Inquiry Request
+                    </h3>
+                    <p class="text-xs text-on-surface-variant mt-1.5">Submit your catalog selections. We will verify stock availability and return a custom quote.</p>
+                </div>
+
+                <!-- Success Confirmation Panel -->
+                <div id="successPanel" class="hidden bg-matcha/10 border border-matcha/30 p-5 rounded-2xl flex flex-col gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-matcha/20 text-matcha-dark flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-lg">check_circle</span>
+                        </div>
+                        <div>
+                            <h5 class="font-bold text-sm text-on-surface">Inquiry Sent Successfully!</h5>
+                            <p class="text-xs text-on-surface-variant mt-1 leading-normal">Your bulk catalog request has been logged. Our design coordinators will contact you shortly.</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="resetInquiryForm()" class="w-full bg-matcha text-white font-label-md text-xs py-2.5 rounded-xl hover:opacity-90 transition-opacity uppercase font-bold text-center mt-2">
+                        Create New Inquiry List
+                    </button>
+                </div>
+
+                <!-- Inquiry Form Content -->
+                <form id="inquiryForm" onsubmit="handleInquirySubmit(event)" class="flex flex-col gap-5">
+                    <!-- Customer Details Block -->
+                    <div class="flex flex-col gap-4">
+                        <div>
+                            <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Full Name *</label>
+                            <input type="text" id="custName" required placeholder="e.g. Rajesh Kumar" 
+                                   class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
+                        </div>
+                        <div>
+                            <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Phone Number *</label>
+                            <input type="tel" id="custPhone" required placeholder="e.g. +91 99243 43003" 
+                                   class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
+                            <p id="phoneError" class="text-error text-[11px] mt-1 hidden">Please enter a valid phone number (10-15 digits).</p>
+                        </div>
+                        <div>
+                            <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Email Address *</label>
+                            <input type="email" id="custEmail" required placeholder="e.g. school@gmail.com" 
+                                   class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Product Line Items -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2 border-t border-outline-variant/10 pt-4">
+                            <h4 class="font-label-md text-xs uppercase tracking-wider text-on-surface flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-secondary">list</span> Selected Items
+                            </h4>
+                            <button type="button" onclick="addLineItem()" class="text-xs font-bold text-secondary hover:text-primary transition-colors flex items-center gap-1 focus:outline-none">
+                                <span class="material-symbols-outlined text-[16px]">add_circle</span> Add Line Item
+                            </button>
+                        </div>
+
+                        <!-- Column Labels -->
+                        <div class="flex items-center gap-3 px-1 mb-1">
+                            <div class="flex-1 min-w-0">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Product Code</span>
+                            </div>
+                            <div class="w-32 text-center">
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-on-surface-variant">Qty</span>
+                            </div>
+                        </div>
+
+                        <!-- Scrollable Line Items container -->
+                        <div id="lineItemsContainer" class="flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Footer Action -->
+                    <div class="border-t border-outline-variant/25 pt-4">
+                        <button type="submit" id="submitBtn" class="w-full bg-primary text-on-primary py-3.5 rounded-xl font-label-md text-xs uppercase tracking-wider font-bold shadow-md shadow-primary/10 hover:shadow-lg flex items-center justify-center gap-1.5 transition-transform hover:scale-[1.02]">
+                            Submit Quote Request <span class="material-symbols-outlined text-sm">send</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Line item template: lives in DOM so Tailwind JIT scans these classes during build -->
+<template id="lineItemTemplate">
+    <div class="bg-background/50 border border-outline-variant/10 rounded-xl p-2 line-item-row">
+        <div class="flex items-center gap-3 w-full">
+            <!-- Product Code -->
+            <div class="flex-1 min-w-0">
+                <input type="text" name="product_code" placeholder="e.g. LFI-01" required 
+                       class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
+            </div>
+            <!-- Quantity + Delete -->
+            <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center bg-white border border-outline-variant/30 rounded-lg overflow-hidden">
+                    <button type="button" data-action="decrement" class="px-2 py-2 text-on-surface-variant hover:text-primary hover:bg-background transition-colors text-xs font-black">−</button>
+                    <input type="hidden" name="quantity" value="1">
+                    <span class="w-8 text-center text-[11px] font-bold text-on-surface quantity-value">1</span>
+                    <button type="button" data-action="increment" class="px-2 py-2 text-on-surface-variant hover:text-primary hover:bg-background transition-colors text-xs font-black">+</button>
+                </div>
+                <button type="button" data-action="remove" class="w-10 h-10 rounded-lg text-on-surface-variant hover:bg-error/10 hover:text-error transition-colors shrink-0 flex items-center justify-center focus:outline-none remove-btn" aria-label="Remove line item">
+                    <span class="material-symbols-outlined text-[15px]">close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    const moduleType = "{{ module_type }}";
+
+    // Dynamic line item tracking
+    let rowCounter = 0;
+    
+    function addLineItem() {
+        const container = document.getElementById('lineItemsContainer');
+        const template = document.getElementById('lineItemTemplate');
+        rowCounter++;
+
+        // Clone the template content (Tailwind classes are already compiled)
+        const clone = template.content.cloneNode(true);
+        const row = clone.querySelector('.line-item-row');
+        row.id = `line-item-row-${rowCounter}`;
+        const rowId = row.id;
+
+        // Bind event listeners via data-action attributes
+        row.querySelector('[data-action="decrement"]').addEventListener('click', () => adjustQty(rowId, -1));
+        row.querySelector('[data-action="increment"]').addEventListener('click', () => adjustQty(rowId, 1));
+        row.querySelector('[data-action="remove"]').addEventListener('click', () => removeLineItem(rowId));
+
+        container.appendChild(clone);
+        updateRemoveButtonsVisibility();
+    }
+
+    function removeLineItem(rowId) {
+        const row = document.getElementById(rowId);
+        if (row) {
+            row.remove();
+            if (!document.querySelector('.line-item-row')) addLineItem();
+            updateRemoveButtonsVisibility();
+        }
+    }
+
+    function adjustQty(rowId, delta) {
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        const input = row.querySelector('input[name="quantity"]');
+        const value = row.querySelector('.quantity-value');
+        if (!input || !value) return;
+        const current = parseInt(input.value) || 1;
+        const next = Math.max(1, current + delta);
+        input.value = next;
+        value.textContent = next;
+    }
+
+    function updateRemoveButtonsVisibility() {
+        const rows = document.querySelectorAll('.line-item-row');
+        rows.forEach(row => {
+            const btn = row.querySelector('.remove-btn');
+            btn.classList.remove('invisible');
+        });
+    }
+
+    // Form AJAX Submission
+    function handleInquirySubmit(event) {
+        event.preventDefault();
+        
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        const email = document.getElementById('custEmail').value.trim();
+        
+        // Validate phone number format
+        const phoneRegex = /^\+?[0-9\s\-]{10,15}$/;
+        const phoneError = document.getElementById('phoneError');
+        if (!phoneRegex.test(phone)) {
+            phoneError.classList.remove('hidden');
+            document.getElementById('custPhone').focus();
+            return;
+        } else {
+            phoneError.classList.add('hidden');
+        }
+        
+        // Build line items
+        const lineItems = [];
+        const rows = document.querySelectorAll('.line-item-row');
+        
+        let hasValidationError = false;
+        rows.forEach(row => {
+            const codeInput = row.querySelector('[name="product_code"]');
+            const qtyInput = row.querySelector('[name="quantity"]');
+            
+            const product_code = codeInput.value ? codeInput.value.trim() : '';
+            const quantity = parseInt(qtyInput.value) || 1;
+            
+            if (!product_code) {
+                codeInput.focus();
+                hasValidationError = true;
+                return;
+            }
+            lineItems.push({
+                product_code: product_code,
+                quantity: quantity
+            });
+        });
+        
+        if (hasValidationError) return;
+        
+        // Disable submit button and add loading state
+        const submitBtn = document.getElementById('submitBtn');
+        const origContent = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `Submitting... <span class="material-symbols-outlined animate-spin text-sm">progress_activity</span>`;
+        
+        // Send payload
+        const payload = {
+            name: name,
+            phone_number: phone,
+            email: email,
+            module: moduleType,
+            line_items: lineItems
+        };
+        
+        fetch("{% url 'submit_catalog_inquiry' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Hide form and show success panel
+                document.getElementById('inquiryForm').classList.add('hidden');
+                document.getElementById('successPanel').classList.remove('hidden');
+                
+                // Clear fields
+                document.getElementById('custName').value = '';
+                document.getElementById('custPhone').value = '';
+                document.getElementById('custEmail').value = '';
+                document.getElementById('lineItemsContainer').innerHTML = '';
+                showToast('Inquiry submitted successfully', 'success');
+            } else {
+                showToast(data.error || 'Failed to submit inquiry.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error('Inquiry Submission Error:', err);
+            showToast('A connection error occurred. Please try again.', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = origContent;
+        });
+    }
+
+    function resetInquiryForm() {
+        // Hide success panel and show form
+        document.getElementById('successPanel').classList.add('hidden');
+        document.getElementById('inquiryForm').classList.remove('hidden');
+        
+        // Add first empty line item
+        addLineItem();
+    }
+
+    // Initialize with 1 line item
+    document.addEventListener('DOMContentLoaded', () => {
+        addLineItem();
+    });
+</script>
+{% endblock %}
