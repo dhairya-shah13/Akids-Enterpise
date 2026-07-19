@@ -93,8 +93,7 @@
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'indoors' %}active{% endif %}" href="{% url 'indoors' %}">Indoors</a>
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'outdoors' %}active{% endif %}" href="{% url 'outdoors' %}">Outdoors</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Components</a>
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">RF Sports</a>
+                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'rfsports' %}active{% endif %}" href="{% url 'rfsports' %}">MR Sports</a>
             </nav>
             {% endif %}
             
@@ -154,8 +153,7 @@
                 <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-tangerine{% endif %}">Home</a>
                 <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-tangerine{% endif %}">Indoors</a>
                 <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-tangerine{% endif %}">Outdoors</a>
-                <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-tangerine{% endif %}">Components</a>
-                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-tangerine{% endif %}">RF Sports</a>
+                <a href="{% url 'rfsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'rfsports' %}active text-tangerine{% endif %}">MR Sports</a>
                 
                 <a href="{% url 'cart' %}" class="bg-tangerine text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
                 {% if request.user.is_authenticated %}
@@ -211,18 +209,17 @@
                     <nav class="flex flex-col gap-3">
                         <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Indoor</a>
                         <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Outdoor Play</a>
-                        <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Components</a>
-                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">RF Sports</a>
+                        <a href="{% url 'rfsports' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">MR Sports</a>
                     </nav>
                 </div>
                 
                 <div class="md:col-span-2 space-y-4">
                     <h5 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Company</h5>
                     <nav class="flex flex-col gap-3">
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">About Us</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Safety Standards</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Testimonials</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Contact</a>
+                        <a href="{% url 'about' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">About Us</a>
+                        <a href="{% url 'safety_standards' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Safety Standards</a>
+                        <a href="{% url 'testimonials' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Testimonials</a>
+                        <a href="{% url 'contact' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Contact</a>
                     </nav>
                 </div>
                 
@@ -240,8 +237,8 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8">
                 <p class="text-on-surface-variant font-body-md text-xs">© 2026 A kids India. All rights reserved. Designed for Safety.</p>
                 <div class="flex gap-6 text-xs text-on-surface-variant">
-                    <a href="#" class="hover:text-tangerine transition-colors">Privacy Policy</a>
-                    <a href="#" class="hover:text-tangerine transition-colors">Terms of Service</a>
+                    <a href="{% url 'privacy_policy' %}" class="hover:text-tangerine transition-colors">Privacy Policy</a>
+                    <a href="{% url 'terms_of_service' %}" class="hover:text-tangerine transition-colors">Terms of Service</a>
                 </div>
             </div>
         </div>

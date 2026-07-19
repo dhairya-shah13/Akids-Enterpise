@@ -12,6 +12,76 @@ from django.core.paginator import Paginator
 from .models import Product, Inquiry
 from .search import search_products
 
+
+COMPANY_PAGES = {
+    'about': {
+        'title': 'About A kids',
+        'eyebrow': 'Quality play environments',
+        'intro': 'A kids India creates purposeful spaces where children can learn, move, imagine, and grow with confidence.',
+        'sections': [
+            ('Built for everyday learning and play', 'Our range brings together kindergarten furniture, indoor learning essentials, outdoor playground equipment, and MR Sports products for schools, daycare centres, and homes.'),
+            ('Designed around growing minds', 'We focus on colourful, practical products that support active play, collaborative learning, and independent exploration. Our team can help you select a range that suits your space, age group, and requirements.'),
+            ('From enquiry to environment', 'Whether you are furnishing a classroom or planning a larger play area, we make it simple to explore products, request a quote, and get guidance for your project.'),
+        ],
+    },
+    'safety': {
+        'title': 'Safety Standards',
+        'eyebrow': 'Safety in every play space',
+        'intro': 'Children deserve environments that invite play while giving adults confidence. Safety is considered throughout our product selection and project conversations.',
+        'sections': [
+            ('Thoughtful product selection', 'We prioritise child-friendly designs, practical materials, and finishes suited to regular use in learning and play environments.'),
+            ('The right fit for the space', 'A safe play area depends on the product, the available space, age group, placement, and supervision. Share your requirements with us before ordering so we can help you make suitable choices.'),
+            ('Care and supervision', 'Please follow product-specific assembly, use, and maintenance guidance. Inspect equipment regularly, keep play areas clear, and ensure children use products with appropriate adult supervision.'),
+        ],
+    },
+    'testimonials': {
+        'title': 'What our customers value',
+        'eyebrow': 'A trusted partner for play',
+        'intro': 'Schools, daycare centres, and families come to A kids for practical products and helpful guidance—not just a catalogue.',
+        'sections': [
+            ('Spaces that work harder', 'Customers look for furniture and play equipment that helps them create organised, welcoming settings for learning, movement, and imagination.'),
+            ('Support for bigger ideas', 'For new classrooms, activity zones, and playground projects, our team helps customers narrow down options and build a solution around their needs.'),
+            ('A conversation starts with your plan', 'Tell us about your space, age group, and priorities. We will help you explore the right products and prepare a quote for your requirements.'),
+        ],
+    },
+    'contact': {
+        'title': 'Contact A kids',
+        'eyebrow': 'Let’s build a better play space',
+        'intro': 'Talk to us about products, project requirements, availability, or a quote for your school, daycare centre, home, or sports space.',
+        'sections': [
+            ('Call us', 'For larger requirements, installation discussions, safety concerns, or urgent assistance, call our team on +91 9924343003.'),
+            ('Email us', 'Send product and quote enquiries to hello@littlefingersindia.com. Including the product name, quantity, and your location helps us respond more effectively.'),
+            ('Request a quote online', 'You can also use the enquiry option on a product page to share your requirements directly with our team.'),
+        ],
+    },
+    'privacy': {
+        'title': 'Privacy Policy',
+        'eyebrow': 'Your information, handled with care',
+        'intro': 'This policy explains how A kids India uses information collected through this website and product enquiries.',
+        'sections': [
+            ('Information we collect', 'We may collect the details you provide when you create an account, submit an enquiry, use the cart, contact us, or communicate with our support team. This may include your name, contact details, product interest, quantity, and message.'),
+            ('How we use it', 'We use this information to respond to enquiries, prepare quotes, provide support, manage accounts and carts, improve our website, and meet legal or operational requirements. We do not sell your personal information.'),
+            ('Sharing and retention', 'We share information only with service providers or authorities where needed to operate the website, deliver requested services, or comply with law. We keep information only for as long as reasonably necessary for these purposes.'),
+            ('Your choices', 'To ask about or update the personal information you have shared with us, contact hello@littlefingersindia.com. Please do not send sensitive personal information through product enquiry forms.'),
+        ],
+    },
+    'terms': {
+        'title': 'Terms of Service',
+        'eyebrow': 'Using the A kids website',
+        'intro': 'These terms apply when you browse the A kids India website, create an account, add products to a cart, or submit an enquiry.',
+        'sections': [
+            ('Product information and enquiries', 'Product images, descriptions, availability, and prices are provided for general information and may change. A cart or enquiry is a request for information or a quote; it does not create an order or guarantee availability.'),
+            ('Quotes and orders', 'Final product selection, pricing, delivery, installation, and payment terms are confirmed directly with our team before an order is accepted. Please review your quote carefully and share accurate contact and project details.'),
+            ('Safe and appropriate use', 'Products must be assembled, used, maintained, and supervised in line with the applicable product guidance. Buyers are responsible for confirming that a product is appropriate for their space, intended users, and local requirements.'),
+            ('Website use', 'Please use this website lawfully and do not interfere with its operation, submit misleading information, or attempt unauthorised access. For questions about these terms, contact hello@littlefingersindia.com.'),
+        ],
+    },
+}
+
+
+def company_page(request, page):
+    return render(request, 'products/company_page.html', COMPANY_PAGES[page])
+
 def get_env_credentials():
     env_email = "admin@gmail.com"
     env_pass = "123456"
@@ -263,9 +333,6 @@ def indoors_view(request):
 def outdoors_view(request):
     return category_listing(request, 'OUTDOORS', 'products/outdoors.html')
 
-def parts_view(request):
-    return category_listing(request, 'PARTS', 'products/parts.html')
-
 def rfsports_view(request):
     return category_listing(request, 'RFSPORTS', 'products/rfsports.html')
 
@@ -318,7 +385,7 @@ def chat_api(request):
     
     system_prompt = (
         "You are Mohanlal, the friendly, enthusiastic, and knowledgeable AI assistant and mascot for Little Fingers India / Mohanlal website. "
-        "We specialize in premium children's playground equipment, indoor & outdoor toys, RF sports gear, educational furniture, and spare parts. "
+        "We specialize in premium children's playground equipment, indoor & outdoor toys, MR sports gear, educational furniture, and spare parts. "
         "Your goal is to engage warmly with customers, give them expert advice on playground products, answer their queries with enthusiasm, and help them find the right equipment. "
         "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: 9924343003. "
         "Keep your tone upbeat, helpful, and concise. Format your advice clearly using markdown if appropriate."

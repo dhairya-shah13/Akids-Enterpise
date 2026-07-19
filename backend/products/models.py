@@ -6,7 +6,7 @@ class Product(models.Model):
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('RFSPORTS', 'RF Sports'),
+        ('RFSPORTS', 'MR Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
