@@ -219,10 +219,10 @@
                 <div class="md:col-span-2 space-y-4">
                     <h5 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Company</h5>
                     <nav class="flex flex-col gap-3">
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">About Us</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Safety Standards</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Testimonials</a>
-                        <a href="#" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Contact</a>
+                        <a href="{% url 'about' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">About Us</a>
+                        <a href="{% url 'safety_standards' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Safety Standards</a>
+                        <a href="{% url 'testimonials' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Testimonials</a>
+                        <a href="{% url 'contact' %}" class="text-on-surface-variant hover:text-sea text-sm transition-colors">Contact</a>
                     </nav>
                 </div>
                 
@@ -240,8 +240,8 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8">
                 <p class="text-on-surface-variant font-body-md text-xs">© 2026 A kids India. All rights reserved. Designed for Safety.</p>
                 <div class="flex gap-6 text-xs text-on-surface-variant">
-                    <a href="#" class="hover:text-tangerine transition-colors">Privacy Policy</a>
-                    <a href="#" class="hover:text-tangerine transition-colors">Terms of Service</a>
+                    <a href="{% url 'privacy_policy' %}" class="hover:text-tangerine transition-colors">Privacy Policy</a>
+                    <a href="{% url 'terms_of_service' %}" class="hover:text-tangerine transition-colors">Terms of Service</a>
                 </div>
             </div>
         </div>

@@ -10,6 +10,12 @@ urlpatterns = [
     path('outdoors/', views.outdoors_view, name='outdoors'),
     path('parts/', views.parts_view, name='parts'),
     path('mrsports/', views.mrsports_view, name='mrsports'),
+    path('about/', views.company_page, {'page': 'about'}, name='about'),
+    path('safety-standards/', views.company_page, {'page': 'safety'}, name='safety_standards'),
+    path('testimonials/', views.company_page, {'page': 'testimonials'}, name='testimonials'),
+    path('contact/', views.company_page, {'page': 'contact'}, name='contact'),
+    path('privacy-policy/', views.company_page, {'page': 'privacy'}, name='privacy_policy'),
+    path('terms-of-service/', views.company_page, {'page': 'terms'}, name='terms_of_service'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     
     # Admin & Auth Routes
