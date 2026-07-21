@@ -701,7 +701,8 @@ def api_admin_order_invoice(request, order_id):
     if not (request.session.get('is_admin') or (request.user.is_authenticated and order.user == request.user)):
         return HttpResponse('Unauthorized', status=403)
     try:
-        pdf_content = generate_invoice_pdf(order)
+        is_admin = bool(request.session.get('is_admin'))
+        pdf_content = generate_invoice_pdf(order, is_admin=is_admin)
         response = HttpResponse(pdf_content, content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="invoice_{order.order_no}.pdf"'
         return response

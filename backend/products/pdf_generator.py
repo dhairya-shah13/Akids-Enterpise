@@ -7,7 +7,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 
-def generate_invoice_pdf(order):
+def generate_invoice_pdf(order, is_admin=False):
     buffer = io.BytesIO()
     
     # Page setup - 0.5 inch margins to maximize usable area
@@ -118,7 +118,8 @@ def generate_invoice_pdf(order):
     else:
         left_flow = Paragraph("A kids", company_name_style)
         
-    right_flow = Paragraph("SALES INVOICE", title_style)
+    invoice_title = "SALES INVOICE" if is_admin else "PURCHASE INVOICE"
+    right_flow = Paragraph(invoice_title, title_style)
     
     header_table = Table([[left_flow, right_flow]], colWidths=[4 * inch, 3.5 * inch])
     header_table.setStyle(TableStyle([
