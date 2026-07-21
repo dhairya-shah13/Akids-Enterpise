@@ -232,16 +232,16 @@
                 </div>
 
                 <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse table-fixed min-w-[1300px]">
                         <thead>
                             <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
-                                <th class="p-4 rounded-tl-2xl">Type / Module</th>
-                                <th class="p-4">Customer</th>
-                                <th class="p-4">Contact Info</th>
-                                <th class="p-4">Summary</th>
-                                <th class="p-4">Date</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4 text-center rounded-tr-2xl">Actions</th>
+                                <th class="p-4 rounded-tl-2xl w-[160px]">Type / Module</th>
+                                <th class="p-4 w-[160px]">Customer</th>
+                                <th class="p-4 w-[200px]">Contact Info</th>
+                                <th class="p-4 w-[200px]">Summary</th>
+                                <th class="p-4 w-[180px]">Date</th>
+                                <th class="p-4 w-[120px]">Status</th>
+                                <th class="p-4 text-center rounded-tr-2xl w-[320px]">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-on-surface font-body-md">
@@ -249,19 +249,19 @@
                             <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
                                 <td class="p-4">
                                     {% if inquiry.module == 'indoor' %}
-                                    <span class="bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
+                                    <span class="bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                                         Indoor Catalog
                                     </span>
                                     {% elif inquiry.module == 'outdoor' %}
-                                    <span class="bg-secondary/10 text-secondary border border-secondary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
+                                    <span class="bg-secondary/10 text-secondary border border-secondary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                                         Outdoor Catalog
                                     </span>
                                     {% elif inquiry.module == 'mr_sports' %}
-                                    <span class="bg-tertiary/10 text-tertiary border border-tertiary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
+                                    <span class="bg-tertiary/10 text-tertiary border border-tertiary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                                         MR Sports Catalog
                                     </span>
                                     {% else %}
-                                    <span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
+                                    <span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                                         Single Product
                                     </span>
                                     {% endif %}
@@ -304,37 +304,37 @@
                                     </span>
                                 </td>
                                 <td class="p-4">
-                                    <div class="flex items-center justify-center gap-2">
+                                    <div class="flex items-center justify-center gap-2 flex-nowrap w-full whitespace-nowrap">
                                         {% if inquiry.module %}
                                         <!-- View Details Trigger -->
-                                        <button onclick="viewInquiryDetails({{ inquiry.pk }})" class="bg-secondary text-on-secondary px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm hover:shadow-md transition-shadow">
+                                        <button onclick="viewInquiryDetails({{ inquiry.pk }})" class="bg-secondary text-on-secondary px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm hover:shadow-md transition-shadow whitespace-nowrap">
                                             <span class="material-symbols-outlined text-sm">visibility</span> View Items
                                         </button>
                                         {% endif %}
 
                                         <!-- Update status form -->
-                                        <form method="POST" action="{% url 'update_inquiry_status' inquiry.pk %}" class="inline-block m-0">
+                                        <form method="POST" action="{% url 'update_inquiry_status' inquiry.pk %}" class="inline-block m-0 flex-shrink-0" onsubmit="updateInquiryStatus(this, event)">
                                             {% csrf_token %}
                                             {% if inquiry.status == 'NEW' %}
                                             <input type="hidden" name="status" value="CONTACTED">
-                                            <button type="submit" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-secondary/20">
+                                            <button type="submit" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-secondary/20 whitespace-nowrap">
                                                 <span class="material-symbols-outlined text-sm">call</span> Contacted
                                             </button>
                                             {% elif inquiry.status == 'CONTACTED' %}
                                             <input type="hidden" name="status" value="CLOSED">
-                                            <button type="submit" class="bg-on-surface/10 text-on-surface hover:bg-on-surface hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-on-surface/20">
+                                            <button type="submit" class="bg-on-surface/10 text-on-surface hover:bg-on-surface hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-on-surface/20 whitespace-nowrap">
                                                 <span class="material-symbols-outlined text-sm">check_circle</span> Close
                                             </button>
                                             {% else %}
                                             <input type="hidden" name="status" value="NEW">
-                                            <button type="submit" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-primary/20">
+                                            <button type="submit" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-primary/20 whitespace-nowrap">
                                                 <span class="material-symbols-outlined text-sm">restore</span> Reopen
                                             </button>
                                             {% endif %}
                                         </form>
                                         
                                         <!-- Delete button -->
-                                        <button type="button" onclick="confirmDeleteInquiry({{ inquiry.pk }})" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Inquiry">
+                                        <button type="button" onclick="confirmDeleteInquiry({{ inquiry.pk }})" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg flex-shrink-0" title="Delete Inquiry">
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
                                         </button>
                                     </div>
@@ -643,7 +643,7 @@
 </div>
 
 <!-- Custom Delete Confirmation Modal -->
-<div id="deleteConfirmModal" class="fixed inset-0 bg-on-surface/60 z-[200] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+<div id="deleteConfirmModal" class="fixed hidden items-center justify-center p-4 transition-opacity duration-300 opacity-0" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); background-color: rgba(0, 0, 0, 0.4);">
     <div class="bg-white rounded-2xl w-full max-w-sm p-6 relative shadow-xl border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300">
         <div class="flex items-start gap-4 mb-4">
             <div class="bg-error/10 text-error w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
@@ -746,6 +746,7 @@
 
     // --- Tab Switcher Logic ---
     function switchTab(tab) {
+        localStorage.setItem('activeTab', tab);
         document.getElementById('section-products').classList.add('hidden');
         document.getElementById('section-orders').classList.add('hidden');
         document.getElementById('section-inquiries').classList.add('hidden');
@@ -775,11 +776,18 @@
         }
     }
 
-    // Auto-select inquiries tab if status query parameter is present in URL
+    // Restore tab on DOMContentLoaded
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('status')) {
             switchTab('inquiries');
+        } else {
+            const activeTab = localStorage.getItem('activeTab');
+            if (activeTab) {
+                switchTab(activeTab);
+            } else {
+                switchTab('products');
+            }
         }
     });
 
@@ -1177,6 +1185,48 @@
         modal.classList.remove('flex');
     }
 
+    function updateInquiryStatus(formElement, event) {
+        event.preventDefault();
+        const formData = new FormData(formElement);
+        
+        fetch(formElement.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update status.');
+            return fetch(window.location.href);
+        })
+        .then(response => response.text())
+        .then(htmlText => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            // Swap the inquiries table body
+            const newTbody = doc.querySelector('#section-inquiries tbody');
+            const currentTbody = document.querySelector('#section-inquiries tbody');
+            if (newTbody && currentTbody) {
+                currentTbody.innerHTML = newTbody.innerHTML;
+            }
+            
+            // Also update the inquiries tab count header
+            const newTab = doc.getElementById('tab-inquiries');
+            const currentTab = document.getElementById('tab-inquiries');
+            if (newTab && currentTab) {
+                currentTab.innerHTML = newTab.innerHTML;
+            }
+            
+            showToast('Success', 'Inquiry status updated successfully!', 'success');
+        })
+        .catch(error => {
+            showToast('Error', error.message, 'error');
+        });
+    }
+
     let deleteTargetId = null;
     let deleteTargetType = null;
 
@@ -1189,6 +1239,7 @@
         const content = modal.querySelector('div');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             content.classList.remove('scale-95', 'opacity-0');
@@ -1204,6 +1255,7 @@
         const content = modal.querySelector('div');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             content.classList.remove('scale-95', 'opacity-0');
@@ -1215,6 +1267,7 @@
         const content = modal.querySelector('div');
         modal.classList.add('opacity-0');
         content.classList.add('scale-95', 'opacity-0');
+        document.body.classList.remove('overflow-hidden');
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex', 'opacity-0');
@@ -1224,8 +1277,13 @@
         }, 300);
     }
 
-    // Set click listener on the confirm delete button
+    // Set click listener on the confirm delete button and portal the modal to root body
     window.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('deleteConfirmModal');
+        if (modal) {
+            document.body.appendChild(modal);
+        }
+
         const confirmBtn = document.getElementById('deleteConfirmBtn');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', () => {
