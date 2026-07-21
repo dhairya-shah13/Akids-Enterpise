@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile
 from .search import search_products
 from django.db import transaction
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
@@ -113,8 +114,37 @@ def get_env_credentials():
             break
     return env_email, env_pass
 
+def get_whatsapp_number():
+    whatsapp_num = "9924343003"
+    possible_paths = [
+        settings.BASE_DIR / ".env",
+        settings.BASE_DIR.parent / ".env",
+    ]
+    for env_path in possible_paths:
+        if env_path.exists():
+            try:
+                with open(env_path, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line.startswith("WHATSAPP_NUMBER="):
+                            whatsapp_num = line.split("=", 1)[1].strip('"\' ')
+            except Exception:
+                pass
+            break
+    return whatsapp_num
+
+
+def is_admin_user(request):
+    env_email, _ = get_env_credentials()
+    if request.user.is_authenticated:
+        if request.user.is_staff or request.user.email == env_email or request.user.username == env_email:
+            return True
+    return bool(request.session.get('is_admin'))
+
+
 def login_view(request):
-    if request.session.get('is_admin'):
+    env_email, env_pass = get_env_credentials()
+    if is_admin_user(request):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
         return redirect('cart')
@@ -125,16 +155,39 @@ def login_view(request):
         password = request.POST.get('password', '').strip()
         
         # 1. Check admin credentials first
-        env_email, env_pass = get_env_credentials()
         if email == env_email and password == env_pass:
+            admin_user = User.objects.filter(email=env_email).first()
+            if not admin_user:
+                admin_user = User.objects.filter(username=env_email).first()
+            if not admin_user:
+                admin_user = User.objects.create_user(username=env_email, email=env_email, password=env_pass)
+            
+            admin_user.is_staff = True
+            admin_user.is_superuser = True
+            admin_user.set_password(env_pass)
+            admin_user.save()
+            
+            login(request, admin_user)
             request.session['is_admin'] = True
-            return redirect('admin_dashboard')
+            next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
+            if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+                next_url = reverse('admin_dashboard')
+            return redirect(next_url)
             
         # 2. Check regular user credentials
         user = authenticate(request, username=email, password=password)
+        if user is None:
+            try_user = User.objects.filter(email=email).first()
+            if try_user:
+                user = authenticate(request, username=try_user.username, password=password)
+                
         if user is not None:
             login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next') or reverse('cart')
+            if user.is_staff or user.email == env_email:
+                request.session['is_admin'] = True
+                next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
+            else:
+                next_url = request.POST.get('next') or request.GET.get('next') or reverse('cart')
             if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
                 next_url = reverse('cart')
             return redirect(next_url)
@@ -198,6 +251,8 @@ def get_cart_data(request):
     return cart_items, subtotal
 
 def cart_view(request):
+    if is_admin_user(request):
+        return redirect('admin_dashboard')
     cart_items, subtotal = get_cart_data(request)
     has_unavailable_items = any(not item['is_available'] for item in cart_items)
     return render(request, 'products/cart.html', {
@@ -208,6 +263,8 @@ def cart_view(request):
     })
 
 def add_to_cart(request, pk):
+    if is_admin_user(request):
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         try:
             product = Product.objects.get(pk=pk)
@@ -240,6 +297,8 @@ def add_to_cart(request, pk):
     return redirect('cart')
 
 def remove_from_cart(request, pk):
+    if is_admin_user(request):
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         cart = request.session.get('cart', {})
         if str(pk) in cart:
@@ -249,6 +308,8 @@ def remove_from_cart(request, pk):
     return redirect('cart')
 
 def update_cart(request, pk):
+    if is_admin_user(request):
+        return redirect('admin_dashboard')
     if request.method == 'POST':
         try:
             product = Product.objects.get(pk=pk)
@@ -268,7 +329,7 @@ def update_cart(request, pk):
     return redirect('cart')
 
 def admin_dashboard(request):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return redirect('admin_login')
         
     products = Product.objects.all().order_by('-created_at')
@@ -307,7 +368,7 @@ def admin_dashboard(request):
     })
 
 def add_product(request):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return redirect('admin_login')
         
     if request.method == 'POST':
@@ -325,7 +386,7 @@ def add_product(request):
     return redirect('admin_dashboard')
 
 def delete_product(request, pk):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return redirect('admin_login')
         
     if request.method == 'POST':
@@ -470,7 +531,7 @@ def chat_api(request):
 
 
 def update_inquiry_status(request, pk):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return redirect('admin_login')
         
     if request.method == 'POST':
@@ -484,7 +545,7 @@ def update_inquiry_status(request, pk):
 
 
 def delete_inquiry(request, pk):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return redirect('admin_login')
         
     if request.method == 'POST':
@@ -496,6 +557,8 @@ def delete_inquiry(request, pk):
 # --- STOREFRONT ORDER VIEWS ---
 
 def checkout_view(request):
+    if is_admin_user(request):
+        return redirect('admin_dashboard')
     if not request.user.is_authenticated:
         return redirect(f"{reverse('admin_login')}?next={reverse('cart')}&toast=login-required")
 
@@ -575,8 +638,15 @@ def order_success(request, order_id):
 
 # --- ADMIN API ENDPOINTS (Protected) ---
 
+NEXT_STATUS_MAP = {
+    'PLACED': 'CONFIRMED',
+    'CONFIRMED': 'PACKED',
+    'PACKED': 'SHIPPED',
+    'SHIPPED': 'DELIVERED',
+}
+
 def api_admin_orders(request):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     orders_qs = Order.objects.select_related('user').prefetch_related('items', 'items__product').all()
@@ -611,7 +681,17 @@ def api_admin_orders(request):
     
     orders_list = []
     for order in page_obj:
-        items_summary = ", ".join([f"{item.product_name} x {item.quantity}" for item in order.items.all()])
+        items_list = list(order.items.all())
+        if not items_list:
+            items_summary = "No items"
+        elif len(items_list) == 1:
+            items_summary = f"{items_list[0].quantity}x {items_list[0].product_name}"
+        elif len(items_list) == 2:
+            items_summary = f"{items_list[0].quantity}x {items_list[0].product_name}, {items_list[1].quantity}x {items_list[1].product_name}"
+        else:
+            extra = len(items_list) - 2
+            items_summary = f"{items_list[0].quantity}x {items_list[0].product_name}, {items_list[1].quantity}x {items_list[1].product_name} +{extra} more"
+
         orders_list.append({
             'id': order.id,
             'order_no': order.order_no,
@@ -621,7 +701,9 @@ def api_admin_orders(request):
             'order_status_display': order.get_order_status_display(),
             'total_amount': float(order.total_amount),
             'created_at_str': order.created_at.strftime('%d %b %Y, %I:%M %p'),
-            'items_summary': items_summary
+            'items_summary': items_summary,
+            'can_advance': order.order_status in NEXT_STATUS_MAP,
+            'can_cancel': order.order_status not in ['DELIVERED', 'CANCELLED', 'RETURNED']
         })
         
     return JsonResponse({
@@ -635,7 +717,7 @@ def api_admin_orders(request):
 
 
 def api_admin_order_detail(request, order_id):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     order = get_object_or_404(Order.objects.prefetch_related('items', 'items__product'), pk=order_id)
@@ -666,21 +748,34 @@ def api_admin_order_detail(request, order_id):
 
 
 @csrf_exempt
-@require_http_methods(["PATCH"])
+@require_http_methods(["PATCH", "POST"])
 def api_admin_order_status_update(request, order_id):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     order = get_object_or_404(Order, pk=order_id)
     try:
         data = json.loads(request.body)
-        new_status = data.get('status', '').strip().upper()
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
         
+    action = data.get('action', '').strip().lower()
+    new_status = data.get('status', '').strip().upper()
     current_status = order.order_status
+
+    if action == 'next':
+        if current_status not in NEXT_STATUS_MAP:
+            return JsonResponse({'error': f"Order in status '{current_status}' cannot be advanced further."}, status=400)
+        new_status = NEXT_STATUS_MAP[current_status]
+    elif action == 'cancel':
+        if current_status in ['DELIVERED', 'CANCELLED', 'RETURNED']:
+            return JsonResponse({'error': f"Order in status '{current_status}' cannot be cancelled."}, status=400)
+        new_status = 'CANCELLED'
+        
+    if not new_status:
+        return JsonResponse({'error': 'Action or status parameter required.'}, status=400)
+        
     allowed_next_states = STATUS_TRANSITIONS.get(current_status, [])
-    
     if new_status not in allowed_next_states:
         return JsonResponse({
             'error': f"Status transition from '{current_status}' to '{new_status}' is not allowed."
@@ -692,16 +787,18 @@ def api_admin_order_status_update(request, order_id):
     return JsonResponse({
         'success': True,
         'order_status': order.order_status,
-        'order_status_display': order.get_order_status_display()
+        'order_status_display': order.get_order_status_display(),
+        'can_advance': order.order_status in NEXT_STATUS_MAP,
+        'can_cancel': order.order_status not in ['DELIVERED', 'CANCELLED', 'RETURNED']
     })
 
 
 def api_admin_order_invoice(request, order_id):
     order = get_object_or_404(Order.objects.prefetch_related('items'), pk=order_id)
-    if not (request.session.get('is_admin') or (request.user.is_authenticated and order.user == request.user)):
+    if not (is_admin_user(request) or (request.user.is_authenticated and order.user == request.user)):
         return HttpResponse('Unauthorized', status=403)
     try:
-        is_admin = bool(request.session.get('is_admin'))
+        is_admin = is_admin_user(request)
         pdf_content = generate_invoice_pdf(order, is_admin=is_admin)
         response = HttpResponse(pdf_content, content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="invoice_{order.order_no}.pdf"'
@@ -822,26 +919,81 @@ def submit_catalog_inquiry(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
         
-    return JsonResponse({'success': True, 'inquiry_id': inquiry.pk})
+    # Format dynamic WhatsApp pre-typed message
+    module_display = {
+        'indoor': 'Indoor',
+        'outdoor': 'Outdoor',
+        'mr_sports': 'MR Sports'
+    }.get(module, module.title())
+
+    message_lines = [
+        f"Hello Akids Enterprise,",
+        f"",
+        f"I would like to request a quote for the following items from the *{module_display} Catalogue*:",
+        f"",
+        f"*Customer Name:* {name}",
+        f"*Phone:* {phone_number}",
+        f"*Email:* {email}",
+        f"",
+        f"*Selected Items:*",
+    ]
+    for item in line_items_data:
+        code = item.get('product_code', '').strip()
+        qty = item.get('quantity', 1)
+        message_lines.append(f"• {qty}x {code}")
+
+    message_lines.append("")
+    message_lines.append("Thank you!")
+    message_text = "\n".join(message_lines)
+
+    # Fetch Whatsapp target number from .env
+    raw_target = get_whatsapp_number()
+    clean_target = raw_target.strip()
+    if len(clean_target) == 10 and clean_target.isdigit():
+        clean_target = "91" + clean_target
+
+    import urllib.parse
+    encoded_text = urllib.parse.quote(message_text)
+    whatsapp_url = f"https://wa.me/{clean_target}?text={encoded_text}"
+        
+    return JsonResponse({
+        'success': True,
+        'inquiry_id': inquiry.pk,
+        'whatsapp_url': whatsapp_url
+    })
 
 
 def api_admin_inquiries(request):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     module_filter = request.GET.get('module', '').strip().lower()
     date_start = request.GET.get('date_start', '').strip()
     date_end = request.GET.get('date_end', '').strip()
+    q = request.GET.get('q', '').strip()
+    status_filter = request.GET.get('status', '').strip().upper()
     
-    inquiries = Inquiry.objects.all().prefetch_related('line_items')
+    inquiries = Inquiry.objects.exclude(status='CLOSED').prefetch_related('line_items', 'product')
     
     if module_filter in ['indoor', 'outdoor', 'mr_sports']:
         inquiries = inquiries.filter(module=module_filter)
         
+    if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:
+        inquiries = inquiries.filter(status=status_filter)
+        
     if date_start:
-        inquiries = inquiries.filter(created_at__gte=date_start)
+        inquiries = inquiries.filter(created_at__date__gte=date_start)
     if date_end:
-        inquiries = inquiries.filter(created_at__lte=date_end)
+        inquiries = inquiries.filter(created_at__date__lte=date_end)
+        
+    if q:
+        inquiries = inquiries.filter(
+            Q(name__icontains=q) |
+            Q(line_items__product_name__icontains=q) |
+            Q(line_items__product_code__icontains=q) |
+            Q(product__name__icontains=q) |
+            Q(inquiry_no__icontains=q)
+        ).distinct()
         
     inquiries = inquiries.order_by('-created_at')
     
@@ -863,16 +1015,30 @@ def api_admin_inquiries(request):
     }
     
     for inq in current_page:
-        items_summary = ", ".join([f"{item.product_code} ({item.quantity})" for item in inq.line_items.all()])
+        items_list = list(inq.line_items.all())
+        if items_list:
+            if len(items_list) == 1:
+                items_summary = f"{items_list[0].product_name or items_list[0].product_code} ({items_list[0].quantity})"
+            elif len(items_list) == 2:
+                items_summary = f"{items_list[0].product_name or items_list[0].product_code} ({items_list[0].quantity}), {items_list[1].product_name or items_list[1].product_code} ({items_list[1].quantity})"
+            else:
+                extra = len(items_list) - 2
+                items_summary = f"{items_list[0].product_name or items_list[0].product_code} ({items_list[0].quantity}), {items_list[1].product_name or items_list[1].product_code} ({items_list[1].quantity}) +{extra} more"
+        elif inq.product:
+            items_summary = f"Product: {inq.product.name} (Qty: {inq.quantity})"
+        else:
+            items_summary = "No items"
+
         data['inquiries'].append({
             'id': inq.id,
+            'inquiry_no': inq.inquiry_no,
             'module': inq.module,
             'module_display': inq.get_module_display() if inq.module else 'Single Product',
             'customer_name': inq.name,
             'phone_number': inq.contact_number,
             'email': inq.email or 'N/A',
-            'items_summary': items_summary or 'No items',
-            'created_at_str': inq.created_at.strftime('%Y-%m-%d %H:%M'),
+            'items_summary': items_summary,
+            'created_at_str': inq.created_at.strftime('%d %b %Y, %I:%M %p'),
             'status': inq.status,
             'status_display': inq.get_status_display()
         })
@@ -880,8 +1046,43 @@ def api_admin_inquiries(request):
     return JsonResponse(data)
 
 
+@require_http_methods(["POST"])
+def api_admin_inquiry_close(request, pk):
+    if not is_admin_user(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    try:
+        outcome = json.loads(request.body).get('outcome', '').strip().upper()
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON body.'}, status=400)
+    if outcome not in {'WON', 'LOST'}:
+        return JsonResponse({'error': 'Outcome must be WON or LOST.'}, status=400)
+
+    inquiry = get_object_or_404(Inquiry, pk=pk)
+    inquiry.status = 'CLOSED'
+    inquiry.closure_outcome = outcome
+    inquiry.save(update_fields=['status', 'closure_outcome'])
+    return JsonResponse({'success': True, 'status': inquiry.status, 'closure_outcome': inquiry.closure_outcome})
+
+
+def api_admin_closed_inquiries(request):
+    if not is_admin_user(request):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    closed = Inquiry.objects.filter(status='CLOSED', closure_outcome__in=['WON', 'LOST']).order_by('-created_at')
+    data = {'won': [], 'lost': []}
+    for inquiry in closed:
+        data[inquiry.closure_outcome.lower()].append({
+            'id': inquiry.id,
+            'inquiry_no': inquiry.inquiry_no,
+            'customer_name': inquiry.name,
+            'created_at_str': inquiry.created_at.strftime('%d %b %Y, %I:%M %p'),
+        })
+    return JsonResponse(data)
+
+
 def api_admin_inquiry_detail(request, pk):
-    if not request.session.get('is_admin'):
+    if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
     inq = get_object_or_404(Inquiry.objects.prefetch_related('line_items'), pk=pk)
@@ -893,8 +1094,13 @@ def api_admin_inquiry_detail(request, pk):
             'quantity': item.quantity
         })
         
+    previous_inquiries = Inquiry.objects.filter(
+        Q(contact_number=inq.contact_number) | Q(email__isnull=False, email=inq.email)
+    ).exclude(pk=inq.pk).prefetch_related('line_items').order_by('-created_at')
+
     data = {
         'id': inq.id,
+        'inquiry_no': inq.inquiry_no,
         'module': inq.module,
         'module_display': inq.get_module_display() if inq.module else 'Single Product',
         'customer_name': inq.name,
@@ -902,8 +1108,14 @@ def api_admin_inquiry_detail(request, pk):
         'email': inq.email or 'N/A',
         'status': inq.status,
         'status_display': inq.get_status_display(),
-        'created_at_str': inq.created_at.strftime('%Y-%m-%d %H:%M'),
-        'items': items
+        'created_at_str': inq.created_at.strftime('%d %b %Y, %I:%M %p'),
+        'items': items,
+        'previous_inquiries': [{
+            'inquiry_no': previous.inquiry_no,
+            'status_display': previous.get_status_display(),
+            'created_at_str': previous.created_at.strftime('%d %b %Y, %I:%M %p'),
+            'items': [f'{item.quantity}x {item.product_code}' for item in previous.line_items.all()],
+        } for previous in previous_inquiries]
     }
     return JsonResponse(data)
 

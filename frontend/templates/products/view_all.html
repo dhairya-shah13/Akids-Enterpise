@@ -398,6 +398,11 @@
                 document.getElementById('inquiryForm').classList.add('hidden');
                 document.getElementById('successPanel').classList.remove('hidden');
                 
+                // Open WhatsApp link in a new tab
+                if (data.whatsapp_url) {
+                    window.open(data.whatsapp_url, '_blank');
+                }
+                
                 // Clear fields
                 document.getElementById('custName').value = '';
                 document.getElementById('custPhone').value = '';

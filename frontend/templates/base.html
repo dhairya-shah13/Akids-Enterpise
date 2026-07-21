@@ -94,21 +94,18 @@
                 </a>
             </div>
             
-            {% if request.session.is_admin %}
-            <!-- Minimal Admin Header -->
-            <nav class="hidden lg:flex items-center gap-6">
-                <span class="text-sm text-tangerine font-bold uppercase tracking-wider">Admin Panel</span>
-            </nav>
-            {% else %}
             <nav class="hidden lg:flex items-center gap-5 xl:gap-7">
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
                 {% include "products/nav_dropdown.html" with label="Indoors" module_type="indoor" online_url="indoors" current_module=module_type %}
                 {% include "products/nav_dropdown.html" with label="Outdoors" module_type="outdoor" online_url="outdoors" current_module=module_type %}
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'mrsports' %}active{% endif %}" href="{% url 'mrsports' %}">MR Sports</a>
+                {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+                <a class="nav-link text-tangerine font-bold font-label-md hover:text-primary transition-colors flex items-center gap-1 {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                    <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Admin HQ
+                </a>
+                {% endif %}
             </nav>
-            {% endif %}
             
-            {% if not request.session.is_admin %}
             <div class="hidden md:flex items-center flex-1 max-w-xs mx-4 relative">
                 <form action="{% url 'search' %}" method="GET" class="w-full relative search-wrapper">
                     <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-full py-2 pl-4 pr-10 outline-none focus:ring-2 focus:ring-tangerine text-sm text-on-surface shadow-inner">
@@ -118,40 +115,40 @@
                     <div class="autocomplete-dropdown"></div>
                 </form>
             </div>
-            {% endif %}
             
             <div class="flex items-center gap-3">
-                {% if not request.session.is_admin %}
+                {% if not request.user.is_staff and not request.session.is_admin %}
                 <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors hidden sm:flex">
                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
                     <span class="text-sm font-bold">Cart</span>
                 </a>
                 {% endif %}
                 
-                {% if request.session.is_admin %}
-                <a href="{% url 'admin_logout' %}" class="bg-[#ba1a1a] text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
-                    Exit Admin
-                </a>
-                {% elif request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">person</span> Profile
-                </a>
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white px-4 py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow hidden sm:inline-flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Admin Panel
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:inline-flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">person</span> Profile
+                    </a>
+                    <a href="{% url 'admin_logout' %}" class="bg-surface border border-outline-variant/30 text-on-surface-variant px-4 py-2 rounded-full font-label-md text-xs hover:bg-background transition-colors hidden sm:inline-block">
+                        Sign Out
+                    </a>
                 {% else %}
-                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
-                    Sign In
-                </a>
+                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
+                        Sign In
+                    </a>
                 {% endif %}
 
                 <!-- Mobile Hamburger -->
-                {% if not request.session.is_admin %}
                 <button id="mobileMenuBtn" class="lg:hidden bg-tangerine text-white w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shadow-lg flex items-center justify-center hover:shadow-md transition-shadow" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
-                {% endif %}
             </div>
             
             <!-- Mobile Navigation Drawer -->
-            {% if not request.session.is_admin %}
             <div id="mobileDrawer" class="hidden absolute top-full left-0 right-0 bg-white border-t-4 border-tangerine shadow-2xl p-6 flex-col gap-4 z-50 rounded-b-3xl">
                 <form action="{% url 'search' %}" method="GET" class="w-full relative mb-2 search-wrapper">
                     <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-xl py-3 pl-4 pr-12 outline-none focus:ring-2 focus:ring-tangerine text-on-surface">
@@ -165,17 +162,24 @@
                 <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-tangerine{% endif %}">Indoors</a>
                 <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-tangerine{% endif %}">Outdoors</a>
                 <a href="{% url 'mrsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'mrsports' %}active text-tangerine{% endif %}">MR Sports</a>
+                {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 text-tangerine font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined">admin_panel_settings</span> Admin Panel
+                </a>
+                {% endif %}
                 
+                {% if not request.user.is_staff and not request.session.is_admin %}
                 <a href="{% url 'cart' %}" class="bg-tangerine text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
+                {% endif %}
                 {% if request.user.is_authenticated %}
                 <a href="{% url 'profile' %}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">person</span> Profile
                 </a>
+                <a href="{% url 'admin_logout' %}" class="bg-surface text-on-surface-variant border border-outline-variant/30 py-3 rounded-xl text-center font-label-md shadow-sm mt-2">Sign Out</a>
                 {% else %}
                 <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Sign In</a>
                 {% endif %}
             </div>
-            {% endif %}
         </div>
     </header>
 

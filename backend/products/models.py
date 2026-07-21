@@ -67,6 +67,11 @@ class Inquiry(models.Model):
         ('outdoor', 'Outdoor'),
         ('mr_sports', 'MR Sports'),
     ]
+    CLOSURE_OUTCOME_CHOICES = [
+        ('WON', 'Customer Won'),
+        ('LOST', 'Customer Lost'),
+    ]
+    inquiry_no = models.CharField(max_length=20, unique=True, editable=False)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries', null=True, blank=True)
     name = models.CharField(max_length=200)
     contact_number = models.CharField(max_length=20)
@@ -75,11 +80,27 @@ class Inquiry(models.Model):
     
     module = models.CharField(max_length=20, choices=MODULE_CHOICES, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    closure_outcome = models.CharField(max_length=10, choices=CLOSURE_OUTCOME_CHOICES, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.inquiry_no:
+            with transaction.atomic():
+                last_inquiry = Inquiry.objects.select_for_update().order_by('id').last()
+                if last_inquiry and last_inquiry.inquiry_no:
+                    try:
+                        last_no = int(last_inquiry.inquiry_no.split('-')[1])
+                        new_no = last_no + 1
+                    except (ValueError, IndexError):
+                        new_no = 1
+                else:
+                    new_no = 1
+                self.inquiry_no = f"INQ-{new_no:04d}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         prod_name = self.product.name if self.product else f"General Module ({self.module})"
-        return f"Inquiry for {prod_name} by {self.name}"
+        return f"{self.inquiry_no} - Inquiry for {prod_name} by {self.name}"
 
 
 class InquiryLineItem(models.Model):

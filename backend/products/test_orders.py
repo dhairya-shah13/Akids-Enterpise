@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 from products.models import Product, Order, OrderItem
 from products.pdf_generator import generate_invoice_pdf
 from decimal import Decimal
@@ -79,3 +80,82 @@ class OrderManagementTestCase(TestCase):
         self.assertTrue(len(pdf_bytes) > 0)
         # Verify PDF magic signature
         self.assertEqual(pdf_bytes[:4], b'%PDF')
+
+    def test_order_status_action_next_and_cancel(self):
+        # Create admin user
+        admin = User.objects.create_user(username='admin@gmail.com', email='admin@gmail.com', password='123', is_staff=True)
+        self.client.force_login(admin)
+
+        order = Order.objects.create(
+            user=self.user,
+            customer_name='Action Customer',
+            shipping_address='789 Test Rd',
+            order_status='PLACED'
+        )
+
+        # Advance status via action="next" -> CONFIRMED
+        response = self.client.post(
+            f"/api/admin/orders/{order.id}/status/",
+            data='{"action": "next"}',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.order_status, 'CONFIRMED')
+
+        # Cancel status via action="cancel" -> CANCELLED
+        response = self.client.post(
+            f"/api/admin/orders/{order.id}/status/",
+            data='{"action": "cancel"}',
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.order_status, 'CANCELLED')
+
+    def test_delivered_order_can_be_returned(self):
+        admin = User.objects.create_user(username='return_admin', password='123', is_staff=True)
+        self.client.force_login(admin)
+        order = Order.objects.create(
+            user=self.user,
+            customer_name='Return Customer',
+            shipping_address='789 Test Rd',
+            order_status='DELIVERED'
+        )
+
+        response = self.client.post(
+            f"/api/admin/orders/{order.id}/status/",
+            data='{"status": "RETURNED"}',
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.order_status, 'RETURNED')
+
+    def test_admin_access_control(self):
+        # Regular customer access should be forbidden
+        self.client.force_login(self.user)
+        response = self.client.get('/admin-panel/')
+        self.assertEqual(response.status_code, 302) # redirects to login
+
+        response = self.client.get('/api/admin/orders/')
+        self.assertEqual(response.status_code, 403)
+
+        # Admin user access should be allowed
+        admin = User.objects.create_user(username='admin_staff', email='admin@gmail.com', password='123', is_staff=True)
+        self.client.force_login(admin)
+
+        response = self.client.get('/admin-panel/')
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get('/api/admin/orders/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_cannot_access_cart_or_checkout(self):
+        admin = User.objects.create_user(username='store_admin', password='123', is_staff=True)
+        self.client.force_login(admin)
+
+        self.assertRedirects(self.client.get(reverse('cart')), reverse('admin_dashboard'))
+        self.assertRedirects(self.client.get(reverse('checkout')), reverse('admin_dashboard'))
+

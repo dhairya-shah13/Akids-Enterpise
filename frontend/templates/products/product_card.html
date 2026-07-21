@@ -42,6 +42,7 @@
         </div>
         {% endif %}
 
+        {% if not request.user.is_staff and not request.session.is_admin %}
         {% if product.stock <= 0 %}
         <div class="rounded-xl border border-error/30 bg-error/10 px-3 py-3 text-center text-xs font-bold text-error">
             Out of Stock — unavailable to purchase
@@ -65,6 +66,7 @@
                 </button>
             </form>
         </div>
+        {% endif %}
         {% endif %}
     </div>
 </div>

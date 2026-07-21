@@ -19,6 +19,9 @@
             <button onclick="openModal()" class="bg-secondary text-on-secondary font-label-md px-6 py-3 rounded-full shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-md shadow-secondary/20 flex items-center gap-2">
                 <span class="material-symbols-outlined">add_circle</span> Add New Product
             </button>
+            <a href="{% url 'admin_logout' %}" class="bg-error text-white font-label-md px-6 py-3 rounded-full hover:bg-error/90 transition-colors flex items-center gap-2 shadow-sm shadow-error/20 hover:shadow-md hover:scale-105 transition-all">
+                <span class="material-symbols-outlined">logout</span> Sign Out
+            </a>
         </div>
     </div>
 </section>
@@ -36,6 +39,9 @@
             </button>
             <button onclick="switchTab('inquiries')" id="tab-inquiries" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
                 📋 Inquiries ({{ inquiries|length }})
+            </button>
+            <button onclick="switchTab('closed-inquiries')" id="tab-closed-inquiries" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
+                Closed Inquiries
             </button>
             <button onclick="switchTab('sales')" id="tab-sales" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
                 📈 Sales Reports & Analytics
@@ -175,17 +181,18 @@
 
                 <!-- Orders Table -->
                 <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse min-w-[1200px]">
                         <thead>
                             <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
-                                <th class="p-4 rounded-tl-2xl">Order No</th>
-                                <th class="p-4">Customer Name</th>
-                                <th class="p-4">Shipping Address</th>
-                                <th class="p-4">Products Summary</th>
-                                <th class="p-4">Total Price</th>
-                                <th class="p-4">Status Update</th>
-                                <th class="p-4">Order Date</th>
-                                <th class="p-4 text-center rounded-tr-2xl">Actions</th>
+                                <th class="p-4 rounded-tl-2xl w-[120px]">Order No.</th>
+                                <th class="p-4 w-[160px]">Customer Name</th>
+                                <th class="p-4 w-[220px]">Shipping Address</th>
+                                <th class="p-4 w-[220px]">Product Summary</th>
+                                <th class="p-4 w-[140px]">Total Price</th>
+                                <th class="p-4 text-center w-[130px]">Current Status</th>
+                                <th class="p-4 text-center w-[220px]">Actions</th>
+                                <th class="p-4 w-[170px]">Order Date</th>
+                                <th class="p-4 text-center rounded-tr-2xl w-[160px]">Bills & Details</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="text-on-surface font-body-md text-sm">
@@ -213,147 +220,115 @@
                         <h2 class="font-display-lg text-3xl text-on-surface">Customer Inquiries</h2>
                         <p class="font-body-md text-sm text-on-surface-variant mt-1">Manage, contact, and process customer product and catalogue inquiries.</p>
                     </div>
-                    
-                    <!-- Filters -->
-                    <div class="flex flex-wrap gap-2">
-                        <a href="?status=all" class="font-label-md px-4 py-2 text-xs rounded-full border {% if not current_status_filter or current_status_filter == 'ALL' %}bg-secondary text-on-secondary border-secondary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
-                            All
-                        </a>
-                        <a href="?status=new" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'NEW' %}bg-primary text-on-primary border-primary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
-                            New
-                        </a>
-                        <a href="?status=contacted" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'CONTACTED' %}bg-secondary text-on-secondary border-secondary{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
-                            Contacted
-                        </a>
-                        <a href="?status=closed" class="font-label-md px-4 py-2 text-xs rounded-full border {% if current_status_filter == 'CLOSED' %}bg-on-surface text-white border-on-surface{% else %}bg-surface text-on-surface border-outline-variant/30{% endif %} transition-colors">
-                            Closed
-                        </a>
+                </div>
+
+                <!-- Inquiry Filters -->
+                <div class="bg-background/50 border border-outline-variant/20 rounded-2xl p-6 mb-8 flex flex-wrap gap-4 items-end">
+                    <div class="flex-1 min-w-[220px]">
+                        <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Search Inquiries</label>
+                        <div class="relative">
+                            <input type="text" id="inquirySearchInput" placeholder="Customer name, product name, or INQ no..." class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2.5 pl-10 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface transition-shadow">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[18px]">search</span>
+                        </div>
+                    </div>
+
+                    <div class="min-w-[140px]">
+                        <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Module</label>
+                        <select id="inquiryModuleFilter" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface transition-shadow">
+                            <option value="">All Modules</option>
+                            <option value="indoor">Indoor</option>
+                            <option value="outdoor">Outdoor</option>
+                            <option value="mr_sports">MR Sports</option>
+                        </select>
+                    </div>
+
+                    <div class="min-w-[140px]">
+                        <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Status</label>
+                        <select id="inquiryStatusFilter" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface transition-shadow">
+                            <option value="">All Statuses</option>
+                            <option value="NEW">New</option>
+                            <option value="CONTACTED">Contacted</option>
+                            <option value="CLOSED">Closed</option>
+                        </select>
+                    </div>
+
+                    <div class="min-w-[150px]">
+                        <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Start Date</label>
+                        <input type="date" id="inquiryDateStart" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface transition-shadow">
+                    </div>
+
+                    <div class="min-w-[150px]">
+                        <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">End Date</label>
+                        <input type="date" id="inquiryDateEnd" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary text-sm text-on-surface transition-shadow">
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="applyInquiryFilters()" class="bg-primary text-on-primary font-label-md px-6 py-2.5 rounded-full hover:scale-105 transition-transform flex items-center gap-1.5 shadow-sm text-sm">
+                            <span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                        </button>
+                        <button onclick="resetInquiryFilters()" class="bg-surface border border-outline-variant/30 text-on-surface-variant font-label-md px-6 py-2.5 rounded-full hover:bg-background transition-colors text-sm">
+                            Reset
+                        </button>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
-                    <table class="w-full text-left border-collapse table-fixed min-w-[1300px]">
+                    <table class="w-full text-left border-collapse table-fixed min-w-[1200px]">
                         <thead>
                             <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
-                                <th class="p-4 rounded-tl-2xl w-[160px]">Type / Module</th>
-                                <th class="p-4 w-[160px]">Customer</th>
-                                <th class="p-4 w-[200px]">Contact Info</th>
-                                <th class="p-4 w-[200px]">Summary</th>
-                                <th class="p-4 w-[180px]">Date</th>
-                                <th class="p-4 w-[120px]">Status</th>
-                                <th class="p-4 text-center rounded-tr-2xl w-[320px]">Actions</th>
+                                <th class="p-4 rounded-tl-2xl w-[105px]">Inquiry No.</th>
+                                <th class="p-4 w-[150px]">Type / Module</th>
+                                <th class="p-4 w-[140px]">Customer</th>
+                                <th class="p-4 w-[150px]">Phone</th>
+                                <th class="p-4 w-[245px]">Email</th>
+                                <th class="p-4 w-[160px]">Date</th>
+                                <th class="p-4 w-[100px]">Status</th>
+                                <th class="p-4 text-center rounded-tr-2xl w-[150px]">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="text-on-surface font-body-md">
-                            {% for inquiry in inquiries %}
-                            <tr class="border-b border-outline-variant/10 hover:bg-background transition-colors">
-                                <td class="p-4">
-                                    {% if inquiry.module == 'indoor' %}
-                                    <span class="bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                                        Indoor Catalog
-                                    </span>
-                                    {% elif inquiry.module == 'outdoor' %}
-                                    <span class="bg-secondary/10 text-secondary border border-secondary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                                        Outdoor Catalog
-                                    </span>
-                                    {% elif inquiry.module == 'mr_sports' %}
-                                    <span class="bg-tertiary/10 text-tertiary border border-tertiary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                                        MR Sports Catalog
-                                    </span>
-                                    {% else %}
-                                    <span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                                        Single Product
-                                    </span>
-                                    {% endif %}
-                                </td>
-                                <td class="p-4 font-bold text-sm">
-                                    {{ inquiry.name }}
-                                </td>
-                                <td class="p-4 text-sm font-semibold text-on-surface">
-                                    <div class="flex flex-col gap-0.5">
-                                        <a href="tel:{{ inquiry.contact_number }}" class="hover:text-primary transition-colors text-xs flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[12px] opacity-70">call</span> {{ inquiry.contact_number }}
-                                        </a>
-                                        {% if inquiry.email %}
-                                        <a href="mailto:{{ inquiry.email }}" class="hover:text-primary transition-colors text-[11px] text-on-surface-variant flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[12px] opacity-70">mail</span> {{ inquiry.email }}
-                                        </a>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <td class="p-4 text-xs font-bold text-on-surface-variant">
-                                    {% if inquiry.module %}
-                                        {{ inquiry.line_items.count }} item(s) selected
-                                    {% else %}
-                                        Product: {{ inquiry.product.name }} (Qty: {{ inquiry.quantity }})
-                                    {% endif %}
-                                </td>
-                                <td class="p-4 text-xs text-on-surface-variant">
-                                    {{ inquiry.created_at|date:"d M Y, h:i A" }}
-                                </td>
-                                <td class="p-4">
-                                    <span class="font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider
-                                        {% if inquiry.status == 'NEW' %}
-                                            bg-primary/10 text-primary border border-primary/20
-                                        {% elif inquiry.status == 'CONTACTED' %}
-                                            bg-secondary/10 text-secondary border border-secondary/20
-                                        {% else %}
-                                            bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20
-                                        {% endif %}">
-                                        {{ inquiry.get_status_display }}
-                                    </span>
-                                </td>
-                                <td class="p-4">
-                                    <div class="flex items-center justify-center gap-2 flex-nowrap w-full whitespace-nowrap">
-                                        {% if inquiry.module %}
-                                        <!-- View Details Trigger -->
-                                        <button onclick="viewInquiryDetails({{ inquiry.pk }})" class="bg-secondary text-on-secondary px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm hover:shadow-md transition-shadow whitespace-nowrap">
-                                            <span class="material-symbols-outlined text-sm">visibility</span> View Items
-                                        </button>
-                                        {% endif %}
-
-                                        <!-- Update status form -->
-                                        <form method="POST" action="{% url 'update_inquiry_status' inquiry.pk %}" class="inline-block m-0 flex-shrink-0" onsubmit="updateInquiryStatus(this, event)">
-                                            {% csrf_token %}
-                                            {% if inquiry.status == 'NEW' %}
-                                            <input type="hidden" name="status" value="CONTACTED">
-                                            <button type="submit" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-secondary/20 whitespace-nowrap">
-                                                <span class="material-symbols-outlined text-sm">call</span> Contacted
-                                            </button>
-                                            {% elif inquiry.status == 'CONTACTED' %}
-                                            <input type="hidden" name="status" value="CLOSED">
-                                            <button type="submit" class="bg-on-surface/10 text-on-surface hover:bg-on-surface hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-on-surface/20 whitespace-nowrap">
-                                                <span class="material-symbols-outlined text-sm">check_circle</span> Close
-                                            </button>
-                                            {% else %}
-                                            <input type="hidden" name="status" value="NEW">
-                                            <button type="submit" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 border border-primary/20 whitespace-nowrap">
-                                                <span class="material-symbols-outlined text-sm">restore</span> Reopen
-                                            </button>
-                                            {% endif %}
-                                        </form>
-                                        
-                                        <!-- Delete button -->
-                                        <button type="button" onclick="confirmDeleteInquiry({{ inquiry.pk }})" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg flex-shrink-0" title="Delete Inquiry">
-                                            <span class="material-symbols-outlined text-[18px]">delete</span>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="7" class="text-center p-12">
-                                    <p class="font-body-lg text-on-surface-variant font-bold">No inquiries found matching this filter.</p>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        <tbody id="inquiriesTableBody" class="text-on-surface font-body-md text-sm">
+                            <!-- Populated dynamically via JS -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Inquiries Pagination -->
+                <div id="inquiriesPaginationContainer" class="flex justify-between items-center mt-6 flex-wrap gap-4 relative z-10">
+                    <span id="inquiriesPaginationInfo" class="text-xs text-on-surface-variant/80 font-semibold"></span>
+                    <div class="flex gap-2">
+                        <button id="btnPrevInquiries" onclick="changeInquiriesPage(-1)" class="px-4 py-2 border border-outline-variant/30 rounded-xl text-xs font-bold hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+                        <button id="btnNextInquiries" onclick="changeInquiriesPage(1)" class="px-4 py-2 border border-outline-variant/30 rounded-xl text-xs font-bold hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- SECTION 2: SALES REPORTS -->
+        <div id="section-closed-inquiries" class="hidden">
+            <div class="bg-white border border-outline-variant/30 rounded-2xl p-8 shadow-sm">
+                <div class="mb-8">
+                    <h2 class="font-display-lg text-3xl text-on-surface">Closed Inquiries</h2>
+                    <p class="font-body-md text-sm text-on-surface-variant mt-1">Review customers by the result of their inquiry.</p>
+                </div>
+                <div class="grid gap-6" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+                    <div class="rounded-2xl border border-secondary/20 overflow-hidden">
+                        <div class="bg-secondary/10 px-5 py-4 flex items-center justify-between">
+                            <h3 class="font-label-md text-secondary uppercase tracking-wider">Customer Won</h3>
+                            <span id="closedWonCount" class="text-xs font-bold text-secondary"></span>
+                        </div>
+                        <div id="closedWonList" class="divide-y divide-outline-variant/15"></div>
+                    </div>
+                    <div class="rounded-2xl border border-error/20 overflow-hidden">
+                        <div class="bg-error/10 px-5 py-4 flex items-center justify-between">
+                            <h3 class="font-label-md text-error uppercase tracking-wider">Customer Lost</h3>
+                            <span id="closedLostCount" class="text-xs font-bold text-error"></span>
+                        </div>
+                        <div id="closedLostList" class="divide-y divide-outline-variant/15"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="section-sales" class="hidden">
             <!-- Top Metrics -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
@@ -635,10 +610,29 @@
             </div>
         </div>
 
+        <div id="inqModalHistorySection" class="hidden">
+            <h4 class="font-label-md text-sm uppercase tracking-wider text-on-surface mb-3 flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-secondary">history</span> Previous Inquiries
+            </h4>
+            <div id="inqModalHistory" class="rounded-2xl border border-outline-variant/20 divide-y divide-outline-variant/15 text-xs"></div>
+        </div>
+
         <!-- Footer Actions -->
         <div class="flex justify-end pt-4 border-t border-outline-variant/20">
             <button onclick="closeInquiryDetailModal()" class="bg-surface text-on-surface-variant border border-outline-variant/30 font-label-md px-6 py-3 rounded-full hover:bg-background transition-colors text-xs uppercase tracking-wider">Close</button>
         </div>
+    </div>
+</div>
+
+<div id="closeInquiryModal" class="fixed inset-0 bg-on-surface/80 hidden items-center justify-center p-4 backdrop-blur-sm" style="z-index: 2100;">
+    <div class="bg-white rounded-3xl w-full max-w-md p-7 shadow-2xl">
+        <h3 class="font-display-lg text-2xl text-on-surface">Close inquiry</h3>
+        <p class="text-sm text-on-surface-variant mt-2">Select the outcome for this customer.</p>
+        <div class="grid grid-cols-2 gap-3 mt-6">
+            <button onclick="closeInquiry('WON')" class="bg-secondary text-on-secondary font-label-md px-4 py-4 rounded-xl hover:scale-[1.02] transition-transform">Customer Won</button>
+            <button onclick="closeInquiry('LOST')" class="bg-error text-white font-label-md px-4 py-4 rounded-xl hover:scale-[1.02] transition-transform">Customer Lost</button>
+        </div>
+        <button onclick="closeCloseInquiryModal()" class="w-full mt-3 py-3 text-xs font-bold text-on-surface-variant hover:text-on-surface">Cancel</button>
     </div>
 </div>
 
@@ -750,16 +744,19 @@
         document.getElementById('section-products').classList.add('hidden');
         document.getElementById('section-orders').classList.add('hidden');
         document.getElementById('section-inquiries').classList.add('hidden');
+        document.getElementById('section-closed-inquiries').classList.add('hidden');
         document.getElementById('section-sales').classList.add('hidden');
         
         const btnProducts = document.getElementById('tab-products');
         const btnOrders = document.getElementById('tab-orders');
         const btnInquiries = document.getElementById('tab-inquiries');
+        const btnClosedInquiries = document.getElementById('tab-closed-inquiries');
         const btnSales = document.getElementById('tab-sales');
         
         btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
         if (btnOrders) btnOrders.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
         btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
+        btnClosedInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
         btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
 
         document.getElementById('section-' + tab).classList.remove('hidden');
@@ -771,6 +768,10 @@
             loadOrders();
         } else if (tab === 'inquiries') {
             btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            loadInquiries();
+        } else if (tab === 'closed-inquiries') {
+            btnClosedInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            loadClosedInquiries();
         } else if (tab === 'sales') {
             btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
         }
@@ -853,9 +854,10 @@
 
     function loadOrders() {
         const body = document.getElementById('ordersTableBody');
+        if (!body) return;
         body.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center p-12">
+                <td colspan="9" class="text-center p-12">
                     <p class="text-on-surface-variant font-bold flex items-center justify-center gap-2">
                         <svg class="animate-spin h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -883,7 +885,7 @@
             .catch(err => {
                 body.innerHTML = `
                     <tr>
-                        <td colspan="8" class="text-center p-12 text-error font-bold">
+                        <td colspan="9" class="text-center p-12 text-error font-bold">
                             ⚠️ Failed to retrieve orders: ${err.message}
                         </td>
                     </tr>
@@ -893,6 +895,7 @@
 
     function renderOrdersTable(data) {
         const body = document.getElementById('ordersTableBody');
+        if (!body) return;
         body.innerHTML = '';
         
         document.getElementById('btnPrevOrders').disabled = !data.has_previous;
@@ -902,7 +905,7 @@
         if (data.orders.length === 0) {
             body.innerHTML = `
                 <tr>
-                    <td colspan="8" class="text-center p-12">
+                    <td colspan="9" class="text-center p-12">
                         <p class="font-body-lg text-on-surface-variant font-bold">No orders found.</p>
                     </td>
                 </tr>
@@ -914,22 +917,63 @@
             const tr = document.createElement('tr');
             tr.className = 'border-b border-outline-variant/10 hover:bg-background transition-colors';
             
-            const selectHtml = renderStatusDropdownHtml(order.id, order.order_status);
-            
+            let badgeClass = "bg-primary/10 text-primary border-primary/20";
+            if (order.order_status === 'CONFIRMED') badgeClass = "bg-secondary/10 text-secondary border-secondary/20";
+            else if (order.order_status === 'PACKED') badgeClass = "bg-butter/60 text-tangerine border-tangerine/30";
+            else if (order.order_status === 'SHIPPED') badgeClass = "bg-sea/10 text-sea border-sea/20";
+            else if (order.order_status === 'DELIVERED') badgeClass = "bg-emerald-100 text-emerald-800 border-emerald-300";
+            else if (order.order_status === 'CANCELLED') badgeClass = "bg-error/10 text-error border-error/20";
+            else if (order.order_status === 'RETURNED') badgeClass = "bg-purple-100 text-purple-800 border-purple-300";
+
+            const statusBadgeHtml = `<span class="inline-block px-3 py-1 text-xs font-bold rounded-full border ${badgeClass}">${order.order_status_display}</span>`;
+
+            const isTerminal = ['CANCELLED', 'RETURNED'].includes(order.order_status);
+            const canAdvance = order.can_advance && !isTerminal;
+            const canCancel = order.can_cancel && !isTerminal;
+            const canReturn = order.order_status === 'DELIVERED';
+
+            let actionsHtml = `<div class="flex items-center justify-center gap-2 whitespace-nowrap">`;
+            if (canAdvance) {
+                actionsHtml += `
+                    <button onclick="advanceOrderStatus(${order.id}, '${order.order_no}')" class="bg-secondary text-on-secondary hover:bg-secondary/90 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm" title="Advance to next status">
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Next Status
+                    </button>
+                `;
+            }
+            if (canCancel) {
+                actionsHtml += `
+                    <button onclick="cancelOrder(${order.id}, '${order.order_no}')" class="border border-error/40 text-error hover:bg-error hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1" title="Cancel Order">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span> Cancel
+                    </button>
+                `;
+            }
+            if (canReturn) {
+                actionsHtml += `
+                    <button onclick="returnOrder(${order.id}, '${order.order_no}')" class="border border-purple-300 text-purple-700 hover:bg-purple-700 hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1" title="Mark order as returned">
+                        <span class="material-symbols-outlined text-[16px]">keyboard_return</span> Returned
+                    </button>
+                `;
+            }
+            if (!canAdvance && !canCancel && !canReturn) {
+                actionsHtml += `<span class="text-xs text-on-surface-variant/60 font-semibold italic">Terminal Status</span>`;
+            }
+            actionsHtml += `</div>`;
+
             tr.innerHTML = `
                 <td class="p-4 font-bold text-primary">${order.order_no}</td>
                 <td class="p-4 font-bold text-sm">${order.customer_name}</td>
                 <td class="p-4 text-xs text-on-surface-variant max-w-[200px] truncate" title="${order.shipping_address}">${order.shipping_address}</td>
-                <td class="p-4 text-xs font-semibold max-w-[180px] truncate" title="${order.items_summary}">${order.items_summary}</td>
-                <td class="p-4 font-bold text-on-surface">₹${order.total_amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                <td class="p-4">${selectHtml}</td>
-                <td class="p-4 text-xs text-on-surface-variant">${order.created_at_str}</td>
+                <td class="p-4 text-xs font-semibold max-w-[220px] truncate" title="${order.items_summary}">${order.items_summary}</td>
+                <td class="p-4 font-bold text-on-surface">Rs. ${order.total_amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="p-4 text-center">${statusBadgeHtml}</td>
+                <td class="p-4 text-center">${actionsHtml}</td>
+                <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${order.created_at_str}</td>
                 <td class="p-4 text-center">
                     <div class="flex items-center justify-center gap-2">
-                        <button onclick="viewOrderDetails(${order.id})" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-secondary/20" title="View Order Detail">
+                        <button onclick="viewOrderDetails(${order.id})" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-secondary/20" title="View Order Detail">
                             <span class="material-symbols-outlined text-[16px]">visibility</span> Detail
                         </button>
-                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors p-2 rounded-lg border border-primary/20" title="Download Invoice">
+                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors p-1.5 rounded-lg border border-primary/20" title="Download Invoice">
                             <span class="material-symbols-outlined text-[18px]">download</span>
                         </a>
                     </div>
@@ -939,56 +983,73 @@
         });
     }
 
-    function renderStatusDropdownHtml(orderId, currentStatus) {
-        let html = `<select onchange="updateOrderStatus(${orderId}, this)" class="bg-surface border border-outline-variant rounded-xl px-2.5 py-1.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-primary" data-current="${currentStatus}">`;
-        const allowed = STATUS_TRANSITIONS[currentStatus] || [];
-        
-        const keys = Object.keys(STATUS_LABELS);
-        keys.forEach(key => {
-            const isCurrent = key === currentStatus;
-            const isAllowed = allowed.includes(key);
-            const disabledAttr = (isCurrent || isAllowed) ? '' : 'disabled class="text-on-surface-variant/40"';
-            const selectedAttr = isCurrent ? 'selected' : '';
-            html += `<option value="${key}" ${disabledAttr} ${selectedAttr}>${STATUS_LABELS[key]}</option>`;
-        });
-        
-        html += `</select>`;
-        return html;
-    }
-
-    function updateOrderStatus(orderId, selectElement) {
-        const previousStatus = selectElement.getAttribute('data-current');
-        const newStatus = selectElement.value;
-        
-        if (previousStatus === newStatus) return;
-        
-        if (!confirm(`Are you sure you want to change order status from ${previousStatus} to ${newStatus}?`)) {
-            selectElement.value = previousStatus;
-            return;
-        }
-        
+    function advanceOrderStatus(orderId, orderNo) {
         fetch(`/api/admin/orders/${orderId}/status/`, {
-            method: 'PATCH',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify({ action: 'next' })
         })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => { throw new Error(err.error || 'Failed to update status') });
-            }
-            return response.json();
+        .then(res => {
+            if (!res.ok) return res.json().then(e => { throw new Error(e.error || 'Failed to update order status') });
+            return res.json();
         })
         .then(data => {
-            showToast('Success', `Order status updated to ${data.order_status_display} successfully!`, 'success');
-            selectElement.setAttribute('data-current', data.order_status);
+            showToast('Success', `Order ${orderNo} status updated to ${data.order_status_display}!`, 'success');
             loadOrders();
         })
-        .catch(error => {
-            showToast('Error', error.message, 'error');
-            selectElement.value = previousStatus;
+        .catch(err => {
+            showToast('Error', err.message, 'error');
+        });
+    }
+
+    function cancelOrder(orderId, orderNo) {
+        if (!confirm(`Are you sure you want to cancel Order ${orderNo}?`)) return;
+        
+        fetch(`/api/admin/orders/${orderId}/status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ action: 'cancel' })
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(e => { throw new Error(e.error || 'Failed to cancel order') });
+            return res.json();
+        })
+        .then(data => {
+            showToast('Success', `Order ${orderNo} status updated to ${data.order_status_display}!`, 'success');
+            loadOrders();
+        })
+        .catch(err => {
+            showToast('Error', err.message, 'error');
+        });
+    }
+
+    function returnOrder(orderId, orderNo) {
+        if (!confirm(`Mark Order ${orderNo} as returned?`)) return;
+
+        fetch(`/api/admin/orders/${orderId}/status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ status: 'RETURNED' })
+        })
+        .then(res => {
+            if (!res.ok) return res.json().then(e => { throw new Error(e.error || 'Failed to return order') });
+            return res.json();
+        })
+        .then(data => {
+            showToast('Success', `Order ${orderNo} status updated to ${data.order_status_display}!`, 'success');
+            loadOrders();
+        })
+        .catch(err => {
+            showToast('Error', err.message, 'error');
         });
     }
 
@@ -1139,6 +1200,254 @@
         });
     }
 
+    // --- INQUIRIES LOADER ENGINE ---
+    let currentInquiriesPage = 1;
+    let inquiriesFilter = {
+        search: '',
+        module: '',
+        status: '',
+        dateStart: '',
+        dateEnd: ''
+    };
+
+    function loadInquiries() {
+        const body = document.getElementById('inquiriesTableBody');
+        if (!body) return;
+        body.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center p-12">
+                    <p class="text-on-surface-variant font-bold flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg> Loading inquiries...
+                    </p>
+                </td>
+            </tr>
+        `;
+
+        let url = `/api/admin/inquiries/?page=${currentInquiriesPage}`;
+        if (inquiriesFilter.search) url += `&q=${encodeURIComponent(inquiriesFilter.search)}`;
+        if (inquiriesFilter.module) url += `&module=${encodeURIComponent(inquiriesFilter.module)}`;
+        if (inquiriesFilter.status) url += `&status=${encodeURIComponent(inquiriesFilter.status)}`;
+        if (inquiriesFilter.dateStart) url += `&date_start=${encodeURIComponent(inquiriesFilter.dateStart)}`;
+        if (inquiriesFilter.dateEnd) url += `&date_end=${encodeURIComponent(inquiriesFilter.dateEnd)}`;
+
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error('Unauthorized or connection error.');
+                return res.json();
+            })
+            .then(data => {
+                renderInquiriesTable(data);
+            })
+            .catch(err => {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-12 text-error font-bold">
+                            ⚠️ Failed to retrieve inquiries: ${err.message}
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+
+    function renderInquiriesTable(data) {
+        const body = document.getElementById('inquiriesTableBody');
+        if (!body) return;
+        body.innerHTML = '';
+        
+        const prevBtn = document.getElementById('btnPrevInquiries');
+        const nextBtn = document.getElementById('btnNextInquiries');
+        const infoSpan = document.getElementById('inquiriesPaginationInfo');
+        if (prevBtn) prevBtn.disabled = !data.has_previous;
+        if (nextBtn) nextBtn.disabled = !data.has_next;
+        if (infoSpan) infoSpan.innerText = `Page ${data.current_page} of ${data.num_pages} (Total: ${data.total_count} inquiries)`;
+        
+        if (!data.inquiries || data.inquiries.length === 0) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center p-12">
+                        <p class="font-body-lg text-on-surface-variant font-bold">No inquiries found.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        data.inquiries.forEach(inq => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-outline-variant/10 hover:bg-background transition-colors';
+            
+            let moduleBadgeHtml = '';
+            if (inq.module === 'indoor') {
+                moduleBadgeHtml = `<span class="bg-primary/10 text-primary border border-primary/20 font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">Indoor Catalog</span>`;
+            } else if (inq.module === 'outdoor') {
+                moduleBadgeHtml = `<span class="bg-secondary/10 text-secondary border border-secondary/20 font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">Outdoor Catalog</span>`;
+            } else if (inq.module === 'mr_sports') {
+                moduleBadgeHtml = `<span class="bg-tertiary/10 text-tertiary border border-tertiary/20 font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">MR Sports Catalog</span>`;
+            } else {
+                moduleBadgeHtml = `<span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">Single Product</span>`;
+            }
+
+            let statusBadgeClass = 'bg-primary/10 text-primary border-primary/20';
+            if (inq.status === 'CONTACTED') statusBadgeClass = 'bg-secondary/10 text-secondary border-secondary/20';
+            else if (inq.status === 'CLOSED') statusBadgeClass = 'bg-on-surface-variant/10 text-on-surface-variant border-on-surface-variant/20';
+
+            const actionButtonsHtml = `
+                <div class="flex flex-col items-center gap-2">
+                    <button onclick="viewInquiryDetails(${inq.id})" class="bg-secondary text-on-secondary px-2.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm hover:shadow-md transition-shadow whitespace-nowrap">
+                        <span class="material-symbols-outlined text-sm">visibility</span> View Details
+                    </button>
+                    <button onclick="openCloseInquiryModal(${inq.id})" class="border border-on-surface-variant/30 text-on-surface hover:bg-on-surface hover:text-white px-2.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap">
+                        Close Inquiry
+                    </button>
+                </div>
+            `;
+
+            tr.innerHTML = `
+                <td class="p-4 font-bold text-primary text-sm">${inq.inquiry_no || ('INQ-' + String(inq.id).padStart(4, '0'))}</td>
+                <td class="p-4">${moduleBadgeHtml}</td>
+                <td class="p-4 font-bold text-sm">${inq.customer_name}</td>
+                <td class="p-4 text-sm font-semibold text-on-surface whitespace-nowrap">
+                    <a href="tel:${inq.phone_number}" class="hover:text-primary transition-colors text-xs flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[12px] opacity-70">call</span> ${inq.phone_number}
+                    </a>
+                </td>
+                <td class="p-4 text-sm font-semibold text-on-surface min-w-0">
+                    ${inq.email && inq.email !== 'N/A' ? `
+                    <a href="mailto:${inq.email}" class="hover:text-primary transition-colors text-xs flex items-center gap-1 truncate" title="${inq.email}">
+                        <span class="material-symbols-outlined text-[12px] opacity-70 flex-shrink-0">mail</span> <span class="truncate">${inq.email}</span>
+                    </a>` : '<span class="text-xs text-on-surface-variant">—</span>'}
+                </td>
+                <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${inq.created_at_str}</td>
+                <td class="p-4">
+                    <span class="font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider border ${statusBadgeClass}">${inq.status_display}</span>
+                </td>
+                <td class="p-4 text-center">${actionButtonsHtml}</td>
+            `;
+            body.appendChild(tr);
+        });
+    }
+
+    let closeInquiryId = null;
+
+    function openCloseInquiryModal(inquiryId) {
+        closeInquiryId = inquiryId;
+        const modal = document.getElementById('closeInquiryModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.style.display = 'flex';
+    }
+
+    function closeCloseInquiryModal() {
+        closeInquiryId = null;
+        const modal = document.getElementById('closeInquiryModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+
+    function closeInquiry(outcome) {
+        if (!closeInquiryId) return;
+
+        fetch(`/api/admin/inquiries/${closeInquiryId}/close/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ outcome })
+        })
+        .then(response => {
+            if (!response.ok) return response.json().then(error => { throw new Error(error.error || 'Failed to close inquiry.'); });
+            return response.json();
+        })
+        .then(() => {
+            closeCloseInquiryModal();
+            showToast('Inquiry closed', `Customer marked as ${outcome === 'WON' ? 'won' : 'lost'}.`, 'success');
+            loadInquiries();
+        })
+        .catch(error => showToast('Error', error.message, 'error'));
+    }
+
+    function loadClosedInquiries() {
+        fetch('/api/admin/inquiries/closed/')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load closed inquiries.');
+                return response.json();
+            })
+            .then(data => {
+                renderClosedInquiryList('closedWonList', 'closedWonCount', data.won, 'No won customers yet.');
+                renderClosedInquiryList('closedLostList', 'closedLostCount', data.lost, 'No lost customers yet.');
+            })
+            .catch(error => showToast('Error', error.message, 'error'));
+    }
+
+    function renderClosedInquiryList(listId, countId, inquiries, emptyMessage) {
+        const list = document.getElementById(listId);
+        document.getElementById(countId).textContent = inquiries.length;
+        list.innerHTML = inquiries.length ? inquiries.map(inquiry => `
+            <div class="flex items-center justify-between gap-4 px-5 py-4">
+                <div class="min-w-0">
+                    <p class="font-bold text-on-surface truncate">${inquiry.customer_name}</p>
+                    <p class="text-xs text-on-surface-variant mt-0.5">${inquiry.inquiry_no}</p>
+                </div>
+                <button onclick="viewInquiryDetails(${inquiry.id})" class="shrink-0 bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">visibility</span> View Details
+                </button>
+            </div>
+        `).join('') : `<p class="px-5 py-7 text-sm text-on-surface-variant">${emptyMessage}</p>`;
+    }
+
+    function updateInquiryStatusDirect(inquiryId, newStatus) {
+        const formData = new FormData();
+        formData.append('status', newStatus);
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+        fetch(`/admin-panel/inquiries/${inquiryId}/status/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update inquiry status.');
+            showToast('Success', `Inquiry status updated to ${newStatus}!`, 'success');
+            loadInquiries();
+        })
+        .catch(error => {
+            showToast('Error', error.message, 'error');
+        });
+    }
+
+    function applyInquiryFilters() {
+        inquiriesFilter.search = document.getElementById('inquirySearchInput').value.trim();
+        inquiriesFilter.module = document.getElementById('inquiryModuleFilter').value.trim();
+        inquiriesFilter.status = document.getElementById('inquiryStatusFilter').value.trim();
+        inquiriesFilter.dateStart = document.getElementById('inquiryDateStart').value.trim();
+        inquiriesFilter.dateEnd = document.getElementById('inquiryDateEnd').value.trim();
+        currentInquiriesPage = 1;
+        loadInquiries();
+    }
+
+    function resetInquiryFilters() {
+        document.getElementById('inquirySearchInput').value = '';
+        document.getElementById('inquiryModuleFilter').value = '';
+        document.getElementById('inquiryStatusFilter').value = '';
+        document.getElementById('inquiryDateStart').value = '';
+        document.getElementById('inquiryDateEnd').value = '';
+        inquiriesFilter = { search: '', module: '', status: '', dateStart: '', dateEnd: '' };
+        currentInquiriesPage = 1;
+        loadInquiries();
+    }
+
+    function changeInquiriesPage(step) {
+        currentInquiriesPage += step;
+        loadInquiries();
+    }
+
     // --- INQUIRIES SYSTEM ---
     function viewInquiryDetails(inquiryId) {
         fetch(`/api/admin/inquiries/${inquiryId}/`)
@@ -1169,6 +1478,19 @@
                     `;
                     tbody.appendChild(row);
                 });
+
+                const historySection = document.getElementById('inqModalHistorySection');
+                const history = document.getElementById('inqModalHistory');
+                history.innerHTML = data.previous_inquiries.map(inquiry => `
+                    <div class="flex items-center justify-between gap-3 p-3">
+                        <div>
+                            <p class="font-semibold text-on-surface">${inquiry.inquiry_no}</p>
+                            <p class="text-on-surface-variant mt-0.5">${inquiry.items.join(', ') || 'No selected products'}</p>
+                        </div>
+                        <span class="text-on-surface-variant text-right">${inquiry.status_display}<br>${inquiry.created_at_str}</span>
+                    </div>
+                `).join('');
+                historySection.classList.toggle('hidden', data.previous_inquiries.length === 0);
                 
                 const modal = document.getElementById('inquiryDetailModal');
                 modal.classList.remove('hidden');

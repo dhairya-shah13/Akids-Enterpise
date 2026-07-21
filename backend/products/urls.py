@@ -44,6 +44,8 @@ urlpatterns = [
     path('<slug:module_type>/view-all-products/', views.view_all_products, name='view_all_products'),
     path('api/inquiries/', views.submit_catalog_inquiry, name='submit_catalog_inquiry'),
     path('api/admin/inquiries/', views.api_admin_inquiries, name='api_admin_inquiries'),
+    path('api/admin/inquiries/closed/', views.api_admin_closed_inquiries, name='api_admin_closed_inquiries'),
     path('api/admin/inquiries/<int:pk>/', views.api_admin_inquiry_detail, name='api_admin_inquiry_detail'),
+    path('api/admin/inquiries/<int:pk>/close/', views.api_admin_inquiry_close, name='api_admin_inquiry_close'),
     path('profile/', views.profile_view, name='profile'),
 ]
