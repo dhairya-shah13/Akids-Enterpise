@@ -354,8 +354,6 @@ def indoors_view(request):
 def outdoors_view(request):
     return category_listing(request, 'OUTDOORS', 'products/outdoors.html')
 
-def parts_view(request):
-    return category_listing(request, 'PARTS', 'products/parts.html')
 
 def mrsports_view(request):
     return category_listing(request, 'MRSPORTS', 'products/mrsports.html')

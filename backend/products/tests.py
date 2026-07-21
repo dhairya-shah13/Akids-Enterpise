@@ -23,7 +23,7 @@ class CompanyPagesTests(TestCase):
 
 class MRSportsTests(TestCase):
     def test_mr_sports_page_uses_its_new_name_and_olive_background(self):
-        response = self.client.get(reverse('rfsports'))
+        response = self.client.get(reverse('mrsports'))
 
         self.assertContains(response, 'MR Sports')
         self.assertContains(response, 'background-color: #e7e9cf')

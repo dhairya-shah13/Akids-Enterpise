@@ -8,7 +8,6 @@ urlpatterns = [
     path('', views.home_view, name='home'),
     path('indoors/', views.indoors_view, name='indoors'),
     path('outdoors/', views.outdoors_view, name='outdoors'),
-    path('parts/', views.parts_view, name='parts'),
     path('mrsports/', views.mrsports_view, name='mrsports'),
     path('about/', views.company_page, {'page': 'about'}, name='about'),
     path('safety-standards/', views.company_page, {'page': 'safety'}, name='safety_standards'),

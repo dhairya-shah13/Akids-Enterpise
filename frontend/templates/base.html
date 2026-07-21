@@ -93,7 +93,6 @@
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">Home</a>
                 {% include "products/nav_dropdown.html" with label="Indoors" module_type="indoor" online_url="indoors" current_module=module_type %}
                 {% include "products/nav_dropdown.html" with label="Outdoors" module_type="outdoor" online_url="outdoors" current_module=module_type %}
-                <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'parts' %}active{% endif %}" href="{% url 'parts' %}">Components</a>
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'mrsports' %}active{% endif %}" href="{% url 'mrsports' %}">MR Sports</a>
             </nav>
             {% endif %}
@@ -154,7 +153,6 @@
                 <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-tangerine{% endif %}">Home</a>
                 <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-tangerine{% endif %}">Indoors</a>
                 <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-tangerine{% endif %}">Outdoors</a>
-                <a href="{% url 'parts' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'parts' %}active text-tangerine{% endif %}">Components</a>
                 <a href="{% url 'mrsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'mrsports' %}active text-tangerine{% endif %}">MR Sports</a>
                 
                 <a href="{% url 'cart' %}" class="bg-tangerine text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
@@ -211,7 +209,6 @@
                     <nav class="flex flex-col gap-3">
                         <a href="{% url 'indoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Indoor</a>
                         <a href="{% url 'outdoors' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Outdoor Play</a>
-                        <a href="{% url 'parts' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">Components</a>
                         <a href="{% url 'mrsports' %}" class="text-on-surface-variant hover:text-tangerine text-sm transition-colors">MR Sports</a>
                     </nav>
                 </div>
