@@ -4,6 +4,18 @@
 
 {% block extra_head %}
 <style>
+    /* Hide scrollbars completely */
+    html, body, iframe, div {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+    ::-webkit-scrollbar {
+        display: none !important;
+        width: 0px !important;
+        height: 0px !important;
+        background: transparent !important;
+    }
+
     @media (max-width: 1023px) {
         #inquiryContainer {
             display: none !important;
