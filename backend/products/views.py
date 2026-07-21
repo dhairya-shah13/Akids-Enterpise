@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem
+from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile
 from .search import search_products
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
@@ -506,6 +506,8 @@ def checkout_view(request):
     if any(not item['is_available'] for item in cart_items):
         return redirect(f"{reverse('cart')}?toast=unavailable")
 
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip()
         shipping_address = request.POST.get('shipping_address', '').strip()
@@ -514,8 +516,20 @@ def checkout_view(request):
                 'cart_items': cart_items,
                 'subtotal': subtotal,
                 'total': subtotal,
+                'profile': profile,
                 'error': 'Please enter your name and delivery address.',
             })
+
+        # Save to profile if missing
+        updated = False
+        if not profile.full_name:
+            profile.full_name = customer_name
+            updated = True
+        if not profile.shipping_address:
+            profile.shipping_address = shipping_address
+            updated = True
+        if updated:
+            profile.save()
 
         # TODO: Replace this test-mode order creation with Razorpay payment confirmation.
         # This intentionally creates a real order so the admin tracking flow can be tested end to end.
@@ -556,6 +570,7 @@ def checkout_view(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'total': subtotal,
+        'profile': profile,
     })
 
 
