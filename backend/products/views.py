@@ -750,9 +750,12 @@ def view_all_products(request, module_type):
     # Pre-fill inquiry form for logged-in users
     prefill_name = ''
     prefill_email = ''
+    prefill_phone = ''
     if request.user.is_authenticated:
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
         prefill_name = request.user.username
         prefill_email = request.user.email
+        prefill_phone = profile.phone_number
 
     return render(request, 'products/view_all.html', {
         'module_type': module_type,
@@ -762,6 +765,7 @@ def view_all_products(request, module_type):
         'product_codes_json': json.dumps(product_codes),
         'prefill_name': prefill_name,
         'prefill_email': prefill_email,
+        'prefill_phone': prefill_phone,
     })
 
 
@@ -911,6 +915,7 @@ def profile_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
+        profile.phone_number = request.POST.get('phone_number', '').strip()
         profile.shipping_address = request.POST.get('shipping_address', '').strip()
         profile.save()
         return redirect(f"{reverse('profile')}?toast=saved")
