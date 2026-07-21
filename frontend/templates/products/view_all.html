@@ -137,7 +137,7 @@
                     <div class="flex flex-col gap-4">
                         <div>
                             <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Full Name *</label>
-                            <input type="text" id="custName" required placeholder="e.g. Rajesh Kumar" 
+                            <input type="text" id="custName" required placeholder="e.g. Rajesh Kumar" value="{{ prefill_name }}"
                                    class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
                         </div>
                         <div>
@@ -148,7 +148,7 @@
                         </div>
                         <div>
                             <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Email Address *</label>
-                            <input type="email" id="custEmail" required placeholder="e.g. school@gmail.com" 
+                            <input type="email" id="custEmail" required placeholder="e.g. school@gmail.com" value="{{ prefill_email }}"
                                    class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface text-sm transition-shadow">
                         </div>
                     </div>

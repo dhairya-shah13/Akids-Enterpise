@@ -753,12 +753,22 @@ def view_all_products(request, module_type):
         'outdoor': 'Outdoor'
     }
     
+    # Pre-fill inquiry form for logged-in users
+    prefill_name = ''
+    prefill_email = ''
+    if request.user.is_authenticated:
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        prefill_name = profile.full_name or request.user.username
+        prefill_email = request.user.email
+
     return render(request, 'products/view_all.html', {
         'module_type': module_type,
         'module_label': module_labels[module_type],
         'pdf_url': pdf_url,
         'product_codes': product_codes,
-        'product_codes_json': json.dumps(product_codes)
+        'product_codes_json': json.dumps(product_codes),
+        'prefill_name': prefill_name,
+        'prefill_email': prefill_email,
     })
 
 
