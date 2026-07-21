@@ -715,6 +715,11 @@
                 const url = new URL(window.location);
                 url.searchParams.delete('toast');
                 window.history.replaceState({}, '', url);
+            } else if (toastType === 'saved') {
+                showToast('Profile updated successfully!', 'success');
+                const url = new URL(window.location);
+                url.searchParams.delete('toast');
+                window.history.replaceState({}, '', url);
             }
         })();
     </script>

@@ -902,4 +902,19 @@ def api_admin_inquiry_detail(request, pk):
 
 
 def profile_view(request):
-    return redirect('cart')
+    if not request.user.is_authenticated:
+        return redirect(f"{reverse('admin_login')}?next={reverse('profile')}")
+
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        profile.full_name = request.POST.get('full_name', '').strip()
+        profile.shipping_address = request.POST.get('shipping_address', '').strip()
+        profile.save()
+        return redirect(f"{reverse('profile')}?toast=saved")
+
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')[:10]
+    return render(request, 'products/profile.html', {
+        'profile': profile,
+        'orders': orders,
+    })
