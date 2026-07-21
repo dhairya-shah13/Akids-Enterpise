@@ -1,0 +1,3 @@
+# Exclude python project configuration files that confuse the Vercel builder
+pyproject.toml
+uv.lock
