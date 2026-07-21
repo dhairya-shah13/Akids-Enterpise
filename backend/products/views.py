@@ -509,26 +509,20 @@ def checkout_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        customer_name = request.POST.get('customer_name', '').strip()
+        customer_name = request.POST.get('customer_name', '').strip() or request.user.username
         shipping_address = request.POST.get('shipping_address', '').strip()
-        if not customer_name or not shipping_address:
+        if not shipping_address:
             return render(request, 'products/checkout.html', {
                 'cart_items': cart_items,
                 'subtotal': subtotal,
                 'total': subtotal,
                 'profile': profile,
-                'error': 'Please enter your name and delivery address.',
+                'error': 'Please enter your delivery address.',
             })
 
         # Save to profile if missing
-        updated = False
-        if not profile.full_name:
-            profile.full_name = customer_name
-            updated = True
-        if not profile.shipping_address:
+        if not profile.shipping_address and shipping_address:
             profile.shipping_address = shipping_address
-            updated = True
-        if updated:
             profile.save()
 
         # TODO: Replace this test-mode order creation with Razorpay payment confirmation.
@@ -703,10 +697,9 @@ def api_admin_order_status_update(request, order_id):
 
 
 def api_admin_order_invoice(request, order_id):
-    if not request.session.get('is_admin'):
-        return HttpResponse('Unauthorized', status=403)
-        
     order = get_object_or_404(Order.objects.prefetch_related('items'), pk=order_id)
+    if not (request.session.get('is_admin') or (request.user.is_authenticated and order.user == request.user)):
+        return HttpResponse('Unauthorized', status=403)
     try:
         pdf_content = generate_invoice_pdf(order)
         response = HttpResponse(pdf_content, content_type='application/pdf')
@@ -757,8 +750,7 @@ def view_all_products(request, module_type):
     prefill_name = ''
     prefill_email = ''
     if request.user.is_authenticated:
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        prefill_name = profile.full_name or request.user.username
+        prefill_name = request.user.username
         prefill_email = request.user.email
 
     return render(request, 'products/view_all.html', {
@@ -918,12 +910,11 @@ def profile_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == 'POST':
-        profile.full_name = request.POST.get('full_name', '').strip()
         profile.shipping_address = request.POST.get('shipping_address', '').strip()
         profile.save()
         return redirect(f"{reverse('profile')}?toast=saved")
 
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')[:10]
+    orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-created_at')
     return render(request, 'products/profile.html', {
         'profile': profile,
         'orders': orders,

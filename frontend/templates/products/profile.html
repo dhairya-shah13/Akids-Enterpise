@@ -3,81 +3,253 @@
 {% block title %}My Profile | Little Fingers{% endblock %}
 
 {% block content %}
-<div class="py-16 bg-gradient-to-b from-sea/10 to-background min-h-screen">
-    <div class="max-w-3xl mx-auto px-margin-desktop">
-        <div class="flex items-center gap-4 mb-12">
-            <div class="bg-sea text-white w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm rotate-2">
-                <span class="material-symbols-outlined text-3xl">person</span>
+<div class="py-12 bg-gradient-to-b from-sea/10 via-background to-background min-h-screen">
+    <div class="max-w-6xl mx-auto px-margin-desktop">
+        <!-- Page Title Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <div class="bg-sea text-white w-12 h-12 flex items-center justify-center rounded-2xl shadow-sm rotate-2">
+                <span class="material-symbols-outlined text-2xl">person</span>
             </div>
             <div>
-                <h1 class="font-display-lg text-4xl text-on-surface">My Profile</h1>
-                <p class="text-on-surface-variant text-sm mt-1">{{ request.user.email }}</p>
+                <h1 class="font-display-lg text-3xl lg:text-4xl text-on-surface">User Dashboard</h1>
+                <p class="text-on-surface-variant text-xs md:text-sm mt-0.5">Manage your account details and track your orders</p>
             </div>
         </div>
 
-        <!-- Profile Form -->
-        <form method="POST" action="{% url 'profile' %}" class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm flex flex-col gap-5 mb-10">
-            {% csrf_token %}
-            <h3 class="font-display-lg text-xl text-on-surface flex items-center gap-2 border-b border-outline-variant/30 pb-3">
-                <span class="material-symbols-outlined text-sea">edit</span> Account Details
-            </h3>
-
-            <div>
-                <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Full Name</label>
-                <input type="text" name="full_name" value="{{ profile.full_name }}" placeholder="Your full name" class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-sea text-on-surface transition-shadow text-sm">
-            </div>
-
-            <div>
-                <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Shipping Address</label>
-                <textarea name="shipping_address" rows="3" placeholder="Street Address, City, Pincode" class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-sea text-on-surface transition-shadow text-sm">{{ profile.shipping_address }}</textarea>
-            </div>
-
-            <button type="submit" class="bg-sea text-white font-label-md uppercase text-sm py-3 px-6 rounded-xl shadow-sm hover:shadow-md transition-all hover:scale-[1.02] self-start flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">save</span> Save Changes
-            </button>
-        </form>
-
-        <!-- Order History -->
-        <div class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm">
-            <h3 class="font-display-lg text-xl text-on-surface flex items-center gap-2 border-b border-outline-variant/30 pb-3 mb-6">
-                <span class="material-symbols-outlined text-primary">receipt_long</span> Order History
-            </h3>
-
-            {% if orders %}
-            <div class="flex flex-col gap-4">
-                {% for order in orders %}
-                <div class="border border-outline-variant/30 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-primary/30 transition-colors">
-                    <div>
-                        <p class="font-bold text-on-surface text-sm">{{ order.order_no }}</p>
-                        <p class="text-on-surface-variant text-xs mt-1">{{ order.created_at|date:"d M Y, h:i A" }}</p>
+        <!-- Sidebar & Main Content Grid -->
+        <div class="flex flex-col md:flex-row gap-8 items-start">
+            
+            <!-- Left Sidebar Navigation -->
+            <aside class="w-full md:w-72 shrink-0 bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm sticky top-24">
+                <!-- User Profile Card -->
+                <div class="flex flex-col items-center text-center pb-6 border-b border-outline-variant/20 mb-6">
+                    <div class="w-20 h-20 bg-gradient-to-tr from-sea to-tangerine text-white rounded-full flex items-center justify-center text-3xl font-extrabold shadow-md mb-3 uppercase tracking-wider">
+                        {{ request.user.username|slice:":1" }}
                     </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-bold text-on-surface">₹{{ order.total_amount }}</span>
-                        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full
-                            {% if order.order_status == 'DELIVERED' %}bg-green-100 text-green-800
-                            {% elif order.order_status == 'CANCELLED' %}bg-red-100 text-red-800
-                            {% elif order.order_status == 'SHIPPED' %}bg-blue-100 text-blue-800
-                            {% else %}bg-amber-100 text-amber-800{% endif %}">
-                            {{ order.get_order_status_display }}
+                    <h2 class="font-display-lg text-xl text-on-surface font-bold truncate max-w-full" title="{{ request.user.username }}">
+                        {{ request.user.username }}
+                    </h2>
+                    <p class="text-xs text-on-surface-variant/80 font-medium truncate max-w-full mt-0.5">
+                        {{ request.user.email }}
+                    </p>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="flex flex-col gap-2">
+                    <button type="button" onclick="switchProfileTab('account')" id="nav-tab-account" 
+                            class="sidebar-tab-btn active flex items-center justify-between w-full px-4 py-3.5 rounded-2xl font-label-md text-sm font-bold transition-all text-left">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[20px]">manage_accounts</span>
+                            <span>Account Details</span>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="switchProfileTab('orders')" id="nav-tab-orders" 
+                            class="sidebar-tab-btn flex items-center justify-between w-full px-4 py-3.5 rounded-2xl font-label-md text-sm font-bold transition-all text-left text-on-surface-variant hover:bg-background">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                            <span>Order History</span>
+                        </div>
+                        <span class="bg-sea/10 text-sea text-xs px-2.5 py-0.5 rounded-full font-bold">
+                            {{ orders|length }}
                         </span>
+                    </button>
+
+                    <div class="pt-4 border-t border-outline-variant/20 mt-2">
+                        <a href="{% url 'admin_logout' %}" class="flex items-center gap-3 px-4 py-3.5 rounded-2xl font-label-md text-sm font-bold text-error hover:bg-error/10 transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">logout</span>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Right Content Panels -->
+            <main class="flex-1 w-full min-w-0">
+
+                <!-- TAB 1: Account Details -->
+                <div id="content-tab-account" class="profile-tab-content">
+                    <form method="POST" action="{% url 'profile' %}" class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm flex flex-col gap-6">
+                        {% csrf_token %}
+                        <div class="border-b border-outline-variant/30 pb-4 flex items-center justify-between">
+                            <h3 class="font-display-lg text-2xl text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sea">person_pin</span> Account Information
+                            </h3>
+                        </div>
+
+                        <!-- Username (Signup Username - Read Only) -->
+                        <div>
+                            <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface font-bold">Username</label>
+                            <div class="relative">
+                                <input type="text" value="{{ request.user.username }}" readonly 
+                                       class="w-full bg-surface-variant/20 border border-outline-variant/30 rounded-xl px-4 py-3 text-on-surface font-bold text-sm cursor-not-allowed outline-none select-none">
+                                <span class="material-symbols-outlined text-[18px] text-on-surface-variant/50 absolute right-4 top-1/2 -translate-y-1/2">lock</span>
+                            </div>
+                            <p class="text-[11px] text-on-surface-variant/70 mt-1.5 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[14px] text-sea">info</span>
+                                Username used during signup (cannot be changed).
+                            </p>
+                        </div>
+
+                        <!-- Email Address (Read Only) -->
+                        <div>
+                            <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface font-bold">Email Address</label>
+                            <div class="relative">
+                                <input type="email" value="{{ request.user.email }}" readonly 
+                                       class="w-full bg-surface-variant/20 border border-outline-variant/30 rounded-xl px-4 py-3 text-on-surface font-bold text-sm cursor-not-allowed outline-none select-none">
+                                <span class="material-symbols-outlined text-[18px] text-on-surface-variant/50 absolute right-4 top-1/2 -translate-y-1/2">mail</span>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address (Editable) -->
+                        <div>
+                            <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface font-bold">Default Shipping Address</label>
+                            <textarea name="shipping_address" rows="3" placeholder="Enter your full street address, city, state, and pincode..." 
+                                      class="w-full bg-background border border-outline-variant/40 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-sea text-on-surface transition-shadow text-sm leading-relaxed">{{ profile.shipping_address }}</textarea>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="bg-sea text-white font-label-md uppercase text-sm px-6 py-3.5 rounded-2xl shadow-sm hover:shadow-md transition-all hover:scale-[1.02] flex items-center gap-2 font-bold">
+                                <span class="material-symbols-outlined text-[18px]">save</span> Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- TAB 2: Order History -->
+                <div id="content-tab-orders" class="profile-tab-content hidden">
+                    <div class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm">
+                        <div class="border-b border-outline-variant/30 pb-4 mb-6 flex items-center justify-between">
+                            <h3 class="font-display-lg text-2xl text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-tangerine">shopping_bag</span> Order History
+                            </h3>
+                            <span class="text-xs font-bold text-on-surface-variant">Showing {{ orders|length }} order(s)</span>
+                        </div>
+
+                        {% if orders %}
+                        <div class="flex flex-col gap-6">
+                            {% for order in orders %}
+                            <div class="border border-outline-variant/30 rounded-2xl p-6 hover:border-tangerine/30 transition-all shadow-sm bg-background/50">
+                                <!-- Order Header -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-outline-variant/20">
+                                    <div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="font-display-lg text-lg font-bold text-on-surface">Order #{{ order.order_no }}</span>
+                                            <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full
+                                                {% if order.order_status == 'DELIVERED' %}bg-emerald-100 text-emerald-800 border border-emerald-200
+                                                {% elif order.order_status == 'CANCELLED' %}bg-rose-100 text-rose-800 border border-rose-200
+                                                {% elif order.order_status == 'SHIPPED' %}bg-sky-100 text-sky-800 border border-sky-200
+                                                {% else %}bg-amber-100 text-amber-800 border border-amber-200{% endif %}">
+                                                {{ order.get_order_status_display }}
+                                            </span>
+                                        </div>
+                                        <p class="text-xs text-on-surface-variant mt-1 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                                            Placed on {{ order.created_at|date:"d M Y, h:i A" }}
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-right">
+                                            <span class="text-xs text-on-surface-variant block uppercase font-bold">Total Amount</span>
+                                            <span class="font-display-lg text-xl text-tangerine font-bold">₹{{ order.total_amount }}</span>
+                                        </div>
+                                        <a href="{% url 'api_admin_order_invoice' order.id %}" target="_blank" 
+                                           class="bg-white border border-outline-variant/50 hover:border-sea text-sea p-2.5 rounded-xl flex items-center justify-center transition-all shadow-sm"
+                                           title="Download PDF Invoice">
+                                            <span class="material-symbols-outlined text-[20px]">download</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Line Items -->
+                                <div class="pt-4 space-y-3">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-on-surface-variant/80">Items Purchased</h4>
+                                    <div class="divide-y divide-outline-variant/10">
+                                        {% for item in order.items.all %}
+                                        <div class="py-2.5 flex items-center justify-between gap-4 text-sm">
+                                            <div class="flex items-center gap-3 min-w-0">
+                                                <div class="w-8 h-8 rounded-lg bg-white border border-outline-variant/20 flex items-center justify-center shrink-0 text-sea font-bold text-xs">
+                                                    {{ item.quantity }}x
+                                                </div>
+                                                <span class="font-bold text-on-surface truncate">{{ item.product_name }}</span>
+                                            </div>
+                                            <div class="text-right font-semibold text-on-surface shrink-0">
+                                                ₹{{ item.subtotal }}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-16 flex flex-col items-center">
+                            <div class="w-20 h-20 rounded-full bg-butter/30 flex items-center justify-center mb-4 text-tangerine">
+                                <span class="material-symbols-outlined text-[40px]">shopping_bag</span>
+                            </div>
+                            <h4 class="font-display-lg text-xl text-on-surface mb-1">No Orders Found</h4>
+                            <p class="text-on-surface-variant text-sm max-w-sm mb-6">You haven't placed any orders yet. Explore our play equipment catalog to get started!</p>
+                            <a href="{% url 'home' %}" class="bg-tangerine text-white px-6 py-3 rounded-full font-label-md text-sm font-bold shadow-md hover:shadow-lg transition-all hover:scale-105">
+                                Start Shopping
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="text-center py-10">
-                <span class="material-symbols-outlined text-[48px] text-on-surface-variant opacity-40 mb-3 block">shopping_bag</span>
-                <p class="text-on-surface-variant text-sm">No orders yet. Start shopping to see your order history here.</p>
-            </div>
-            {% endif %}
-        </div>
 
-        <!-- Logout -->
-        <div class="mt-8 text-center">
-            <a href="{% url 'admin_logout' %}" class="text-error font-bold text-sm hover:underline inline-flex items-center gap-1">
-                <span class="material-symbols-outlined text-[18px]">logout</span> Sign Out
-            </a>
+            </main>
         </div>
     </div>
 </div>
+
+<style>
+    .sidebar-tab-btn.active {
+        background-color: #008080 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(0, 128, 128, 0.2);
+    }
+    .sidebar-tab-btn.active .material-symbols-outlined {
+        color: #ffffff !important;
+    }
+    .sidebar-tab-btn.active span {
+        color: #ffffff !important;
+    }
+</style>
+
+<script>
+    function switchProfileTab(tabName) {
+        // Toggle buttons
+        const btnAccount = document.getElementById('nav-tab-account');
+        const btnOrders = document.getElementById('nav-tab-orders');
+        const contentAccount = document.getElementById('content-tab-account');
+        const contentOrders = document.getElementById('content-tab-orders');
+
+        if (tabName === 'orders') {
+            btnAccount.classList.remove('active');
+            btnAccount.classList.add('text-on-surface-variant');
+            btnOrders.classList.add('active');
+            btnOrders.classList.remove('text-on-surface-variant');
+
+            contentAccount.classList.add('hidden');
+            contentOrders.classList.remove('hidden');
+        } else {
+            btnOrders.classList.remove('active');
+            btnOrders.classList.add('text-on-surface-variant');
+            btnAccount.classList.add('active');
+            btnAccount.classList.remove('text-on-surface-variant');
+
+            contentOrders.classList.add('hidden');
+            contentAccount.classList.remove('hidden');
+        }
+    }
+
+    // Auto-open tab from URL param (e.g. ?tab=orders)
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('tab') === 'orders') {
+            switchProfileTab('orders');
+        }
+    });
+</script>
 {% endblock %}
