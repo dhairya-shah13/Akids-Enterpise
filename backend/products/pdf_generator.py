@@ -193,8 +193,8 @@ def generate_invoice_pdf(order):
             Paragraph(str(idx), body_style),
             Paragraph(item.product_name, body_style),
             Paragraph(str(item.quantity), body_style),
-            Paragraph(f"₹{item.unit_price:,.2f}", body_style),
-            Paragraph(f"₹{item.subtotal:,.2f}", body_style),
+            Paragraph(f"Rs.{item.unit_price:,.2f}", body_style),
+            Paragraph(f"Rs.{item.subtotal:,.2f}", body_style),
         ])
         
     product_table = Table(table_data, colWidths=[0.5 * inch, 3.5 * inch, 0.7 * inch, 1.4 * inch, 1.4 * inch])
@@ -230,10 +230,10 @@ def generate_invoice_pdf(order):
     sgst = total_gst / 2
     
     totals_data = [
-        [Paragraph("Taxable Amount (Excl. GST)", body_style), Paragraph(f"₹{taxable_amount:,.2f}", body_style)],
-        [Paragraph("CGST (9%)", body_style), Paragraph(f"₹{cgst:,.2f}", body_style)],
-        [Paragraph("SGST (9%)", body_style), Paragraph(f"₹{sgst:,.2f}", body_style)],
-        [Paragraph("<b>TOTAL AMOUNT (Incl. GST)</b>", bold_body_style), Paragraph(f"<b>₹{total:,.2f}</b>", bold_body_style)],
+        [Paragraph("Taxable Amount (Excl. GST)", body_style), Paragraph(f"Rs.{taxable_amount:,.2f}", body_style)],
+        [Paragraph("CGST (9%)", body_style), Paragraph(f"Rs.{cgst:,.2f}", body_style)],
+        [Paragraph("SGST (9%)", body_style), Paragraph(f"Rs.{sgst:,.2f}", body_style)],
+        [Paragraph("<b>TOTAL AMOUNT (Incl. GST)</b>", bold_body_style), Paragraph(f"<b>Rs.{total:,.2f}</b>", bold_body_style)],
     ]
     
     totals_table = Table(totals_data, colWidths=[2.5 * inch, 1.5 * inch])
