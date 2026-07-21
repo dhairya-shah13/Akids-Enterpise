@@ -380,6 +380,8 @@ def product_detail(request, pk):
     related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).exclude(stock__lte=0).order_by('-created_at')[:3]
     return render(request, 'products/product_detail.html', {
         'product': product,
+        'selected_variant': product,
+        'variant_pk': product.pk,
         'related_products': related_products,
         'back_url': back_url,
         'back_label': back_label,
