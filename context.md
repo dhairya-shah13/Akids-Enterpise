@@ -62,7 +62,7 @@ Akids-Enterpise/
             ├── listing.html            # Indoors category listing (product grid with search)
             ├── outdoors.html           # Outdoors category listing (product grid + accessories section)
             ├── parts.html              # Parts category listing (repair shop theme)
-            ├── rfsports.html           # RF Sports category listing ("Coming Soon" hero + admin catalog)
+            ├── mrsports.html           # MR Sports category listing ("Coming Soon" hero + admin catalog)
             ├── product_detail.html     # Single product: gallery, description, contact links, inquiry modal
             ├── cart.html               # Shopping cart: items, quantity controls, login-gating modal
             ├── login.html              # Login page: admin + regular user auth
@@ -143,7 +143,7 @@ class Product(models.Model):
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('RFSPORTS', 'RF Sports'),
+        ('MRSPORTS', 'MR Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -199,7 +199,7 @@ Product ──→ Inquiry (1:N, cascade delete)
 | `/indoors/` | `indoors_view` | `indoors` | Category listing via `category_listing` helper |
 | `/outdoors/` | `outdoors_view` | `outdoors` | Category listing via `category_listing` helper |
 | `/parts/` | `parts_view` | `parts` | Category listing via `category_listing` helper |
-| `/rfsports/` | `rfsports_view` | `rfsports` | Renamed back from `mrsports` |
+| `/mrsports/` | `mrsports_view` | `mrsports` | Renamed to `mrsports` |
 | `/product/<pk>/` | `product_detail` | `product_detail` | Shows single product, details, related items |
 | `/inquiry/submit/` | `submit_inquiry` | `submit_inquiry` | AJAX POST handler for user inquiries |
 | `/login/` | `login_view` | `admin_login` | Admin + user auth with `next` param redirection |
@@ -295,7 +295,7 @@ base.html (header, footer, nav, chat widget, search autocomplete)
 ├── listing.html           (Indoors listing: search bar, product grid)
 ├── outdoors.html          (Outdoors listing: search bar, product grid)
 ├── parts.html             (Parts listing: repair shop theme, product grid)
-├── rfsports.html          (RF Sports listing: Coming soon notification, category grid)
+├── mrsports.html          (MR Sports listing: Coming soon notification, category grid)
 ├── product_detail.html    (Image carousel, description, action buttons, AJAX inquiry modal)
 ├── cart.html              (Items overview, quantities, subtotal, login modal gate)
 ├── login.html             (Sign-in page: admin / user credentials)
@@ -441,7 +441,7 @@ autoprefixer@^10.5.2        # CSS vendor prefixing
 4. **Duplicate home URL**: `urls.py` contains redundant entries for the root path.
 5. **No automated email notifications** upon user inquiry creation.
 6. **Product Detail Variant References**: `product_detail.html` references `selected_variant` objects which are not passed in `views.py` context since the product variants columns/schema have been deleted.
-7. **Category Input in RF Sports**: `rfsports.html` search filter passes `value="MRSPORTS"` as hidden input, while DB category uses `RFSPORTS`.
+7. **Category Input in MR Sports**: `mrsports.html` search filter passes `value="MRSPORTS"` as hidden input, which matches the DB category.
 
 ---
 
@@ -469,6 +469,7 @@ autoprefixer@^10.5.2        # CSS vendor prefixing
 | **Color Scheme & Redesign**| Redesigned styling into customized Antigravity palettes (Tangerine, Sea, Blush, Matcha, Butter) inside `tailwind.config.js` and `theme.css`. |
 | **MRSports Reversion** | Restored RF Sports references in view helpers and views (`rfsports_view`), template renaming (`rfsports.html`), and DB categories. |
 | **Search Autocomplete** | Implemented input search recommendations and dynamic Groq LLM mascot widget conversations. |
+| **MR Sports Rename** | Renamed RF Sports to MR Sports globally (views, routes, templates, model choices, DB category update). |
 
 ---
 
@@ -481,4 +482,4 @@ autoprefixer@^10.5.2        # CSS vendor prefixing
 
 ---
 
-*Last Updated: 2026-07-18. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-07-21. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*

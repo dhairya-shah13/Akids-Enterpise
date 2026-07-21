@@ -9,7 +9,7 @@ urlpatterns = [
     path('indoors/', views.indoors_view, name='indoors'),
     path('outdoors/', views.outdoors_view, name='outdoors'),
     path('parts/', views.parts_view, name='parts'),
-    path('rfsports/', views.rfsports_view, name='rfsports'),
+    path('mrsports/', views.mrsports_view, name='mrsports'),
     path('product/<int:pk>/', views.product_detail, name='product_detail'),
     
     # Admin & Auth Routes

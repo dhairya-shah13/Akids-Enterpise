@@ -246,21 +246,11 @@ def add_product(request):
         price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
-        photo = request.FILES.get('photo')
-        
-        saved_url = None
-        if photo:
-            saved_url = upload_photo_to_supabase(photo)
             
         if name and price:
-            if saved_url:
-                Product.objects.create(name=name, category=category, price=price, description=description, image_url=saved_url)
-            elif photo:
-                Product.objects.create(name=name, category=category, price=price, description=description, image_file=photo)
-            else:
-                if not image_url:
-                    image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
-                Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
+            if not image_url:
+                image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
+            Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
                 
     return redirect('admin_dashboard')
 
@@ -297,8 +287,8 @@ def outdoors_view(request):
 def parts_view(request):
     return category_listing(request, 'PARTS', 'products/parts.html')
 
-def rfsports_view(request):
-    return category_listing(request, 'RFSPORTS', 'products/rfsports.html')
+def mrsports_view(request):
+    return category_listing(request, 'MRSPORTS', 'products/mrsports.html')
 
 def product_detail(request, pk):
     try:
@@ -312,9 +302,9 @@ def product_detail(request, pk):
     if 'outdoor' in category_lower:
         back_url = reverse('outdoors')
         back_label = 'Outdoors'
-    elif 'rf' in category_lower or 'sports' in category_lower:
-        back_url = reverse('rfsports')
-        back_label = 'RF Sports'
+    elif 'mr' in category_lower or 'sports' in category_lower:
+        back_url = reverse('mrsports')
+        back_label = 'MR Sports'
     else:
         back_url = reverse('indoors')
         back_label = 'Indoors'
@@ -648,20 +638,19 @@ def api_admin_order_invoice(request, order_id):
 CATALOGUE_CONFIG = {
     'indoor': '/static/catalogues/indoor-catalogue-march-2026.pdf',
     'outdoor': '/static/catalogues/outdoor-catalogue-march-2026.pdf',
-    'rf_sports': None
+    'mr_sports': None
 }
 
 def view_all_products(request, module_type):
     module_type = module_type.lower()
-    if module_type not in ['indoor', 'outdoor', 'rf_sports']:
+    if module_type not in ['indoor', 'outdoor']:
         return render(request, '404.html', status=404)
         
     pdf_url = CATALOGUE_CONFIG.get(module_type)
     
     category_map = {
         'indoor': 'INDOORS',
-        'outdoor': 'OUTDOORS',
-        'rf_sports': 'RFSPORTS'
+        'outdoor': 'OUTDOORS'
     }
     db_category = category_map[module_type]
     
@@ -676,8 +665,7 @@ def view_all_products(request, module_type):
             
     module_labels = {
         'indoor': 'Indoor',
-        'outdoor': 'Outdoor',
-        'rf_sports': 'RF Sports'
+        'outdoor': 'Outdoor'
     }
     
     return render(request, 'products/view_all.html', {
@@ -708,7 +696,7 @@ def submit_catalog_inquiry(request):
     if not name or not phone_number or not email or not module:
         return JsonResponse({'success': False, 'error': 'Name, Phone, Email, and Module are required.'}, status=400)
         
-    if module not in ['indoor', 'outdoor', 'rf_sports']:
+    if module not in ['indoor', 'outdoor', 'mr_sports']:
         return JsonResponse({'success': False, 'error': 'Invalid module type.'}, status=400)
         
     if not line_items_data or len(line_items_data) == 0:
@@ -755,7 +743,7 @@ def api_admin_inquiries(request):
     
     inquiries = Inquiry.objects.all().prefetch_related('line_items')
     
-    if module_filter in ['indoor', 'outdoor', 'rf_sports']:
+    if module_filter in ['indoor', 'outdoor', 'mr_sports']:
         inquiries = inquiries.filter(module=module_filter)
         
     if date_start:

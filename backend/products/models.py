@@ -8,7 +8,7 @@ class Product(models.Model):
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('RFSPORTS', 'RF Sports'),
+        ('MRSPORTS', 'MR Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -28,7 +28,18 @@ class Product(models.Model):
         if self.image_file:
             return self.image_file.url
         elif self.image_url:
-            return self.image_url
+            url = self.image_url
+            if 'drive.google.com' in url:
+                import re
+                # Match /file/d/<file_id>/view or similar
+                match = re.search(r'/file/d/([^/]+)', url)
+                if match:
+                    return f"https://lh3.googleusercontent.com/d/{match.group(1)}"
+                # Match open?id=<file_id>
+                match_id = re.search(r'[?&]id=([^&]+)', url)
+                if match_id:
+                    return f"https://lh3.googleusercontent.com/d/{match_id.group(1)}"
+            return url
         return "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
 
     def __str__(self):
@@ -44,7 +55,7 @@ class Inquiry(models.Model):
     MODULE_CHOICES = [
         ('indoor', 'Indoor'),
         ('outdoor', 'Outdoor'),
-        ('rf_sports', 'RF Sports'),
+        ('mr_sports', 'MR Sports'),
     ]
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries', null=True, blank=True)
     name = models.CharField(max_length=200)

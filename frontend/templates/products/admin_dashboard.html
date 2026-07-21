@@ -100,12 +100,10 @@
                                     <span class="{% if product.stock > 0 %}text-secondary{% else %}text-error{% endif %} font-bold">{{ product.stock }}</span>
                                 </td>
                                 <td class="p-4 text-center">
-                                    <form method="POST" action="{% url 'delete_product' product.pk %}" onsubmit="return confirm('Delete {{ product.name }} from catalog?');" class="inline-block m-0">
-                                        {% csrf_token %}
-                                        <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Product">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        </button>
-                                    </form>
+                                    {% csrf_token %}
+                                    <button type="button" onclick="confirmDeleteProduct({{ product.pk }}, '{{ product.name|escapejs }}')" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Product">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
                                 </td>
                             </tr>
                             {% empty %}
@@ -258,9 +256,9 @@
                                     <span class="bg-secondary/10 text-secondary border border-secondary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
                                         Outdoor Catalog
                                     </span>
-                                    {% elif inquiry.module == 'rf_sports' %}
+                                    {% elif inquiry.module == 'mr_sports' %}
                                     <span class="bg-tertiary/10 text-tertiary border border-tertiary/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
-                                        RF Sports Catalog
+                                        MR Sports Catalog
                                     </span>
                                     {% else %}
                                     <span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -335,13 +333,10 @@
                                             {% endif %}
                                         </form>
                                         
-                                        <!-- Delete form -->
-                                        <form method="POST" action="{% url 'delete_inquiry' inquiry.pk %}" onsubmit="return confirm('Delete this inquiry?');" class="inline-block m-0">
-                                            {% csrf_token %}
-                                            <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Inquiry">
-                                                <span class="material-symbols-outlined text-[18px]">delete</span>
-                                            </button>
-                                        </form>
+                                        <!-- Delete button -->
+                                        <button type="button" onclick="confirmDeleteInquiry({{ inquiry.pk }})" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg" title="Delete Inquiry">
+                                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -450,7 +445,7 @@
                         <option value="INDOORS">Indoors</option>
                         <option value="OUTDOORS">Outdoors</option>
                         <option value="PARTS">Parts</option>
-                        <option value="RFSPORTS">RF Sports</option>
+                        <option value="MRSPORTS">MR Sports</option>
                     </select>
                 </div>
                 <div>
@@ -647,6 +642,29 @@
     </div>
 </div>
 
+<!-- Custom Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="fixed inset-0 bg-on-surface/60 z-[200] hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 opacity-0">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-6 relative shadow-xl border border-outline-variant/30 transform scale-95 opacity-0 transition-all duration-300">
+        <div class="flex items-start gap-4 mb-4">
+            <div class="bg-error/10 text-error w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[24px]">warning</span>
+            </div>
+            <div>
+                <h3 class="font-display-lg text-lg text-on-surface font-bold">Confirm Deletion</h3>
+                <p id="deleteConfirmMessage" class="text-xs text-on-surface-variant mt-1.5 leading-relaxed">Are you sure you want to delete this?</p>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2.5 mt-6">
+            <button type="button" onclick="closeDeleteConfirmModal()" class="bg-surface text-on-surface-variant border border-outline-variant/30 font-label-md px-4 py-2 rounded-xl hover:bg-background transition-colors text-xs uppercase tracking-wider font-bold">
+                Cancel
+            </button>
+            <button type="button" id="deleteConfirmBtn" class="bg-error text-white font-label-md px-4 py-2 rounded-xl hover:bg-error/90 transition-colors text-xs uppercase tracking-wider font-bold shadow-sm">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     // --- TOAST SYSTEM ---
     let toastContainer = document.getElementById('toast-container');
@@ -778,6 +796,21 @@
         if (urlInput) urlInput.value = '';
     }
 
+    function convertGoogleDriveUrl(url) {
+        if (!url) return '';
+        if (url.includes('drive.google.com')) {
+            const fileDMatch = url.match(/\/file\/d\/([^/]+)/);
+            if (fileDMatch && fileDMatch[1]) {
+                return `https://lh3.googleusercontent.com/d/${fileDMatch[1]}`;
+            }
+            const idMatch = url.match(/[?&]id=([^&]+)/);
+            if (idMatch && idMatch[1]) {
+                return `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+            }
+        }
+        return url;
+    }
+
     function previewImageUrl(event) {
         const input = event.target;
         const container = document.getElementById('imagePreviewContainer');
@@ -785,7 +818,7 @@
         const url = input.value.trim();
 
         if (url) {
-            img.src = url;
+            img.src = convertGoogleDriveUrl(url);
             container.classList.remove('hidden');
         } else {
             clearImagePreview();
@@ -1143,6 +1176,80 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+
+    let deleteTargetId = null;
+    let deleteTargetType = null;
+
+    function confirmDeleteProduct(productId, productName) {
+        deleteTargetId = productId;
+        deleteTargetType = 'product';
+        document.getElementById('deleteConfirmMessage').textContent = `Are you sure you want to delete "${productName}" from the catalog?`;
+        
+        const modal = document.getElementById('deleteConfirmModal');
+        const content = modal.querySelector('div');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95', 'opacity-0');
+        }, 10);
+    }
+
+    function confirmDeleteInquiry(inquiryId) {
+        deleteTargetId = inquiryId;
+        deleteTargetType = 'inquiry';
+        document.getElementById('deleteConfirmMessage').textContent = `Are you sure you want to delete Inquiry #${inquiryId}?`;
+        
+        const modal = document.getElementById('deleteConfirmModal');
+        const content = modal.querySelector('div');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95', 'opacity-0');
+        }, 10);
+    }
+
+    function closeDeleteConfirmModal() {
+        const modal = document.getElementById('deleteConfirmModal');
+        const content = modal.querySelector('div');
+        modal.classList.add('opacity-0');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'opacity-0');
+            content.classList.remove('scale-95', 'opacity-0');
+            deleteTargetId = null;
+            deleteTargetType = null;
+        }, 300);
+    }
+
+    // Set click listener on the confirm delete button
+    window.addEventListener('DOMContentLoaded', () => {
+        const confirmBtn = document.getElementById('deleteConfirmBtn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                if (!deleteTargetId || !deleteTargetType) return;
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                if (deleteTargetType === 'product') {
+                    form.action = `/admin-panel/products/${deleteTargetId}/delete/`;
+                } else {
+                    form.action = `/admin-panel/inquiries/${deleteTargetId}/delete/`;
+                }
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken') || '';
+                
+                form.appendChild(csrfInput);
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+    });
 </script>
 
 

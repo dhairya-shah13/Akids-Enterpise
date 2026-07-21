@@ -2,12 +2,51 @@
 
 {% block title %}{{ module_label }} Catalogue | Little Fingers{% endblock %}
 
+{% block extra_head %}
+<style>
+    @media (max-width: 1023px) {
+        #inquiryContainer {
+            display: none !important;
+        }
+        #inquiryContainer.mobile-modal-open {
+            display: flex !important;
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            width: calc(100% - 32px) !important;
+            max-width: 520px !important;
+            max-height: 85vh !important;
+            z-index: 50 !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+            overflow-y: auto !important;
+            animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        #modalBackdrop.mobile-backdrop-open {
+            display: block !important;
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+    }
+
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -45%) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="py-12 bg-gradient-to-b from-primary/5 via-white to-background min-h-screen">
     <div class="max-w-7xl mx-auto px-margin-desktop">
         <!-- Back and Page Header -->
         <div class="flex items-center justify-between mb-8">
-            <a href="{% if module_type == 'indoor' %}{% url 'indoors' %}{% elif module_type == 'outdoor' %}{% url 'outdoors' %}{% else %}{% url 'rfsports' %}{% endif %}" 
+            <a href="{% if module_type == 'indoor' %}{% url 'indoors' %}{% elif module_type == 'outdoor' %}{% url 'outdoors' %}{% else %}{% url 'mrsports' %}{% endif %}" 
                class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-label-md text-sm">
                 <span class="material-symbols-outlined text-lg">arrow_back</span> Back to Storefront
             </a>
@@ -61,14 +100,19 @@
                 </div>
             </div>
 
-            <!-- Right Side: Persistent Action Form Sidebar (Col span 4) -->
-            <div class="lg:col-span-4 lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
+            <!-- Right Side: Persistent Action Form Sidebar (Col span 4) / Mobile Modal -->
+            <div id="inquiryContainer" class="lg:col-span-4 lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
                 <!-- Header -->
-                <div class="border-b border-outline-variant/25 pb-4">
+                <div class="border-b border-outline-variant/25 pb-4 relative">
                     <h3 class="font-display-lg text-2xl text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary text-[28px]">assignment</span> Bulk Inquiry Request
                     </h3>
                     <p class="text-xs text-on-surface-variant mt-1.5">Submit your catalog selections. We will verify stock availability and return a custom quote.</p>
+                    
+                    <!-- Close button for mobile modal -->
+                    <button type="button" onclick="toggleMobileModal(false)" class="lg:hidden absolute top-0 right-0 w-8 h-8 rounded-full flex items-center justify-center bg-background border border-outline-variant/30 text-on-surface-variant hover:text-error transition-colors focus:outline-none" aria-label="Close form">
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
                 </div>
 
                 <!-- Success Confirmation Panel -->
@@ -147,6 +191,18 @@
         </div>
     </div>
 </div>
+
+<!-- Floating Action Button for mobile -->
+<div class="lg:hidden fixed bottom-32 right-8 z-40">
+    <button type="button" onclick="toggleMobileModal(true)" class="bg-primary hover:bg-primary/95 text-white font-bold h-14 px-6 rounded-full shadow-lg shadow-primary/30 flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-wider">
+        <span class="material-symbols-outlined text-xl">assignment</span>
+        <span>Inquiry List</span>
+        <span id="mobileBadgeCount" class="bg-white text-primary text-xs font-black rounded-full h-5 min-w-[20px] px-1.5 flex items-center justify-center border border-primary/10">1</span>
+    </button>
+</div>
+
+<!-- Backdrop for mobile modal -->
+<div id="modalBackdrop" class="hidden fixed inset-0 bg-on-surface/60 z-40 backdrop-blur-sm transition-opacity" onclick="toggleMobileModal(false)"></div>
 {% endblock %}
 
 {% block extra_js %}
@@ -181,6 +237,30 @@
     // Dynamic line item tracking
     let rowCounter = 0;
     
+    function toggleMobileModal(isOpen) {
+        const container = document.getElementById('inquiryContainer');
+        const backdrop = document.getElementById('modalBackdrop');
+        if (isOpen) {
+            container.classList.add('mobile-modal-open');
+            backdrop.classList.add('mobile-backdrop-open');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        } else {
+            container.classList.remove('mobile-modal-open');
+            backdrop.classList.remove('mobile-backdrop-open');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function updateMobileBadge() {
+        const rows = document.querySelectorAll('.line-item-row');
+        const badge = document.getElementById('mobileBadgeCount');
+        if (badge) {
+            badge.textContent = rows.length;
+        }
+    }
+    
     function addLineItem() {
         const container = document.getElementById('lineItemsContainer');
         const template = document.getElementById('lineItemTemplate');
@@ -199,6 +279,7 @@
 
         container.appendChild(clone);
         updateRemoveButtonsVisibility();
+        updateMobileBadge();
     }
 
     function removeLineItem(rowId) {
@@ -207,6 +288,7 @@
             row.remove();
             if (!document.querySelector('.line-item-row')) addLineItem();
             updateRemoveButtonsVisibility();
+            updateMobileBadge();
         }
     }
 
@@ -310,6 +392,7 @@
                 document.getElementById('custEmail').value = '';
                 document.getElementById('lineItemsContainer').innerHTML = '';
                 showToast('Inquiry submitted successfully', 'success');
+                updateMobileBadge();
             } else {
                 showToast(data.error || 'Failed to submit inquiry.', 'error');
             }
@@ -331,11 +414,13 @@
         
         // Add first empty line item
         addLineItem();
+        updateMobileBadge();
     }
 
     // Initialize with 1 line item
     document.addEventListener('DOMContentLoaded', () => {
         addLineItem();
+        updateMobileBadge();
     });
 </script>
 {% endblock %}
