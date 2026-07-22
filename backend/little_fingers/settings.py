@@ -140,3 +140,7 @@ STATIC_ROOT = BASE_DIR.parent / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR.parent / 'frontend' / 'media'
+
+# Allow same-origin framing of pages/PDFs
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+

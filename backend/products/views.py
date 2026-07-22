@@ -819,8 +819,8 @@ def serve_catalogue_pdf(request, module_type):
         raise Http404
 
     pdf_paths = {
-        'indoor': 'catalogues/indoor-catalogue-march-2026.pdf',
-        'outdoor': 'catalogues/outdoor-catalogue-march-2026.pdf',
+        'indoor': 'catalogues/Indoor Catalogue March 2026-.pdf',
+        'outdoor': 'catalogues/Outdoor Catalogue March 2026-.pdf',
     }
     rel_path = pdf_paths[module_type]
 
