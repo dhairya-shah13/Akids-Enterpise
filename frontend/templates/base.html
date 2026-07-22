@@ -118,7 +118,7 @@
             
             <div class="flex items-center gap-3">
                 {% if not request.user.is_staff and not request.session.is_admin %}
-                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors hidden sm:flex">
+                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors">
                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
                     <span class="text-sm font-bold">Cart</span>
                 </a>
@@ -126,18 +126,15 @@
                 
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
-                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white px-4 py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow hidden sm:inline-flex items-center gap-1">
+                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white px-4 py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow inline-flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span> Admin Panel
                     </a>
                     {% endif %}
-                    <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:inline-flex items-center gap-2">
+                    <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">person</span> Profile
                     </a>
-                    <a href="{% url 'admin_logout' %}" class="bg-surface border border-outline-variant/30 text-on-surface-variant px-4 py-2 rounded-full font-label-md text-xs hover:bg-background transition-colors hidden sm:inline-block">
-                        Sign Out
-                    </a>
                 {% else %}
-                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 hidden sm:block">
+                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-block">
                         Sign In
                     </a>
                 {% endif %}
@@ -175,7 +172,6 @@
                 <a href="{% url 'profile' %}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2 flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">person</span> Profile
                 </a>
-                <a href="{% url 'admin_logout' %}" class="bg-surface text-on-surface-variant border border-outline-variant/30 py-3 rounded-xl text-center font-label-md shadow-sm mt-2">Sign Out</a>
                 {% else %}
                 <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Sign In</a>
                 {% endif %}

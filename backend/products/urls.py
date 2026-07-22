@@ -40,6 +40,9 @@ urlpatterns = [
     path('api/admin/orders/<int:order_id>/status/', views.api_admin_order_status_update, name='api_admin_order_status_update'),
     path('api/admin/orders/<int:order_id>/invoice/', views.api_admin_order_invoice, name='api_admin_order_invoice'),
 
+    # Catalogue PDF serving (inline in iframe, not external page)
+    path('catalogue/pdf/<slug:module_type>/', views.serve_catalogue_pdf, name='serve_catalogue_pdf'),
+
     # Catalog "View All Products" & Inquiries
     path('<slug:module_type>/view-all-products/', views.view_all_products, name='view_all_products'),
     path('api/inquiries/', views.submit_catalog_inquiry, name='submit_catalog_inquiry'),

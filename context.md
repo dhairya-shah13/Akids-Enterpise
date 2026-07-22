@@ -1,6 +1,6 @@
 # A kids / Little Fingers - Project Context Document
 
-This document provides a comprehensive overview of the **A kids (Little Fingers) / Akids Enterprise** e-commerce platform for playground equipment, educational furniture, sports gear, and spare parts. It is designed to help developers and AI agents quickly understand the codebase, including the product catalogue PDFs.
+This document provides a comprehensive overview of the **A kids (Little Fingers) / Akids Enterprise** e-commerce platform for playground equipment, educational furniture, sports gear, and spare parts. It is designed to help developers and AI agents quickly understand the codebase, including all backend models, views, templates, and CSS system.
 
 ---
 
@@ -11,17 +11,15 @@ Akids-Enterpise/
 ├── .env                        # Environment variables (secrets - DO NOT COMMIT)
 ├── .gitignore                  # Git ignore rules
 ├── requirements.txt            # Python dependencies (Django 6+, psycopg, pillow, reportlab, etc.)
-├── vercel.json                 # Vercel deployment configuration
-├── .vercelignore               # Vercel ignore configuration (forces requirements.txt usage)
+├── vercel.json                 # Vercel deployment configuration (Python WSGI + static)
+├── .vercelignore               # Vercel ignore configuration
 ├── context.md                  # THIS FILE
 ├── package.json                # Node.js config + Tailwind CSS build script
 ├── package-lock.json           # Lockfile
-├── tailwind.config.js          # Tailwind CSS theme configuration (custom palettes)
-│
-├── catalogues/                 # 📋 PRODUCT CATALOGUES (PDF - NOT tracked in git)
-│   ├── Indoor Catalogue March 2026-.pdf             (18.6 MB) - Indoor/classroom products
-│   ├── Outdoor Catalogue March 2026-.pdf            (9.4 MB)  - Outdoor play structures
-│   └── new Outdoor & Soft Play Components March 2026-.pdf (4.4 MB) - New soft play additions
+├── tailwind.config.js          # Tailwind CSS theme configuration (Antigravity color palette)
+├── uv.lock                     # UV package manager lockfile
+├── pyproject.toml              # Python project metadata
+├── homepage1.html              # Standalone HTML prototype (legacy homepage concept)
 │
 ├── backend/                    # Django backend
 │   ├── manage.py               # Django management script
@@ -30,52 +28,71 @@ Akids-Enterpise/
 │   ├── little_fingers/         # Django project settings package
 │   │   ├── __init__.py
 │   │   ├── asgi.py             # ASGI entry point
-│   │   ├── settings.py         # Main settings: DB, templates, static files, middleware
+│   │   ├── settings.py         # Main settings: DB (PostgreSQL/SQLite), templates, static files, middleware
 │   │   ├── urls.py             # Root URL config (admin/ + product URLs)
 │   │   └── wsgi.py             # WSGI entry point (used by Vercel)
 │   │
 │   └── products/               # Products Django app (the main app)
 │       ├── __init__.py
-│       ├── admin.py            # Django admin registration
+│       ├── admin.py            # Django admin registration (Product, Inquiry)
 │       ├── apps.py             # App configuration
-│       ├── models.py           # Product, Inquiry, InquiryLineItem, Order, OrderItem, UserProfile
-│       ├── pdf_generator.py    # ReportLab PDF invoice generator (PURCHASE/SALES INVOICE)
+│       ├── models.py           # UserProfile, Product, Inquiry, InquiryLineItem, Order, OrderItem + STATUS_TRANSITIONS map
+│       ├── pdf_generator.py    # ReportLab PDF invoice generator (PURCHASE/SALES INVOICE with GST)
 │       ├── search.py           # Product search utility (name/description/SKU)
-│       ├── views.py            # View logic (auth, cart, checkout, admin, orders, inquiries, profile, AI chat)
-│       ├── urls.py             # Product URL routing (~30 routes)
-│       ├── tests.py            # Unit tests
-│       ├── test_inquiries.py   # Inquiry test suite
-│       ├── test_orders.py      # Order & workflow test suite
-│       └── migrations/         # Database migrations (0001 through 0012)
+│       ├── views.py            # View logic (~30+ views: auth, cart, checkout, admin, orders, inquiries, profile, AI chat)
+│       ├── urls.py             # Product URL routing (~40 routes)
+│       ├── tests.py            # Unit tests (components, company pages, MR Sports)
+│       ├── test_inquiries.py   # Inquiry test suite (catalog, WhatsApp, close workflow, history)
+│       ├── test_orders.py      # Order & workflow test suite (creation, PDF, status transitions, access control)
+│       └── migrations/         # Database migrations (0001 through 0014)
+│           ├── 0001_initial.py
+│           ├── 0002_product_image_file_alter_product_image_url.py
+│           ├── 0003_alter_product_price.py
+│           ├── 0004_product_discount_price_product_sku_product_stock.py
+│           ├── 0005_product_needs_image_product_source_inquiry.py
+│           ├── 0006_alter_product_category.py
+│           ├── 0006_order_orderitem.py           # Order & OrderItem models
+│           ├── 0007_inquiry_email_inquiry_module_alter_inquiry_product_and_more.py
+│           ├── 0008_inquirylineitem_product_name.py
+│           ├── 0009_alter_inquiry_module_alter_product_category.py
+│           ├── 0010_merge_20260721_2041.py
+│           ├── 0011_alter_product_category_userprofile.py   # UserProfile model
+│           ├── 0012_userprofile_phone_number.py              # Phone field for UserProfile
+│           ├── 0013_inquiry_inquiry_no.py                    # Inquiry number generation (INQ-XXXX)
+│           └── 0014_inquiry_closure_outcome.py               # Inquiry WON/LOST outcome
 │
-└── frontend/                   # Django templates & static assets
-    ├── static/
-    │   └── css/
-    │       ├── tailwind-input.css      # Tailwind source (postcss directives)
-    │       ├── tailwind-output.css     # Compiled Tailwind CSS (generated by npm run build:css)
-    │       └── theme.css               # Active design system: custom styles, animations, global scrollbar hide
-    │
-    └── templates/
-        ├── base.html           # Base template: header, footer, nav, AI chat widget, search bar, scrollbar utility
-        │
-        └── products/
-            ├── home.html               # Landing page: hero, bento grid, featured products, consultation CTA
-            ├── listing.html            # Indoors category listing (product grid with search)
-            ├── outdoors.html           # Outdoors category listing (product grid + accessories section)
-            ├── mrsports.html           # MR Sports category listing
-            ├── view_all.html           # Catalogue "View All Products" module grid & inquiry modal
-            ├── product_detail.html     # Single product: gallery, description, contact links, inquiry modal
-            ├── cart.html               # Shopping cart: items, quantity controls, login-gating modal
-            ├── checkout.html           # Checkout page: shipping details, payment summary, order placement
-            ├── order_success.html      # Order confirmation & receipt page
-            ├── profile.html            # User Profile page: sidebar nav, saved name/address/phone, order history
-            ├── login.html              # Login page: admin + regular user auth
-            ├── signup.html             # Signup page with validation
-            ├── search_results.html     # Product search results view
-            ├── company_page.html       # Shared layout for About, Safety, Contact, Privacy, Terms
-            ├── nav_dropdown.html       # Dynamic header navigation dropdown component
-            ├── product_card.html       # Shared card component for grid displays
-            └── admin_dashboard.html    # Staff Admin Portal: Products Catalog, Inquiries, Orders, Sales Reports
+├── frontend/                   # Django templates & static assets
+│   ├── static/
+│   │   └── css/
+│   │       ├── tailwind-input.css      # Tailwind source (postcss directives)
+│   │       ├── tailwind-output.css     # Compiled Tailwind CSS (generated by npm run build:css)
+│   │       ├── theme.css               # Active design system: animations, scrollbar hide, admin styles, hero effects
+│   │       └── main.css                # Legacy CSS (no longer actively used)
+│   │
+│   └── templates/
+│       ├── base.html           # Base template: header, footer, nav, AI chat widget, search autocomplete, mobile drawer
+│       ├── 404.html            # Custom 404 error page with playful illustrations
+│       │
+│       └── products/
+│           ├── home.html               # Landing page: animated hero, train compartment categories, featured products
+│           ├── listing.html            # Indoors category listing (product grid with search)
+│           ├── outdoors.html           # Outdoors category listing (+ accessories section)
+│           ├── mrsports.html           # MR Sports category listing
+│           ├── view_all.html           # Catalogue "View All Products": PDF embed + bulk inquiry form + WhatsApp integration
+│           ├── product_detail.html     # Single product: gallery, description, variants, cart/buy-now, related products
+│           ├── cart.html               # Shopping cart: items, quantity controls, login-gating modal
+│           ├── checkout.html           # Checkout page: shipping details, auto-filled profile, order placement
+│           ├── order_success.html      # Order confirmation & receipt page
+│           ├── profile.html            # User Profile: sidebar navigation, account details, order history with invoice download
+│           ├── login.html              # Login page: admin + regular user auth
+│           ├── signup.html             # Signup page with validation
+│           ├── search_results.html     # Product search results view (paginated)
+│           ├── company_page.html       # Shared layout for About, Safety, Contact, Privacy, Terms
+│           ├── nav_dropdown.html       # Dynamic header navigation dropdown component (Indoors/Outdoors/MR Sports)
+│           ├── product_card.html       # Shared card component for grid displays
+│           └── admin_dashboard.html    # Staff Admin Portal: Products, Orders, Inquiries, Closed Inquiries, Sales Reports
+│
+└── ponytail/                   # Ponytail AI agent framework (installed but not part of the app)
 ```
 
 ---
@@ -85,33 +102,20 @@ Akids-Enterpise/
 | Layer | Technology | Version/Notes |
 |-------|------------|---------------|
 | **Backend Framework** | Django | 6.0.5+ |
-| **Database (Prod)** | PostgreSQL (Supabase) | Via `DATABASE_URL` |
+| **Database (Prod)** | PostgreSQL (Supabase) | Via `DATABASE_URL` env var |
 | **Database (Dev)** | SQLite | Fallback when no `DATABASE_URL` |
 | **ORM** | Django ORM | - |
-| **Auth** | Django Auth + Custom session-based admin | User Auth + UserProfile, session-based admin |
+| **Auth** | Django Auth + Custom session-based admin | User Auth + UserProfile, session-based admin detection |
 | **Static Files** | WhiteNoise | 6.11.0 |
-| **PDF Generation** | ReportLab | 4.4.0+ (Invoices generated with `PURCHASE INVOICE` / `SALES INVOICE`) |
-| **Image Storage** | Supabase Storage (direct HTTP upload) + local disk fallback | Direct `requests`, Google Drive URL transformer support |
-| **AI Chat** | Groq API (Llama 3.3-70b → fallback to Llama 3.1-8b) | Mohanlal mascot personality |
+| **PDF Generation** | ReportLab | 4.4.0+ (Invoices: PURCHASE INVOICE / SALES INVOICE with 18% GST breakup) |
+| **Image Storage** | Supabase Storage (direct HTTP upload) + local disk fallback | Google Drive URL transformer (`lh3.googleusercontent.com`) |
+| **AI Chat** | Groq API (Llama 3.3-70b → fallback Llama 3.1-8b) | Mohanlal mascot personality, preserves last 6 messages |
 | **Deployment** | Vercel (Python WSGI) | `@vercel/python` + `@vercel/static` |
-| **Frontend** | Django Templates + Tailwind CSS + Vanilla JS | No complex JS framework |
+| **Frontend** | Django Templates + Tailwind CSS + Vanilla JS | No JS framework |
 | **CSS Framework** | Tailwind CSS (via PostCSS CLI build) | v3.4.19 |
 | **Tailwind Plugins** | `@tailwindcss/forms`, `@tailwindcss/container-queries` | - |
 | **Fonts** | Google Fonts (Plus Jakarta Sans, Quicksand, Material Symbols) | - |
-| **Design System** | Custom `theme.css` + Tailwind utility classes | Tangerine/Sea/Blush/Matcha/Butter palettes, sparkles, scrollbar hide |
-| **Product Catalogues** | PDF format (3 files in `catalogues/` dir) | March 2026 master editions |
-
----
-
-## 📋 Catalogues Folder (`catalogues/`)
-
-The `catalogues/` directory contains **3 PDF product catalogues** that are NOT tracked in git (untracked). These are master product reference documents:
-
-| File | Size | Description |
-|------|------|-------------|
-| `Indoor Catalogue March 2026-.pdf` | ~18.6 MB | Complete indoor/classroom product range: furniture, learning tools, storage, soft play |
-| `Outdoor Catalogue March 2026-.pdf` | ~9.4 MB | Outdoor play structures, multi-play stations, adventure equipment |
-| `new Outdoor & Soft Play Components March 2026-.pdf` | ~4.4 MB | Soft play components and outdoor equipment supplements |
+| **Design System** | Custom `theme.css` + Tailwind utility classes | Tangerine/Sea/Blush/Matcha/Butter palettes, hero animations, train compartment, skeletons |
 
 ---
 
@@ -132,6 +136,9 @@ SUPABASE_BUCKET=products
 
 # Groq API (for AI Chat - Mohanlal mascot)
 GROQ_API_KEY=gsk_your_key_here
+
+# WhatsApp target number (for catalog inquiry forwarding)
+WHATSAPP_NUMBER=9924343003
 ```
 
 ---
@@ -146,15 +153,14 @@ class UserProfile(models.Model):
     phone_number = models.CharField(max_length=20, blank=True)
     shipping_address = models.TextField(blank=True)
 ```
+Auto-created on first profile/signup access. Used to pre-fill checkout and inquiry forms.
 
 ### Product Model
 ```python
 class Product(models.Model):
     CATEGORY_CHOICES = [
-        ('INDOORS', 'Indoors'),
-        ('OUTDOORS', 'Outdoors'),
-        ('PARTS', 'Parts'),
-        ('MRSPORTS', 'MR Sports'),
+        ('INDOORS', 'Indoors'), ('OUTDOORS', 'Outdoors'),
+        ('PARTS', 'Parts'), ('MRSPORTS', 'MR Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -179,7 +185,9 @@ class Product(models.Model):
 class Inquiry(models.Model):
     STATUS_CHOICES = [('NEW', 'New'), ('CONTACTED', 'Contacted'), ('CLOSED', 'Closed')]
     MODULE_CHOICES = [('indoor', 'Indoor'), ('outdoor', 'Outdoor'), ('mr_sports', 'MR Sports')]
+    CLOSURE_OUTCOME_CHOICES = [('WON', 'Customer Won'), ('LOST', 'Customer Lost')]
     
+    inquiry_no = models.CharField(max_length=20, unique=True, editable=False)  # Auto: INQ-0001
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='inquiries', null=True, blank=True)
     name = models.CharField(max_length=200)
     contact_number = models.CharField(max_length=20)
@@ -187,7 +195,11 @@ class Inquiry(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     module = models.CharField(max_length=20, choices=MODULE_CHOICES, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='NEW')
+    closure_outcome = models.CharField(max_length=10, choices=CLOSURE_OUTCOME_CHOICES, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        """Auto-generates inquiry_no in INQ-XXXX format with atomic counter"""
 
 class InquiryLineItem(models.Model):
     inquiry = models.ForeignKey(Inquiry, on_delete=models.CASCADE, related_name='line_items')
@@ -198,149 +210,190 @@ class InquiryLineItem(models.Model):
 
 ### Order & OrderItem Models
 ```python
+STATUS_TRANSITIONS = {
+    'PLACED': ['CONFIRMED', 'CANCELLED'],
+    'CONFIRMED': ['PACKED', 'CANCELLED'],
+    'PACKED': ['SHIPPED', 'CANCELLED'],
+    'SHIPPED': ['DELIVERED', 'CANCELLED', 'RETURNED'],
+    'DELIVERED': ['RETURNED'],
+    'CANCELLED': [], 'RETURNED': []
+}
+
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('PLACED', 'Placed'),
-        ('CONFIRMED', 'Confirmed'),
-        ('PACKED', 'Packed'),
-        ('SHIPPED', 'Shipped'),
-        ('DELIVERED', 'Delivered'),
-        ('CANCELLED', 'Cancelled'),
-        ('RETURNED', 'Returned'),
+        ('PLACED', 'Placed'), ('CONFIRMED', 'Confirmed'), ('PACKED', 'Packed'),
+        ('SHIPPED', 'Shipped'), ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled'), ('RETURNED', 'Returned'),
     ]
-    order_no = models.CharField(max_length=20, unique=True, editable=False) # e.g. ORD-00001
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    order_no = models.CharField(max_length=20, unique=True, editable=False)  # Auto: ORD-00001
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     customer_name = models.CharField(max_length=255)
     shipping_address = models.TextField()
     order_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PLACED')
-    status_updated_at = models.DateTimeField(auto_now=True)
     total_amount = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta: ordering = ['-created_at']
+    def recalculate_total(self): ...  # Sums all item subtotals
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name='order_items')
-    product_name = models.CharField(max_length=255)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    product_name = models.CharField(max_length=255)  # Snapshot
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=14, decimal_places=2)
     subtotal = models.DecimalField(max_digits=14, decimal_places=2)
+    def save(self, ...): self.subtotal = self.quantity * self.unit_price; self.order.recalculate_total()
 ```
 
 ---
 
-## 🌐 URL Routing (`backend/products/urls.py`)
+## 🌐 URL Routing (`backend/products/urls.py`) — ~40 Routes
 
 | Path | View | Name | Notes |
 |------|------|------|-------|
-| `/` | `home_view` | `home` | Landing page featuring active product catalog |
+| `/` | `home_view` | `home` | Landing page with animated hero, featured products |
 | `/search/` | `search_view` | `search` | Filterable by category, paginated (12/page) |
-| `/indoors/` | `indoors_view` | `indoors` | Indoor category listing |
+| `/indoors/` | `indoors_view` | `indoors` | Indoor category listing (8 products) |
 | `/outdoors/` | `outdoors_view` | `outdoors` | Outdoor category listing |
 | `/mrsports/` | `mrsports_view` | `mrsports` | MR Sports category listing |
-| `/about/`, `/safety-standards/`, etc. | `company_page` | `about`, `safety_standards`, etc. | Informational company policy/about pages |
-| `/product/<pk>/` | `product_detail` | `product_detail` | Product detail view, gallery, inquiry modal |
-| `/cart/` | `cart_view` | `cart` | Cart items, subtotal, quantity controls |
-| `/cart/add/<pk>/`, `/remove/<pk>/`, `/update/<pk>/` | `add_to_cart`, etc. | - | Cart item operations |
-| `/checkout/` | `checkout_view` | `checkout` | Checkout form with auto-filled profile info |
-| `/order-success/<order_id>/` | `order_success` | `order_success` | Order summary & confirmation screen |
-| `/profile/` | `profile_view` | `profile` | User profile, saved shipping info & order history |
-| `/login/`, `/signup/`, `/logout/` | `login_view`, `signup_view`, `logout_view` | - | Authentication endpoints |
-| `/admin-panel/` | `admin_dashboard` | `admin_dashboard` | Admin portal (Products, Inquiries, Orders, Sales) |
-| `/admin-panel/products/add/` | `add_product` | `add_product` | Product creation with Supabase image upload |
-| `/admin-panel/products/<pk>/delete/` | `delete_product` | `delete_product` | Delete product from database |
-| `/admin-panel/inquiries/<pk>/status/` | `update_inquiry_status` | `update_inquiry_status` | Advance/update inquiry state |
-| `/admin-panel/inquiries/<pk>/delete/` | `delete_inquiry` | `delete_inquiry` | Delete inquiry entry |
-| `/api/chat/` | `chat_api` | `chat_api` | Groq AI mascot response endpoint |
-| `/api/admin/orders/` | `api_admin_orders` | `api_admin_orders` | REST API listing orders for admin |
-| `/api/admin/orders/<order_id>/` | `api_admin_order_detail` | `api_admin_order_detail` | Order detail REST endpoint |
-| `/api/admin/orders/<order_id>/status/` | `api_admin_order_status_update` | `api_admin_order_status_update` | Advance order status via REST |
+| `/about/`, `/safety-standards/`, etc. | `company_page` | `about`, `safety_standards`, etc. | 6 informational company pages |
+| `/product/<pk>/` | `product_detail` | `product_detail` | Product gallery, variants, cart/add, related |
+| `/cart/` | `cart_view` | `cart` | Cart items, subtotal, unavailable detection |
+| `/cart/add/<pk>/` | `add_to_cart` | `add_to_cart` | Also supports `?next=checkout` and `?next=stay` |
+| `/cart/remove/<pk>/` | `remove_from_cart` | `remove_from_cart` | Remove item |
+| `/cart/update/<pk>/` | `update_cart` | `update_cart` | Update quantity |
+| `/checkout/` | `checkout_view` | `checkout` | Auth-gated, atomic order creation with stock deduction |
+| `/order-success/<order_id>/` | `order_success` | `order_success` | Order confirmation & receipt |
+| `/profile/` | `profile_view` | `profile` | Account details, order history, invoice download |
+| `/login/` | `login_view` | `admin_login` | Admin + regular user auth |
+| `/signup/` | `signup_view` | `signup` | User registration |
+| `/logout/` | `logout_view` | `admin_logout` | Session flush + logout |
+| `/admin-panel/` | `admin_dashboard` | `admin_dashboard` | **Admin HQ**: Products, Orders, Inquiries, Closed Inquiries, Sales |
+| `/admin-panel/products/add/` | `add_product` | `add_product` | Product creation with image preview |
+| `/admin-panel/products/<pk>/delete/` | `delete_product` | `delete_product` | Delete product |
+| `/admin-panel/inquiries/<pk>/status/` | `update_inquiry_status` | `update_inquiry_status` | Legacy status update |
+| `/admin-panel/inquiries/<pk>/delete/` | `delete_inquiry` | `delete_inquiry` | Delete inquiry |
+| `/api/chat/` | `chat_api` | `chat_api` | Groq AI (Mohanlal) mascot chat |
+| `/api/admin/orders/` | `api_admin_orders` | `api_admin_orders` | REST API: paginated, filtered by status/date/customer/order_no |
+| `/api/admin/orders/<order_id>/` | `api_admin_order_detail` | `api_admin_order_detail` | Full order detail with line items & images |
+| `/api/admin/orders/<order_id>/status/` | `api_admin_order_status_update` | `api_admin_order_status_update` | PATCH/POST: action=next/cancel or direct status |
 | `/api/admin/orders/<order_id>/invoice/` | `api_admin_order_invoice` | `api_admin_order_invoice` | Generate & download PDF invoice |
-| `/<module_type>/view-all-products/` | `view_all_products` | `view_all_products` | Module catalogue view-all page |
-| `/api/inquiries/` | `submit_catalog_inquiry` | `submit_catalog_inquiry` | Submit catalog batch quote inquiry |
-| `/api/admin/inquiries/` | `api_admin_inquiries` | `api_admin_inquiries` | REST API list inquiries for admin |
+| `/catalogue/pdf/<slug:module_type>/` | `serve_catalogue_pdf` | `serve_catalogue_pdf` | Serve catalogue PDF with inline Content-Disposition for in-iframe viewing |
+| `/<module>/view-all-products/` | `view_all_products` | `view_all_products` | Catalogue viewer: PDF embed + bulk inquiry |
+| `/api/inquiries/` | `submit_catalog_inquiry` | `submit_catalog_inquiry` | Submit catalog batch quote + WhatsApp redirect |
+| `/api/admin/inquiries/` | `api_admin_inquiries` | `api_admin_inquiries` | REST API: paginated, filtered, excludes CLOSED |
+| `/api/admin/inquiries/closed/` | `api_admin_closed_inquiries` | `api_admin_closed_inquiries` | Returns {won: [...], lost: [...]} |
+| `/api/admin/inquiries/<pk>/` | `api_admin_inquiry_detail` | `api_admin_inquiry_detail` | Full detail + previous inquiry history |
+| `/api/admin/inquiries/<pk>/close/` | `api_admin_inquiry_close` | `api_admin_inquiry_close` | POST: close with outcome WON/LOST |
 
 ---
 
 ## 🧠 Core Views & Feature Logic (`backend/products/views.py`)
 
 ### 1. User Authentication & Profile
-- **Admin Login**: Checks `.env` credentials (`ADMIN_EMAIL`/`ADMIN_PASSWORD`), sets `request.session['is_admin'] = True`.
-- **User Profile (`profile_view`)**: Manages `UserProfile` (full name, phone number, shipping address) tied to `User`. Auto-creates `UserProfile` if missing. Displays user order history.
-- **Auto-Fill Data**: Signup/login auto-populates `UserProfile` data into checkout and inquiry forms.
+- **Admin Login**: Checks `.env` credentials (`ADMIN_EMAIL`/`ADMIN_PASSWORD`), auto-creates admin user if missing, sets `request.session['is_admin'] = True`.
+- **`is_admin_user(request)`**: Session-based + `is_staff` + email check for admin privilege detection.
+- **Regular Login**: Supports login by username or email. Redirects to cart for users, admin dashboard for staff.
+- **`profile_view`**: Two-tab profile (Account Details + Order History). Edits phone + shipping address. Shows order list with invoice download button.
+- **Signup**: Creates `User`, auto-creates `UserProfile`, logs in, redirects to cart.
+- **Auto-Fill**: Login/profile data auto-populates checkout and catalog inquiry forms.
 
-### 2. E-Commerce Checkout & Orders
-- **Checkout (`checkout_view`)**: Converts session cart into an `Order` record with auto-generated sequential number (format `ORD-00001`). Creates corresponding `OrderItem` records and clears cart.
-- **Order Lifecycle**: Transitions through `PLACED` -> `CONFIRMED` -> `PACKED` -> `SHIPPED` -> `DELIVERED` (or `CANCELLED`/`RETURNED`).
-- **Order Success (`order_success`)**: Displays order confirmation, itemized total, and shipping address.
+### 2. Shopping Cart & Checkout
+- **`get_cart_data(request)`**: Reads session cart, joins with Product model, calculates subtotals, checks stock availability.
+- **`add_to_cart`**: Stock-aware, supports `?next=checkout` (buy now) and `?next=stay` (stay on page) params.
+- **`checkout_view`**: Auth-gated. Atomic transaction: locks products (`select_for_update`), deducts stock, creates `Order` + `OrderItem` records, clears cart. Returns "out of stock" error gracefully.
+- **`order_success`**: Order confirmation page with all details.
 
 ### 3. ReportLab PDF Invoice Generator (`pdf_generator.py`)
-- Standardized PDF invoice layout built with ReportLab.
-- Title is dynamically set to **PURCHASE INVOICE** for customer views and **SALES INVOICE** for staff/admin views.
-- Formats currency safely using standard `Rs.` representation to prevent font encoding issues in Helvetica.
-- Endpoint `/api/admin/orders/<order_id>/invoice/` returns PDF file streams inline or as downloadable attachments.
+- **Title**: **PURCHASE INVOICE** for customers, **SALES INVOICE** for admins.
+- **Header**: Company logo (from Google-hosted AIDA), company name, invoice/order metadata.
+- **Sections**: Seller details, Bill-to/Ship-to address, product table (with #, name, qty, unit price, amount).
+- **Totals**: 18% GST inclusive breakdown: Taxable amount + CGST (9%) + SGST (9%) = Total.
+- **Footer**: "Thank you for partnering with Little Fingers India!"
+- **Endpoint**: `/api/admin/orders/<order_id>/invoice/` returns PDF inline.
+- **Safe currency**: `Rs.` prefix to avoid Helvetica font encoding issues.
 
 ### 4. Inquiry System & Catalogue View All
-- Allows users to submit single-product quote inquiries (`Inquiry`) or batch catalogue inquiries (`InquiryLineItem`).
-- Auto-populates customer name, email, and phone number when logged in.
-- Staff can manage inquiry statuses (`NEW`, `CONTACTED`, `CLOSED`) in the admin portal.
+- **Single Product Inquiry**: Direct product page inquiry → creates `Inquiry` record with optional product FK.
+- **Catalog Bulk Inquiry** (`view_all.html` + `submit_catalog_inquiry`):
+  - PDF catalogue viewer (iframe embed for indoor/outdoor)
+  - Dynamic line items with quantity controls
+  - Auto-fills user profile data (name, email, phone)
+  - Creates `Inquiry` + `InquiryLineItem` records
+  - Generates WhatsApp redirect URL with pre-formatted quote message
+  - Sends to `WHATSAPP_NUMBER` from `.env`
+- **Inquiry Numbering**: Auto-generated `INQ-0001` format with atomic counter.
+- **Close Workflow**: Admin can close inquiries with `WON`/`LOST` outcome via `/api/admin/inquiries/<pk>/close/`.
+- **Inquiry Detail**: Shows line items + previous inquiry history for same customer (matched by phone/email).
 
-### 5. Admin Dashboard (`admin_dashboard.html`)
-Comprehensive control panel for store staff:
-- **Products Tab**: Add, view, and delete store products with image upload support.
-- **Inquiries Tab**: Review customer quote requests, filter by status, update state, or delete.
-- **Orders Tab**: Manage store orders, track lifecycle stages, view customer details, and download PDF invoices.
-- **Sales Analytics Tab**: Analytics summaries (Total revenue, Total orders, Monthly trends, Best seller metrics).
+### 5. Orders API & Admin Management
+- **`api_admin_orders`**: Paginated (10/page), filterable by status, date range, customer name, order number.
+- **`api_admin_order_detail`**: Full order detail with product snapshots, SKUs, images, prices.
+- **`api_admin_order_status_update`**: Supports `action: "next"` (advance by one step) or `action: "cancel"` or direct `status` field. Validates against `STATUS_TRANSITIONS` map.
+- **Status Flow**: `PLACED → CONFIRMED → PACKED → SHIPPED → DELIVERED` or `CANCELLED`/`RETURNED` at appropriate states.
 
-### 6. AI Chat (Mohanlal Mascot)
-- Powered by Groq API (`llama-3.3-70b-versatile` with `llama-3.1-8b-instant` fallback).
-- Preserves conversation history (last 6 messages).
-- Warm, helpful playground equipment specialist persona displaying direct phone support (+91 9924343003).
+### 6. Admin Dashboard (`admin_dashboard.html`)
+Comprehensive control panel with 5 tabs:
+- **📦 Product Catalog**: Table with preview, name, category, price, stock. Add/delete products via modal.
+- **🛒 Order Management**: Filters (search, status, date range), paginated table, order detail modal with status transitions, invoice download.
+- **📋 Inquiries**: Filters (module, status, date, search by INQ no), paginated table, inquiry detail modal with customer history + close inquiry workflow.
+- **Closed Inquiries**: Split view showing WON/LOST columns.
+- **📈 Sales Reports**: Top metrics (Revenue, Orders, Active Quotes, Best Seller) + visual bar chart (last 6 months).
+
+### 7. AI Chat (Mohanlal Mascot)
+- **Groq API**: `llama-3.3-70b-versatile` with `llama-3.1-8b-instant` fallback.
+- **System Prompt**: Mohanlal character — friendly playground equipment specialist.
+- **Features**: Preserves last 6 messages of conversation history, displays direct hotline `+91 9924343003` for urgent/complex matters.
+
+### 8. Management Command: `import_catalogue.py`
+- Parses 4 PDF catalogues (Indoor, Outdoor, Soft Play, Little Woods) from local assets directory.
+- Extracts SKUs, names, prices, descriptions using regex patterns.
+- Creates `Product` records with `source='catalogue'`, `needs_image=True`.
+- Handles different SKU formats (LF-7021, LFO-MPS-01, SP-P1-0, LW-AL-01).
 
 ---
 
 ## 🎨 Frontend Design & CSS System
 
-- **Color Palette (Antigravity Design)**:
-  - Primary / Tangerine: `#F08C21`
-  - Secondary / Sea: `#6698CC`
-  - Tertiary / Blush: `#E36888`
-  - Matcha / Dark Matcha: `#B4B534` / `#7C7D20`
-  - Butter: `#F2D88F`
-- **Global Scrollbar Hide**: Configured in `theme.css` and `base.html` to hide scrollbars cleanly across browsers and PDF preview containers while maintaining native scroll functionality.
-
----
-
-## 🔧 Development Commands
-
-```bash
-# ---- Backend Setup ----
-cd backend
-
-# Create & activate virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or: venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r ../requirements.txt
-
-# Database setup & migrations
-python manage.py makemigrations products
-python manage.py migrate
-
-# Run development server
-python manage.py runserver
-
-# ---- Static Files ----
-python manage.py collectstatic
-
-# ---- Frontend (Tailwind CSS) ----
-# Build for production
-npm run build:css
-
-# Watch mode
-npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static/css/tailwind-output.css --watch
+### Design Tokens (Tailwind Config)
+```js
+Colors: {
+  "primary": "#F08C21",  // Tangerine
+  "secondary": "#6698CC", // Sea
+  "tertiary": "#E36888",  // Blush
+  "background": "#FFFDF9",
+  "surface": "#ffffff",
+  "on-surface": "#1C1C18",
+  // Antigravity palette:
+  "tangerine": "#F08C21", "butter": "#F2D88F",
+  "blush": "#E36888", "sea": "#6698CC",
+  "matcha": "#B4B534", "matcha-dark": "#7C7D20",
+}
+Fonts: "Plus Jakarta Sans" (display), "Quicksand" (body)
 ```
+
+### `theme.css` — Animations & Interactions
+- **Global Scrollbar Hide**: Cross-browser removal via `-ms-overflow-style`, `scrollbar-width`, `::-webkit-scrollbar`
+- **Hero Word Animations**: 3-word bounce-in (Safe → Durable → Playful) with off-screen origins
+- **Train Compartment**: Sequential card reveal with 2.1s staggered entrance, steam engine, track animation
+- **Fade-In Sections**: `IntersectionObserver`-based opacity + translateY transitions
+- **Skeleton Loaders**: Shimmer animation for lazy-loaded content
+- **Staggered Children**: Grid items with staggered delay (up to 12 items)
+- **Scroll-Away Hero**: Hero words fade out on scroll > 80px
+- **Admin Status Badges**: Color-coded NEW/CONTACTED/CLOSED badge styles
+- **Admin Modal Transitions**: Scale-in animation for admin modals
+- **Responsive**: Mobile/tablet/desktop padding overrides, touch targets (48px)
+- **Accessibility**: `prefers-reduced-motion` media query disables all animations
+- **WCAG Contrast**: Darkened primary text (#C66B0D) for AA contrast
+
+### Key Templates
+- **`base.html`**: Sticky nav with autocomplete search (AJAX dropdown), mobile hamburger drawer, AI chat FAB, footer with company links
+- **`home.html`**: Animated hero word bounce-in, VR train category selector, product selection cards with staggered IntersectionObserver
+- **`admin_dashboard.html`**: 5-tab SPA with modals (add product, order detail, inquiry detail, close inquiry, delete confirm), toast notification system, pagination
+- **`profile.html`**: 2-column sidebar layout, avatar circle, account details form, order history with expandable items + invoice download
+- **`view_all.html`**: PDF iframe viewer + bulk inquiry sidebar with dynamic line items, WhatsApp integration, mobile FAB modal
+- **`product_detail.html`**: Image gallery, variant selector, SKU/stock info, add-to-cart + buy-now, related products, safety badges
 
 ---
 
@@ -352,35 +405,94 @@ Django>=6.0.5              # Web framework
 psycopg[binary]>=3.3.4     # PostgreSQL driver
 python-dotenv>=1.2.2       # .env file loading
 pillow>=12.2.0             # Image processing
-reportlab>=4.4.0           # PDF invoice generator
-requests>=2.33.0           # HTTP client (Supabase, Groq API)
+reportlab>=4.4.0           # PDF invoice generator (GST breakup)
+requests>=2.33.0           # HTTP client (Supabase, Groq API, images)
 whitenoise>=6.11.0         # Static file serving
 gunicorn>=25.1.0           # WSGI server
 ```
 
+### Node.js (for Tailwind CSS build)
+```
+tailwindcss@^3.4.19
+@tailwindcss/forms@^0.5.11
+@tailwindcss/container-queries@^0.1.1
+autoprefixer@^10.5.2
+postcss@^8.5.15
+```
+
 ---
 
-## 📝 Recent Key Changes History
+## 🔧 Development Commands
+
+```bash
+# ---- Backend Setup ----
+cd backend
+python -m venv venv
+source venv/bin/activate  # Linux/Mac, or: venv\Scripts\activate  # Windows
+pip install -r ../requirements.txt
+
+# Database setup & migrations
+python manage.py makemigrations products
+python manage.py migrate
+
+# Run development server
+python manage.py runserver
+
+# Import products from PDF catalogues
+python manage.py import_catalogue
+
+# Run tests
+python manage.py test products
+
+# ---- Static Files ----
+python manage.py collectstatic
+
+# ---- Frontend (Tailwind CSS) ----
+npm run build:css                  # Build for production
+npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static/css/tailwind-output.css --watch  # Watch mode
+```
+
+---
+
+## 📋 Test Coverage
+
+| Test File | Tests | Coverage |
+|-----------|-------|----------|
+| `tests.py` | 3 | Components route 404, company pages linked, MR Sports naming |
+| `test_inquiries.py` | 6 | Valid/invalid catalog inquiry, inquiry number generation, admin search/filter, WhatsApp integration, close inquiry + customer history |
+| `test_orders.py` | 5 | Order creation + numbering, PDF generation, status transitions (next/cancel/delivered→returned), admin access control, admin cart/checkout redirect |
+| **Total** | **14** | Core business workflow coverage |
+
+---
+
+## 📝 Recent Key Changes Summary
 
 | Change | Description |
 |--------|-------------|
-| **Admin Panel UI Enhancements** | Redesigned admin portal (`admin_dashboard.html`) layout, tabs, status controls, and responsive styling. |
-| **Global Scrollbar Removal** | Applied cross-browser scrollbar hiding rules across `theme.css`, `base.html`, and `view_all.html`. |
-| **UserProfile & Auto-Fill** | Added `UserProfile` model (`full_name`, `phone_number`, `shipping_address`) and auto-filled data in checkout and inquiry forms. |
-| **PDF Invoice Generator** | Implemented `pdf_generator.py` using ReportLab to render `PURCHASE INVOICE` for users and `SALES INVOICE` for admins. |
-| **Order & Checkout Pipeline** | Restored full checkout workflow (`Order`, `OrderItem`), sequential order number generation (`ORD-XXXXX`), status transition states, and order confirmation page (`order_success.html`). |
-| **Catalogue View All & Inquiries** | Added `view_all.html` module catalogue grids, batch inquiry processing (`InquiryLineItem`), and API integration. |
-| **MR Sports Rename** | Renamed RF Sports to MR Sports across models, routes, templates, and view logic. |
+| **Inquiry Close Workflow** | Added `closure_outcome` (WON/LOST), `inquiry_no` auto-generation (INQ-XXXX), close endpoint, closed inquiries split view |
+| **Order Management API** | Full REST endpoints for orders (list/detail/status update/invoice) with pagination, filtering, and status transition validation |
+| **Catalogue View All & Bulk Inquiries** | PDF catalogue viewer with dynamic line items, WhatsApp integration for quote forwarding, auto-fill from profile |
+| **Profile Page** | Redesigned with sidebar navigation, avatar, account details (phone/address), order history with invoice download |
+| **Admin Dashboard Redesign** | 5-tab SPA: Products (CRUD), Orders (full management), Inquiries (filter/search/close), Closed Inquiries (WON/LOST), Sales (metrics + chart) |
+| **PDF Invoice Generator** | ReportLab-based with 18% GST breakup (CGST/SGST), PURCHASE/SALES title toggle, logo header, alternating row colors |
+| **AI Chat (Mohanlal)** | Groq API integration with Llama 70b/8b fallback, conversation history, hotline display |
+| **Animations & Design System** | Hero word bounce-in, train compartment animation, skeleton loaders, staggered grid, fade-in scroll, reduced-motion support |
+| **WhatsApp Integration** | Catalog inquiries auto-generate WhatsApp redirect with pre-formatted quote message |
+| **Import Catalogue Command** | Django management command to parse 4 PDF catalogues and create Product records |
+| **Catalogue PDF In-Page Viewer** | Added `serve_catalogue_pdf` view with `FileResponse` streaming and `Content-Disposition: inline`. PDFs now render inside the iframe instead of opening in a new tab. Added `/catalogue/pdf/<slug>/` URL route. Removed dead `CATALOGUE_CONFIG` dict. |
+| **Navbar Button Visibility** | Removed `hidden sm:*` classes from Cart, Profile, Sign In, and Admin Panel buttons so they're always visible at all screen sizes. |
+| **Sign Out Moved to Profile** | Removed Sign Out from the navbar and mobile drawer. Sign Out is now only accessible from the Profile page sidebar. |
 
 ---
 
 ## 📞 Support Contacts
 
-- **Repository**: GitHub - `dhairya-shah13/Akids-Enterpise`
+- **Repository**: GitHub — `dhairya-shah13/Akids-Enterpise`
 - **Database**: Supabase project `raonllwzgumhalpjdmqe`
 - **Deployment**: Vercel
 - **Hotline**: +91 9924343003 (Mohanlal direct customer care line)
+- **Email**: hello@littlefingersindia.com
 
 ---
 
-*Last Updated: 2026-07-21. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-07-22. Maintainer: AI Agent (Buffy). Please update this document whenever model schemas, workflows, or views undergo changes.*

@@ -85,7 +85,7 @@
                         <span class="material-symbols-outlined text-primary">menu_book</span> {{ module_label }} Brochure
                     </h2>
                     {% if pdf_url %}
-                    <a href="{{ pdf_url }}" download class="text-xs font-bold text-secondary hover:text-primary transition-colors flex items-center gap-1">
+                    <a href="{{ pdf_url }}?download=1" download class="text-xs font-bold text-secondary hover:text-primary transition-colors flex items-center gap-1">
                         <span class="material-symbols-outlined text-sm">download</span> Download PDF
                     </a>
                     {% endif %}

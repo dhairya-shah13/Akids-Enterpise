@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -811,18 +811,42 @@ def api_admin_order_invoice(request, order_id):
 # Catalog "View All Products" & Inquiries
 # ==========================================
 
-CATALOGUE_CONFIG = {
-    'indoor': '/static/catalogues/indoor-catalogue-march-2026.pdf',
-    'outdoor': '/static/catalogues/outdoor-catalogue-march-2026.pdf',
-    'mr_sports': None
-}
+def serve_catalogue_pdf(request, module_type):
+    """Serve a catalogue PDF with inline Content-Disposition so the
+    browser renders it inside an iframe rather than navigating to a new page."""
+    module_type = module_type.lower()
+    if module_type not in ('indoor', 'outdoor'):
+        raise Http404
+
+    pdf_paths = {
+        'indoor': 'catalogues/indoor-catalogue-march-2026.pdf',
+        'outdoor': 'catalogues/outdoor-catalogue-march-2026.pdf',
+    }
+    rel_path = pdf_paths[module_type]
+
+    # Resolve relative to the project root (one level up from BASE_DIR)
+    full_path = settings.BASE_DIR.parent / rel_path
+    if not full_path.exists():
+        raise Http404(f"Catalogue PDF not found at {full_path}")
+
+    # Use FileResponse to stream the file without loading it all into memory
+    pdf_file = open(full_path, 'rb')
+    response = FileResponse(pdf_file, content_type='application/pdf')
+
+    # ?download=1 forces attachment (download); otherwise inline (in-page view)
+    if request.GET.get('download') == '1':
+        disposition = 'attachment'
+    else:
+        disposition = 'inline'
+    response['Content-Disposition'] = f'{disposition}; filename="catalogue-{module_type}.pdf"'
+    return response
 
 def view_all_products(request, module_type):
     module_type = module_type.lower()
     if module_type not in ['indoor', 'outdoor']:
         return render(request, '404.html', status=404)
         
-    pdf_url = CATALOGUE_CONFIG.get(module_type)
+    pdf_url = reverse('serve_catalogue_pdf', args=[module_type])
     
     category_map = {
         'indoor': 'INDOORS',
