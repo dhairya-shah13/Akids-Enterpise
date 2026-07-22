@@ -482,6 +482,7 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 | **Catalogue PDF In-Page Viewer** | Added `serve_catalogue_pdf` view with `FileResponse` streaming and `Content-Disposition: inline`. PDFs now render inside the iframe instead of opening in a new tab. Added `/catalogue/pdf/<slug>/` URL route. Removed dead `CATALOGUE_CONFIG` dict. |
 | **Navbar Button Visibility** | Removed `hidden sm:*` classes from Cart, Profile, Sign In, and Admin Panel buttons so they're always visible at all screen sizes. |
 | **Sign Out Moved to Profile** | Removed Sign Out from the navbar and mobile drawer. Sign Out is now only accessible from the Profile page sidebar. |
+| **Removed Hero Scroll Indicator** | Removed the "Scroll" text indicator with bouncing arrow animation from the bottom of the hero section on the homepage. |
 
 ---
 

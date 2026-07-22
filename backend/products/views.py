@@ -172,7 +172,8 @@ def login_view(request):
             next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
             if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
                 next_url = reverse('admin_dashboard')
-            return redirect(next_url)
+            sep = '&' if '?' in next_url else '?'
+            return redirect(f'{next_url}{sep}toast=login')
             
         # 2. Check regular user credentials
         user = authenticate(request, username=email, password=password)
@@ -190,7 +191,8 @@ def login_view(request):
                 next_url = request.POST.get('next') or request.GET.get('next') or reverse('cart')
             if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
                 next_url = reverse('cart')
-            return redirect(next_url)
+            sep = '&' if '?' in next_url else '?'
+            return redirect(f'{next_url}{sep}toast=login')
         else:
             error = "Invalid email or password."
             
@@ -219,7 +221,8 @@ def signup_view(request):
             next_url = request.POST.get('next') or request.GET.get('next') or reverse('cart')
             if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
                 next_url = reverse('cart')
-            return redirect(next_url)
+            sep = '&' if '?' in next_url else '?'
+            return redirect(f'{next_url}{sep}toast=signup')
         else:
             error = "Please fill in all fields."
             
@@ -228,7 +231,7 @@ def signup_view(request):
 def logout_view(request):
     request.session.flush()
     logout(request)
-    return redirect('home')
+    return redirect(f"{reverse('home')}?toast=logout")
 
 def get_cart_data(request):
     cart = request.session.get('cart', {})
@@ -305,7 +308,7 @@ def remove_from_cart(request, pk):
             del cart[str(pk)]
             request.session['cart'] = cart
             request.session.modified = True
-    return redirect('cart')
+    return redirect(f"{reverse('cart')}?toast=removed")
 
 def update_cart(request, pk):
     if is_admin_user(request):
@@ -326,7 +329,7 @@ def update_cart(request, pk):
             request.session.modified = True
         except (Product.DoesNotExist, ValueError):
             pass
-    return redirect('cart')
+    return redirect(f"{reverse('cart')}?toast=updated")
 
 def admin_dashboard(request):
     if not is_admin_user(request):

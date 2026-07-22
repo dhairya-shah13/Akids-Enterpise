@@ -190,11 +190,7 @@
                 {% include "products/nav_dropdown.html" with label="Indoors" module_type="indoor" online_url="indoors" current_module=module_type %}
                 {% include "products/nav_dropdown.html" with label="Outdoors" module_type="outdoor" online_url="outdoors" current_module=module_type %}
                 <a class="nav-link text-on-surface font-label-md hover:text-tangerine transition-colors {% if request.resolver_match.url_name == 'mrsports' %}active{% endif %}" href="{% url 'mrsports' %}">MR Sports</a>
-                {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
-                <a class="nav-link text-tangerine font-bold font-label-md hover:text-primary transition-colors flex items-center gap-1 {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
-                    <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Admin HQ
-                </a>
-                {% endif %}
+
             </nav>
             
             <div class="hidden md:flex items-center flex-1 max-w-xs mx-4 relative">
@@ -702,39 +698,41 @@
     <!-- Global Toast System -->
     <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:360px;pointer-events:none;"></div>
     <script>
-        function showToast(message, type) {
-            type = type || 'success';
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
+        function showToast(msgOrTitle, typeOrMsg, maybeType) {
+            var message, type;
+            if (maybeType !== undefined) { message = typeOrMsg; type = maybeType; }
+            else { message = msgOrTitle; type = typeOrMsg || 'success'; }
+            var container = document.getElementById('toast-container');
+            var toast = document.createElement('div');
 
-            // Use inline styles to avoid Tailwind JIT compilation dependency
-            const colorMap = {
-                success: { border: '#34d399', text: '#065f46', icon: 'check_circle' },
-                info:    { border: '#38bdf8', text: '#0c4a6e', icon: 'info' },
-                error:   { border: '#f87171', text: '#991b1b', icon: 'error' }
+            var colorMap = {
+                success: { bg: '#FFF8F0', border: '#F08C21', text: '#854500', icon: 'check_circle' },
+                info:    { bg: '#E6F0FA', border: '#6698CC', text: '#1B3B5C', icon: 'info' },
+                error:   { bg: '#FDECEF', border: '#E36888', text: '#7A1C33', icon: 'error' }
             };
-            const colors = colorMap[type] || colorMap.success;
+            var colors = colorMap[type] || colorMap.success;
 
-            toast.style.cssText = `
-                pointer-events: auto;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                padding: 14px 20px;
-                border-radius: 16px;
-                box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 4px 10px -5px rgba(0,0,0,0.1);
-                border: 2px solid ${colors.border};
-                background: #fff;
-                color: ${colors.text};
-                transform: translateX(120%);
-                opacity: 0;
-                transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-            `;
+            toast.style.cssText = 'pointer-events:auto;display:flex;align-items:center;gap:12px;padding:14px 16px 14px 20px;border-radius:16px;box-shadow:0 10px 25px -5px rgba(0,0,0,.15),0 4px 10px -5px rgba(0,0,0,.1);border-left:4px solid '+colors.border+';background:'+colors.bg+';color:'+colors.text+';font-family:Quicksand,Plus Jakarta Sans,sans-serif;transform:translateX(120%);opacity:0;transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .35s ease;';
 
-            toast.innerHTML = `
-                <span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1;">${colors.icon}</span>
-                <span style="font-size:13px;font-weight:700;line-height:1.4;">${message}</span>
-            `;
+            var iconEl = document.createElement('span');
+            iconEl.className = 'material-symbols-outlined';
+            iconEl.style.cssText = "font-size:20px;font-variation-settings:'FILL' 1;flex-shrink:0;";
+            iconEl.textContent = colors.icon;
+            toast.appendChild(iconEl);
+            var msgEl = document.createElement('span');
+            msgEl.style.cssText = 'font-size:13px;font-weight:700;line-height:1.4;flex:1;';
+            msgEl.textContent = message;
+            toast.appendChild(msgEl);
+            var closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '&times;';
+            closeBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:'+colors.text+';opacity:.5;font-size:20px;line-height:1;padding:0 0 0 6px;flex-shrink:0;';
+            closeBtn.setAttribute('aria-label', 'Dismiss');
+            closeBtn.addEventListener('click', function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(40px)';
+                setTimeout(function() { toast.remove(); }, 350);
+            });
+            toast.appendChild(closeBtn);
             container.appendChild(toast);
 
             // Animate in (double-rAF to ensure styles are applied first)
@@ -745,47 +743,36 @@
                 });
             });
 
-            // Auto-dismiss after 3 seconds
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(40px)';
-                setTimeout(() => toast.remove(), 350);
-            }, 3000);
+            // Auto-dismiss after 4 seconds
+            setTimeout(function() {
+                if (toast.parentNode) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(40px)';
+                    setTimeout(function() { toast.remove(); }, 350);
+                }
+            }, 4000);
         }
 
-        // Auto-show toast from URL parameter (e.g. ?toast=added)
+        // Auto-show toast from URL parameter
         (function() {
-            const params = new URLSearchParams(window.location.search);
-            const toastType = params.get('toast');
-            if (toastType === 'added') {
-                showToast('Item added to cart', 'success');
-                // Clean URL without reload
-                const url = new URL(window.location);
-                url.searchParams.delete('toast');
-                window.history.replaceState({}, '', url);
-            } else if (toastType === 'checkout') {
-                showToast('Redirecting to checkout...', 'info');
-                const url = new URL(window.location);
-                url.searchParams.delete('toast');
-                window.history.replaceState({}, '', url);
-            } else if (toastType === 'login-required') {
-                showToast('Please log in before checking out.', 'info');
-                const url = new URL(window.location);
-                url.searchParams.delete('toast');
-                window.history.replaceState({}, '', url);
-            } else if (toastType === 'out-of-stock') {
-                showToast('This product is out of stock.', 'error');
-                const url = new URL(window.location);
-                url.searchParams.delete('toast');
-                window.history.replaceState({}, '', url);
-            } else if (toastType === 'unavailable') {
-                showToast('Remove unavailable items before checking out.', 'error');
-                const url = new URL(window.location);
-                url.searchParams.delete('toast');
-                window.history.replaceState({}, '', url);
-            } else if (toastType === 'saved') {
-                showToast('Profile updated successfully!', 'success');
-                const url = new URL(window.location);
+            var params = new URLSearchParams(window.location.search);
+            var t = params.get('toast');
+            var msgs = {
+                'added': ['Item added to cart', 'success'],
+                'removed': ['Item removed from cart', 'success'],
+                'updated': ['Cart updated', 'success'],
+                'checkout': ['Redirecting to checkout...', 'info'],
+                'login-required': ['Please log in before checking out.', 'info'],
+                'out-of-stock': ['This product is out of stock.', 'error'],
+                'unavailable': ['Remove unavailable items before checking out.', 'error'],
+                'saved': ['Profile updated successfully!', 'success'],
+                'login': ['Logged in successfully!', 'success'],
+                'signup': ['Account created successfully!', 'success'],
+                'logout': ['Logged out successfully', 'success']
+            };
+            if (t && msgs[t]) {
+                showToast(msgs[t][0], msgs[t][1]);
+                var url = new URL(window.location);
                 url.searchParams.delete('toast');
                 window.history.replaceState({}, '', url);
             }

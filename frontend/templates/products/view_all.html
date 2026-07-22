@@ -50,6 +50,13 @@
             transform: translate(-50%, -50%) scale(1);
         }
     }
+
+    /* Prevent iOS Safari zoom on input focus — inputs must be >= 16px */
+    #inquiryContainer input,
+    #inquiryContainer select,
+    #inquiryContainer textarea {
+        font-size: 16px !important;
+    }
 </style>
 {% endblock %}
 
@@ -269,8 +276,8 @@
     let rowCounter = 0;
     
     function toggleMobileModal(isOpen) {
-        const container = document.getElementById('inquiryContainer');
-        const backdrop = document.getElementById('modalBackdrop');
+        var container = document.getElementById('inquiryContainer');
+        var backdrop = document.getElementById('modalBackdrop');
         if (isOpen) {
             container.classList.add('mobile-modal-open');
             backdrop.classList.add('mobile-backdrop-open');
@@ -281,6 +288,10 @@
             backdrop.classList.remove('mobile-backdrop-open');
             backdrop.classList.add('hidden');
             document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.documentElement.style.overflow = '';
         }
     }
 
