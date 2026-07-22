@@ -282,7 +282,6 @@
                                 <th class="p-4 w-[150px]">Phone</th>
                                 <th class="p-4 w-[245px]">Email</th>
                                 <th class="p-4 w-[160px]">Date</th>
-                                <th class="p-4 w-[100px]">Status</th>
                                 <th class="p-4 text-center rounded-tr-2xl w-[150px]">Actions</th>
                             </tr>
                         </thead>
@@ -1290,9 +1289,7 @@
                 moduleBadgeHtml = `<span class="bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 font-bold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">Single Product</span>`;
             }
 
-            let statusBadgeClass = 'bg-primary/10 text-primary border-primary/20';
-            if (inq.status === 'CONTACTED') statusBadgeClass = 'bg-secondary/10 text-secondary border-secondary/20';
-            else if (inq.status === 'CLOSED') statusBadgeClass = 'bg-on-surface-variant/10 text-on-surface-variant border-on-surface-variant/20';
+
 
             const actionButtonsHtml = `
                 <div class="flex flex-col items-center gap-2">
@@ -1321,9 +1318,6 @@
                     </a>` : '<span class="text-xs text-on-surface-variant">—</span>'}
                 </td>
                 <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${inq.created_at_str}</td>
-                <td class="p-4">
-                    <span class="font-bold text-[10px] px-3 py-1.5 rounded-full uppercase tracking-wider border ${statusBadgeClass}">${inq.status_display}</span>
-                </td>
                 <td class="p-4 text-center">${actionButtonsHtml}</td>
             `;
             body.appendChild(tr);

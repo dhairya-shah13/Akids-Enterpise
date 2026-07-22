@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="py-16 bg-gradient-to-b from-primary/10 to-background min-h-screen">
-    <div class="max-w-7xl mx-auto px-margin-desktop">
+    <div class="max-w-7xl mx-auto px-4 sm:px-margin-desktop">
         <!-- Back to Cart Link -->
         <div class="mb-6">
             <a href="{% url 'cart' %}" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-primary font-label-md transition-colors group">
@@ -20,10 +20,11 @@
             <h1 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Secure Checkout</h1>
         </div>
 
-        <div class="max-w-2xl mx-auto flex flex-col gap-6">
-            <!-- Order Summary -->
-            <div class="flex flex-col gap-6">
-                <div class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm">
+        <!-- Side-by-side layout on desktop, stacked on mobile -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+            <!-- Order Summary (left on desktop, first on mobile) -->
+            <div class="lg:col-span-7">
+                <div class="bg-white border border-outline-variant/30 p-6 sm:p-8 rounded-3xl shadow-sm">
                     <h3 class="font-display-lg text-2xl mb-6 text-on-surface border-b border-outline-variant/30 pb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined text-secondary">list_alt</span> Order Summary
                     </h3>
@@ -66,15 +67,18 @@
                             <span>Calculated on invoice</span>
                         </div>
                         
-                        <div class="flex justify-between text-2xl text-on-surface border-t border-outline-variant/30 pt-4 font-display-lg">
+                        <!-- Desktop-only total (hidden on mobile where sticky bar shows it) -->
+                        <div class="hidden lg:flex justify-between text-2xl text-on-surface border-t border-outline-variant/30 pt-4 font-display-lg">
                             <span>Total</span>
                             <span class="text-primary">₹{{ subtotal }}</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Simulation Form -->
-                <form method="POST" action="{% url 'checkout' %}" class="bg-white border border-outline-variant/30 p-8 rounded-3xl shadow-sm flex flex-col gap-5">
+            <!-- Shipping & Payment Form (right on desktop) -->
+            <div class="lg:col-span-5 lg:sticky lg:top-8">
+                <form method="POST" action="{% url 'checkout' %}" class="bg-white border border-outline-variant/30 p-6 sm:p-8 rounded-3xl shadow-sm flex flex-col gap-5">
                     {% csrf_token %}
                     <h3 class="font-display-lg text-2xl mb-2 text-on-surface flex items-center gap-2">
                         <span class="material-symbols-outlined text-secondary">local_shipping</span> Shipping & Simulation
@@ -95,9 +99,21 @@
                         Simulate Payment (Test Mode) <span class="material-symbols-outlined text-[22px]">payment</span>
                     </button>
                 </form>
-
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Sticky Mobile Totals Bar -->
+<div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant/30 px-4 py-3 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div>
+            <p class="text-xs text-on-surface-variant font-label-md uppercase tracking-wider">Total</p>
+            <p class="font-display-lg text-2xl text-primary">₹{{ subtotal }}</p>
+        </div>
+        <button type="submit" form="checkout-form" onclick="document.querySelector('form[action*=checkout]').submit()" class="bg-primary text-on-primary font-label-md uppercase text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-primary/20 flex items-center gap-2 font-bold hover:scale-[1.02] transition-transform">
+            Pay Now <span class="material-symbols-outlined text-[20px]">payment</span>
+        </button>
     </div>
 </div>
 {% endblock %}
