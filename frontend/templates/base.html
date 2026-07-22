@@ -78,18 +78,109 @@
     </style>
     
     {% block extra_head %}{% endblock %}
-</head>
-<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+</head><body class="bg-background text-on-background font-body-md overflow-x-hidden">
+
+    <!-- Left Navigation Sidebar Drawer -->
+    <div id="leftSidebar" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white z-[2000] shadow-2xl transform -translate-x-full transition-transform duration-300 ease-out flex flex-col">
+        <!-- Sidebar Header -->
+        <div class="p-5 border-b border-outline-variant/30 flex items-center justify-between bg-butter/20">
+            <div class="flex items-center gap-2">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-8 w-auto">
+                <span class="font-display-lg text-lg font-bold text-tangerine">A kids</span>
+            </div>
+            <button onclick="toggleLeftSidebar()" class="text-on-surface-variant hover:text-on-surface focus:outline-none flex items-center justify-center p-1">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+
+        <!-- Sidebar Content (Accordion) -->
+        <div class="flex-grow overflow-y-auto p-4 flex flex-col gap-3">
+            <!-- Home Link -->
+            <a href="{% url 'home' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary-container/40 text-on-surface font-bold transition-colors">
+                <span class="material-symbols-outlined text-primary text-xl">home</span> Home
+            </a>
+
+            <!-- Indoors Accordion Group -->
+            <div class="border border-outline-variant/20 rounded-xl overflow-hidden">
+                <button onclick="toggleSidebarAccordion('indoors-acc')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-primary-container/20 text-on-surface font-bold text-left transition-colors">
+                    <span class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">meeting_room</span> Indoors
+                    </span>
+                    <span id="indoors-acc-icon" class="material-symbols-outlined text-lg transition-transform duration-200">keyboard_arrow_down</span>
+                </button>
+                <div id="indoors-acc" class="hidden flex-col bg-background/50 border-t border-outline-variant/10">
+                    <a href="{% url 'indoors' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">local_mall</span> Order Online
+                    </a>
+                    <a href="{% url 'view_all_products' 'indoor' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2 border-t border-outline-variant/10">
+                        <span class="material-symbols-outlined text-[16px]">visibility</span> View All Products
+                    </a>
+                </div>
+            </div>
+
+            <!-- Outdoors Accordion Group -->
+            <div class="border border-outline-variant/20 rounded-xl overflow-hidden">
+                <button onclick="toggleSidebarAccordion('outdoors-acc')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-primary-container/20 text-on-surface font-bold text-left transition-colors">
+                    <span class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">park</span> Outdoors
+                    </span>
+                    <span id="outdoors-acc-icon" class="material-symbols-outlined text-lg transition-transform duration-200">keyboard_arrow_down</span>
+                </button>
+                <div id="outdoors-acc" class="hidden flex-col bg-background/50 border-t border-outline-variant/10">
+                    <a href="{% url 'outdoors' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">local_mall</span> Order Online
+                    </a>
+                    <a href="{% url 'view_all_products' 'outdoor' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2 border-t border-outline-variant/10">
+                        <span class="material-symbols-outlined text-[16px]">visibility</span> View All Products
+                    </a>
+                </div>
+            </div>
+
+            <!-- MR Sports Accordion Group -->
+            <div class="border border-outline-variant/20 rounded-xl overflow-hidden">
+                <button onclick="toggleSidebarAccordion('mrsports-acc')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-primary-container/20 text-on-surface font-bold text-left transition-colors">
+                    <span class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary text-xl">sports_soccer</span> MR Sports
+                    </span>
+                    <span id="mrsports-acc-icon" class="material-symbols-outlined text-lg transition-transform duration-200">keyboard_arrow_down</span>
+                </button>
+                <div id="mrsports-acc" class="hidden flex-col bg-background/50 border-t border-outline-variant/10">
+                    <a href="{% url 'mrsports' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[16px]">local_mall</span> Order Online / View All
+                    </a>
+                    <a href="{% url 'view_all_products' 'mr_sports' %}" class="px-8 py-2.5 text-xs font-bold text-on-surface-variant hover:bg-primary-container/40 hover:text-primary transition-colors flex items-center gap-2 border-t border-outline-variant/10">
+                        <span class="material-symbols-outlined text-[16px]">visibility</span> View All Products
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="border-t border-outline-variant/10 pt-4 mt-2 flex flex-col gap-2">
+                <span class="px-4 text-[10px] uppercase font-bold text-on-surface-variant/40 tracking-wider">Company</span>
+                <a href="{% url 'about' %}" class="px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">About Us</a>
+                <a href="{% url 'safety_standards' %}" class="px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">Safety Standards</a>
+                <a href="{% url 'testimonials' %}" class="px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">Testimonials</a>
+                <a href="{% url 'contact' %}" class="px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">Contact Us</a>
+            </div>
+        </div>
+    </div>
+    <!-- Left Navigation Sidebar Backdrop -->
+    <div id="leftSidebarBackdrop" class="hidden fixed inset-0 bg-on-surface/60 z-[1999] backdrop-blur-sm transition-opacity" onclick="toggleLeftSidebar()"></div>
 
     <!-- Header / Navbar -->
     <header class="bg-butter/40 backdrop-blur-md sticky top-0 z-50 border-b border-tangerine/20 shadow-sm">
-        <div class="flex justify-between items-center px-margin-desktop py-3 max-w-7xl mx-auto gap-4 lg:gap-8">
-            <div class="flex items-center gap-3 shrink-0">
+        <div class="flex justify-between items-center px-margin-desktop py-3 max-w-7xl mx-auto gap-2 sm:gap-4 lg:gap-8">
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Sidebar Toggle Menu Button (Top Left) -->
+                <button id="leftMenuBtn" class="flex items-center justify-center text-tangerine hover:text-primary transition-colors focus:outline-none p-1.5 touch-target" onclick="toggleLeftSidebar()" aria-label="Toggle Navigation Sidebar">
+                    <span class="material-symbols-outlined text-[28px]">menu</span>
+                </button>
+
                 <a href="{% url 'home' %}" class="flex items-center gap-2">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-9 w-auto" loading="lazy">
-                    <div class="flex flex-col">
-                        <span class="font-display-lg text-2xl font-extrabold tracking-tight text-tangerine leading-none">A kids</span>
-                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-0.5">India's Play Experts</span>
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-8 sm:h-9 w-auto" loading="lazy">
+                    <div class="flex flex-col logo-text">
+                        <span class="font-display-lg text-lg sm:text-2xl font-extrabold tracking-tight text-tangerine leading-none font-black">A kids</span>
+                        <span class="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-0.5 whitespace-nowrap">India's Play Experts</span>
                     </div>
                 </a>
             </div>
@@ -112,56 +203,30 @@
                 </form>
             </div>
             
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
                 {% if not request.user.is_staff and not request.session.is_admin %}
-                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-2 rounded-full px-4 py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors">
+                <a href="{% url 'cart' %}" class="{% if request.resolver_match.url_name == 'cart' %}bg-tangerine text-white{% else %}bg-background text-on-surface-variant{% endif %} flex items-center gap-1.5 sm:gap-2 rounded-full p-2 sm:px-4 sm:py-2 border border-outline-variant hover:border-tangerine hover:text-tangerine transition-colors touch-target" title="Cart">
                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                    <span class="text-sm font-bold">Cart</span>
+                    <span class="text-sm font-bold hidden sm:inline">Cart</span>
                 </a>
                 {% endif %}
                 
                 {% if request.user.is_authenticated %}
-
-                    <a href="{% url 'profile' %}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]">person</span> Profile
+                    {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white p-2 sm:px-4 sm:py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow inline-flex items-center gap-1 touch-target" title="Admin Panel">
+                        <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                        <span class="hidden sm:inline">Admin Panel</span>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'profile' %}" class="bg-sea text-white p-2 sm:px-5 sm:py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center gap-1.5 sm:gap-2 touch-target" title="Profile">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                        <span class="hidden sm:inline">Profile</span>
                     </a>
                 {% else %}
-                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white px-5 py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-block">
-                        Sign In
+                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white p-2.5 sm:px-5 sm:py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center justify-center gap-1.5 sm:gap-2 touch-target" title="Sign In">
+                        <span class="material-symbols-outlined text-[18px] sm:hidden">login</span>
+                        <span class="hidden sm:inline">Sign In</span>
                     </a>
-                {% endif %}
-
-                <!-- Mobile Hamburger -->
-                <button id="mobileMenuBtn" class="lg:hidden bg-tangerine text-white w-12 h-12 min-w-[48px] min-h-[48px] rounded-full shadow-lg flex items-center justify-center hover:shadow-md transition-shadow" onclick="toggleMobileMenu()" aria-label="Toggle Navigation">
-                    <span class="material-symbols-outlined">menu</span>
-                </button>
-            </div>
-            
-            <!-- Mobile Navigation Drawer -->
-            <div id="mobileDrawer" class="hidden absolute top-full left-0 right-0 bg-white border-t-4 border-tangerine shadow-2xl p-6 flex-col gap-4 z-50 rounded-b-3xl">
-                <form action="{% url 'search' %}" method="GET" class="w-full relative mb-2 search-wrapper">
-                    <input type="text" name="q" placeholder="Search..." required autocomplete="off" class="w-full bg-background border border-outline-variant/50 rounded-xl py-3 pl-4 pr-12 outline-none focus:ring-2 focus:ring-tangerine text-on-surface">
-                    <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-tangerine">
-                        <span class="material-symbols-outlined">search</span>
-                    </button>
-                    <div class="autocomplete-dropdown"></div>
-                </form>
-                
-                <a href="{% url 'home' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'home' %}active text-tangerine{% endif %}">Home</a>
-                <a href="{% url 'indoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'indoors' %}active text-tangerine{% endif %}">Indoors</a>
-                <a href="{% url 'outdoors' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'outdoors' %}active text-tangerine{% endif %}">Outdoors</a>
-                <a href="{% url 'mrsports' %}" class="nav-link font-display-lg text-xl py-2 border-b border-outline-variant/30 {% if request.resolver_match.url_name == 'mrsports' %}active text-tangerine{% endif %}">MR Sports</a>
-
-                
-                {% if not request.user.is_staff and not request.session.is_admin %}
-                <a href="{% url 'cart' %}" class="bg-tangerine text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Cart</a>
-                {% endif %}
-                {% if request.user.is_authenticated %}
-                <a href="{% url 'profile' %}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2 flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">person</span> Profile
-                </a>
-                {% else %}
-                <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white py-3 rounded-xl text-center font-label-md shadow-sm hover:shadow-md transition-shadow mt-2">Sign In</a>
                 {% endif %}
             </div>
         </div>
@@ -712,6 +777,60 @@
                 window.history.replaceState({}, '', url);
             }
         })();
+
+        // Global scroll position preservation system
+        (function() {
+            document.addEventListener('submit', function() {
+                sessionStorage.setItem('scroll_position_' + window.location.pathname, window.scrollY);
+            });
+
+            window.addEventListener('beforeunload', function() {
+                sessionStorage.setItem('scroll_position_' + window.location.pathname, window.scrollY);
+            });
+
+            function restoreScroll() {
+                const savedScroll = sessionStorage.getItem('scroll_position_' + window.location.pathname);
+                if (savedScroll !== null) {
+                    window.scrollTo({
+                        top: parseInt(savedScroll, 10),
+                        behavior: 'instant'
+                    });
+                    sessionStorage.removeItem('scroll_position_' + window.location.pathname);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', restoreScroll);
+            window.addEventListener('load', restoreScroll);
+        })();
+
+        // Left Navigation Sidebar and Accordion Drawer Toggle
+        function toggleLeftSidebar() {
+            const sidebar = document.getElementById('leftSidebar');
+            const backdrop = document.getElementById('leftSidebarBackdrop');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                backdrop.classList.add('hidden');
+                document.body.style.overflow = '';
+            } else {
+                sidebar.classList.add('open');
+                backdrop.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function toggleSidebarAccordion(id) {
+            const content = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                content.classList.add('flex');
+                if (icon) icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                content.classList.remove('flex');
+                if (icon) icon.classList.remove('rotate-180');
+            }
+        }
     </script>
 
     {% block extra_js %}{% endblock %}
