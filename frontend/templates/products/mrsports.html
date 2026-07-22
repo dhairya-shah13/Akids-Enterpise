@@ -64,7 +64,7 @@
                 <span class="bg-sea/10 text-sea font-bold text-xs px-3 py-1.5 rounded-full border border-sea/20">Supabase Cloud</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 stagger-children">
                 {% for product in products %}
                     {% include "products/product_card.html" with product=product %}
                 {% empty %}

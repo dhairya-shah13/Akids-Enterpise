@@ -93,9 +93,28 @@
 
                 <div class="flex-1 w-full relative">
                     {% if pdf_url %}
-                    <!-- Scrollable PDF Viewport -->
-                    <div class="w-full h-[650px] rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
+                    <!-- Desktop PDF Viewport (hidden on mobile) -->
+                    <div class="hidden md:block w-full h-[650px] rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
                         <iframe src="{{ pdf_url }}#toolbar=0" class="w-full h-full border-none" type="application/pdf"></iframe>
+                    </div>
+
+                    <!-- Mobile PDF Viewport / Fallback CTA (hidden on desktop) -->
+                    <div class="block md:hidden w-full py-12 px-6 rounded-2xl bg-background border border-outline-variant/20 shadow-inner text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+                            <span class="material-symbols-outlined text-4xl">picture_as_pdf</span>
+                        </div>
+                        <h3 class="font-display-lg text-2xl text-on-surface mb-3">View {{ module_label }} Brochure</h3>
+                        <p class="font-body-md text-on-surface-variant max-w-sm mx-auto mb-8 leading-relaxed text-sm">
+                            For the best reading experience on mobile devices, open the PDF catalogue directly in a new window or download it to your device.
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <a href="{{ pdf_url }}" target="_blank" class="w-full bg-primary text-on-primary py-3 px-4 rounded-xl font-label-md text-xs uppercase tracking-wider font-bold shadow-md shadow-primary/10 hover:shadow-lg flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98]">
+                                Open Catalogue <span class="material-symbols-outlined text-sm">open_in_new</span>
+                            </a>
+                            <a href="{{ pdf_url }}?download=1" download class="w-full bg-white border border-outline-variant text-on-surface py-3 px-4 rounded-xl font-label-md text-xs uppercase tracking-wider font-bold hover:bg-background/50 flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98]">
+                                Download PDF <span class="material-symbols-outlined text-sm">download</span>
+                            </a>
+                        </div>
                     </div>
                     {% else %}
                     <!-- RF Sports Placeholder Coming Soon -->
