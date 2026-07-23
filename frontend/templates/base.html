@@ -171,8 +171,8 @@
     <header class="bg-butter/40 backdrop-blur-md sticky top-0 z-50 border-b border-tangerine/20 shadow-sm">
         <div class="flex justify-between items-center px-margin-desktop py-3 max-w-7xl mx-auto gap-2 sm:gap-4 lg:gap-8">
             <div class="flex items-center gap-2 shrink-0">
-                <!-- Sidebar Toggle Menu Button (Top Left) -->
-                <button id="leftMenuBtn" class="flex items-center justify-center text-tangerine hover:text-primary transition-colors focus:outline-none p-1.5 touch-target" onclick="toggleLeftSidebar()" aria-label="Toggle Navigation Sidebar">
+                <!-- Sidebar Toggle Menu Button (Top Left) — only visible on tablet/mobile -->
+                <button id="leftMenuBtn" class="lg:hidden flex items-center justify-center text-tangerine hover:text-primary transition-colors focus:outline-none p-1.5 touch-target" onclick="toggleLeftSidebar()" aria-label="Toggle Navigation Sidebar">
                     <span class="material-symbols-outlined text-[28px]">menu</span>
                 </button>
 
@@ -213,19 +213,17 @@
                 
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
-                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white p-2 sm:px-4 sm:py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow inline-flex items-center gap-1 touch-target" title="Admin Panel">
+                    <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white p-2 sm:px-4 sm:py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow inline-flex items-center gap-1 touch-target" title="Admin HQ">
                         <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
-                        <span class="hidden sm:inline">Admin Panel</span>
+                        <span class="inline">Admin HQ</span>
                     </a>
                     {% endif %}
-                    <a href="{% url 'profile' %}" class="bg-sea text-white p-2 sm:px-5 sm:py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center gap-1.5 sm:gap-2 touch-target" title="Profile">
-                        <span class="material-symbols-outlined text-[18px]">person</span>
-                        <span class="hidden sm:inline">Profile</span>
+                    <a href="{% url 'profile' %}" class="w-10 h-10 rounded-full bg-sea text-white flex items-center justify-center font-bold text-sm hover:scale-105 hover:shadow-md transition-all shadow-sm" title="My Profile">
+                        {{ request.user.username|slice:":1"|upper }}
                     </a>
                 {% else %}
-                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white p-2.5 sm:px-5 sm:py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center justify-center gap-1.5 sm:gap-2 touch-target" title="Sign In">
-                        <span class="material-symbols-outlined text-[18px] sm:hidden">login</span>
-                        <span class="hidden sm:inline">Sign In</span>
+                    <a href="{% url 'admin_login' %}?next={{ request.get_full_path|urlencode }}" class="bg-sea text-white p-2.5 sm:px-6 sm:py-2.5 rounded-full font-label-md shadow-sm hover:shadow-md transition-shadow hover:scale-105 active:scale-95 inline-flex items-center justify-center touch-target" title="Sign In">
+                        <span class="inline text-sm sm:text-base">Sign In</span>
                     </a>
                 {% endif %}
             </div>

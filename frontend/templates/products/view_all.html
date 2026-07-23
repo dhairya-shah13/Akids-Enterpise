@@ -105,22 +105,46 @@
                         <iframe src="{{ pdf_url }}#toolbar=0" class="w-full h-full border-none" type="application/pdf"></iframe>
                     </div>
 
-                    <!-- Mobile PDF Viewport / Fallback CTA (hidden on desktop) -->
-                    <div class="block md:hidden w-full py-12 px-6 rounded-2xl bg-background border border-outline-variant/20 shadow-inner text-center">
-                        <div class="w-16 h-16 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
-                            <span class="material-symbols-outlined text-4xl">picture_as_pdf</span>
+                    <!-- Mobile: PDF Viewer + Scrollable Product List (hidden on desktop) -->
+                    <div class="block md:hidden w-full">
+                        <!-- Mobile Toggle: PDF View / Products View -->
+                        <div class="flex items-center gap-2 mb-4 bg-background/50 rounded-xl p-1 border border-outline-variant/20">
+                            <button type="button" id="mobileViewPdfBtn" onclick="switchMobileCatalogueView('pdf')" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-primary text-on-primary shadow-sm transition-all">
+                                <span class="material-symbols-outlined text-sm">picture_as_pdf</span> Brochure
+                            </button>
+                            <button type="button" id="mobileViewProductsBtn" onclick="switchMobileCatalogueView('products')" class="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-white transition-all">
+                                <span class="material-symbols-outlined text-sm">inventory_2</span> Products
+                            </button>
                         </div>
-                        <h3 class="font-display-lg text-2xl text-on-surface mb-3">View {{ module_label }} Brochure</h3>
-                        <p class="font-body-md text-on-surface-variant max-w-sm mx-auto mb-8 leading-relaxed text-sm">
-                            For the best reading experience on mobile devices, open the PDF catalogue directly in a new window or download it to your device.
-                        </p>
-                        <div class="flex flex-col gap-3">
-                            <a href="{{ pdf_url }}" target="_blank" class="w-full bg-primary text-on-primary py-3 px-4 rounded-xl font-label-md text-xs uppercase tracking-wider font-bold shadow-md shadow-primary/10 hover:shadow-lg flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98]">
-                                Open Catalogue <span class="material-symbols-outlined text-sm">open_in_new</span>
-                            </a>
-                            <a href="{{ pdf_url }}?download=1" download class="w-full bg-white border border-outline-variant text-on-surface py-3 px-4 rounded-xl font-label-md text-xs uppercase tracking-wider font-bold hover:bg-background/50 flex items-center justify-center gap-1.5 transition-transform active:scale-[0.98]">
-                                Download PDF <span class="material-symbols-outlined text-sm">download</span>
-                            </a>
+
+                        <!-- Mobile PDF Viewport (togglable) -->
+                        {% if pdf_url %}
+                        <div id="mobilePdfView" class="w-full rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
+                            <iframe src="{{ pdf_url }}#toolbar=0" class="w-full border-none" style="height: 50vh; min-height: 350px;" type="application/pdf"></iframe>
+                        </div>
+                        {% endif %}
+
+                        <!-- Mobile Product Grid (togglable) -->
+                        <div id="mobileProductListView" class="hidden w-full">
+                            <div id="mobileProductGrid" class="flex flex-col gap-2 max-h-[50vh] overflow-y-auto rounded-2xl bg-background border border-outline-variant/20 p-2 shadow-inner">
+                                {% for item in product_codes %}
+                                <div class="bg-white rounded-xl p-3 border border-outline-variant/10 flex items-center gap-3 hover:shadow-sm transition-shadow">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-bold text-xs text-on-surface truncate">{{ item.name }}</p>
+                                        <p class="text-[10px] text-on-surface-variant font-semibold mt-0.5">Code: {{ item.code }}</p>
+                                    </div>
+                                    <button type="button" onclick="addProductToInquiry('{{ item.code }}', '{{ item.name|escapejs }}')" class="shrink-0 bg-sea/10 text-sea hover:bg-sea hover:text-white transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-sea/20">
+                                        <span class="material-symbols-outlined text-[14px]">add</span> Add
+                                    </button>
+                                </div>
+                                {% empty %}
+                                <div class="p-8 text-center text-on-surface-variant text-sm">
+                                    <span class="material-symbols-outlined text-4xl block mb-3 opacity-30">inventory_2</span>
+                                    <p>No products listed in this catalogue yet.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <p class="text-[10px] text-on-surface-variant/60 text-center mt-2">Tap <strong>Add</strong> to include items in your inquiry list below.</p>
                         </div>
                     </div>
                     {% else %}
@@ -464,10 +488,67 @@
         updateMobileBadge();
     }
 
+    // Add a product code from the mobile catalogue grid into the inquiry form
+    function addProductToInquiry(code, name) {
+        // Find the product_code input in the last line item that's empty, or add a new one
+        const inputs = document.querySelectorAll('#lineItemsContainer input[name="product_code"]');
+        let filled = false;
+        for (let i = 0; i < inputs.length; i++) {
+            if (!inputs[i].value.trim()) {
+                inputs[i].value = code;
+                filled = true;
+                break;
+            }
+        }
+        if (!filled) {
+            // Add a new line item and fill it
+            addLineItem();
+            // Wait a tick for the DOM to update, then fill
+            setTimeout(() => {
+                const newInputs = document.querySelectorAll('#lineItemsContainer input[name="product_code"]');
+                const lastInput = newInputs[newInputs.length - 1];
+                if (lastInput) lastInput.value = code;
+            }, 50);
+        }
+        updateMobileBadge();
+        // Show a brief visual confirmation
+        showToast('Item added to inquiry list', 'success');
+    }
+
+    // Switch between PDF brochure view and product list view on mobile
+    function switchMobileCatalogueView(view) {
+        var pdfView = document.getElementById('mobilePdfView');
+        var productView = document.getElementById('mobileProductListView');
+        var pdfBtn = document.getElementById('mobileViewPdfBtn');
+        var productBtn = document.getElementById('mobileViewProductsBtn');
+        
+        if (view === 'pdf') {
+            if (pdfView) pdfView.classList.remove('hidden');
+            if (productView) productView.classList.add('hidden');
+            if (pdfBtn) {
+                pdfBtn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-primary text-on-primary shadow-sm transition-all';
+            }
+            if (productBtn) {
+                productBtn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-white transition-all';
+            }
+        } else {
+            if (pdfView) pdfView.classList.add('hidden');
+            if (productView) productView.classList.remove('hidden');
+            if (pdfBtn) {
+                pdfBtn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-white transition-all';
+            }
+            if (productBtn) {
+                productBtn.className = 'flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-bold bg-primary text-on-primary shadow-sm transition-all';
+            }
+        }
+    }
+
     // Initialize with 1 line item
     document.addEventListener('DOMContentLoaded', () => {
         addLineItem();
         updateMobileBadge();
+        // Default to PDF view on mobile
+        switchMobileCatalogueView('pdf');
     });
 </script>
 {% endblock %}

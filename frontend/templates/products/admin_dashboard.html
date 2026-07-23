@@ -623,15 +623,73 @@
     </div>
 </div>
 
-<div id="closeInquiryModal" class="fixed inset-0 bg-on-surface/80 hidden items-center justify-center p-4 backdrop-blur-sm" style="z-index: 2100;">
-    <div class="bg-white rounded-3xl w-full max-w-md p-7 shadow-2xl">
-        <h3 class="font-display-lg text-2xl text-on-surface">Close inquiry</h3>
-        <p class="text-sm text-on-surface-variant mt-2">Select the outcome for this customer.</p>
-        <div class="grid grid-cols-2 gap-3 mt-6">
-            <button onclick="closeInquiry('WON')" class="bg-secondary text-on-secondary font-label-md px-4 py-4 rounded-xl hover:scale-[1.02] transition-transform">Customer Won</button>
-            <button onclick="closeInquiry('LOST')" class="bg-error text-white font-label-md px-4 py-4 rounded-xl hover:scale-[1.02] transition-transform">Customer Lost</button>
+<div id="closeInquiryModal" class="fixed inset-0 bg-on-surface/80 hidden items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300" style="z-index: 2100;">
+    <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl border border-outline-variant/20 overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="closeInquiryModalInner">
+        <!-- Top accent bar -->
+        <div class="h-2 bg-gradient-to-r from-secondary via-primary to-tertiary"></div>
+        
+        <div class="p-8">
+            <!-- Header with icon -->
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-sm">
+                    <span class="material-symbols-outlined text-3xl text-amber-600" style="font-variation-settings: 'FILL' 1;">flag</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-display-lg text-2xl text-on-surface font-bold">Close Inquiry</h3>
+                    <p class="text-sm text-on-surface-variant mt-1.5 leading-relaxed">
+                        Mark this customer inquiry as <strong class="text-on-surface">Won</strong> or <strong class="text-on-surface">Lost</strong>. 
+                        This will finalize the inquiry and move it to the closed records.
+                    </p>
+                </div>
+                <button onclick="closeCloseInquiryModal()" class="shrink-0 w-9 h-9 rounded-full bg-background border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-white transition-all focus:outline-none">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+
+            <!-- Outcome selection cards -->
+            <div class="grid grid-cols-2 gap-4 mt-2">
+                <button id="wonBtn" onclick="selectOutcome('WON')" 
+                        class="group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-secondary/30 bg-gradient-to-b from-secondary/5 to-white hover:border-secondary hover:from-secondary/10 hover:shadow-lg hover:shadow-secondary/10 transition-all duration-200 active:scale-[0.97]">
+                    <!-- Icon circle -->
+                    <div id="wonCircle" class="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center shadow-md shadow-secondary/20 group-hover:shadow-lg group-hover:shadow-secondary/30 group-hover:scale-110 transition-all duration-200">
+                        <span class="material-symbols-outlined text-3xl text-white" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-bold text-base text-secondary">Customer Won</p>
+                        <p class="text-[10px] text-on-surface-variant/70 mt-1 leading-tight">Deal closed successfully</p>
+                    </div>
+                </button>
+
+                <button id="lostBtn" onclick="selectOutcome('LOST')" 
+                        class="group relative flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-error/20 bg-gradient-to-b from-error/5 to-white hover:border-error hover:from-error/10 hover:shadow-lg hover:shadow-error/10 transition-all duration-200 active:scale-[0.97]">
+                    <!-- Icon circle -->
+                    <div id="lostCircle" class="w-14 h-14 rounded-full bg-gradient-to-br from-error to-error/80 flex items-center justify-center shadow-md shadow-error/20 group-hover:shadow-lg group-hover:shadow-error/30 group-hover:scale-110 transition-all duration-200">
+                        <span class="material-symbols-outlined text-3xl text-white" style="font-variation-settings: 'FILL' 1;">sentiment_dissatisfied</span>
+                    </div>
+                    <div class="text-center">
+                        <p class="font-bold text-base text-error">Customer Lost</p>
+                        <p class="text-[10px] text-on-surface-variant/70 mt-1 leading-tight">Lead did not convert</p>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="mt-6 pt-4 border-t border-outline-variant/15 flex gap-3 justify-end">
+                <button onclick="closeCloseInquiryModal()" 
+                        class="px-6 py-2.5 text-xs font-bold text-on-surface-variant hover:text-on-surface bg-surface hover:bg-background rounded-full border border-outline-variant/30 hover:border-outline-variant/60 transition-all">
+                    Cancel
+                </button>
+                <button id="submitCloseBtn" onclick="submitCloseInquiry()" disabled
+                        class="px-6 py-2.5 text-xs font-bold rounded-full transition-all disabled:opacity-40 disabled:cursor-not-allowed
+                               bg-primary/60 text-on-primary/60
+                               enabled:bg-primary enabled:text-on-primary enabled:hover:scale-105 enabled:hover:shadow-md enabled:shadow-primary/20">
+                    <span class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[16px]">check</span>
+                        Submit
+                    </span>
+                </button>
+            </div>
         </div>
-        <button onclick="closeCloseInquiryModal()" class="w-full mt-3 py-3 text-xs font-bold text-on-surface-variant hover:text-on-surface">Cancel</button>
     </div>
 </div>
 
@@ -725,6 +783,13 @@
         'DELIVERED': 'Delivered',
         'CANCELLED': 'Cancelled',
         'RETURNED': 'Returned'
+    };
+
+    const NEXT_STATUS_MAP = {
+        'PLACED': 'CONFIRMED',
+        'CONFIRMED': 'PACKED',
+        'PACKED': 'SHIPPED',
+        'SHIPPED': 'DELIVERED'
     };
 
     const STATUS_BADGE_CLASSES = {
@@ -933,9 +998,11 @@
 
             let actionsHtml = `<div class="flex items-center justify-center gap-2 whitespace-nowrap">`;
             if (canAdvance) {
+                const nextStatus = NEXT_STATUS_MAP[order.order_status];
+                const nextLabel = STATUS_LABELS[nextStatus] || nextStatus;
                 actionsHtml += `
                     <button onclick="advanceOrderStatus(${order.id}, '${order.order_no}')" class="bg-secondary text-on-secondary hover:bg-secondary/90 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm" title="Advance to next status">
-                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Next Status
+                        <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Mark as ${nextLabel}
                     </button>
                 `;
             }
@@ -1325,21 +1392,104 @@
     }
 
     let closeInquiryId = null;
+    let selectedOutcome = null;
 
     function openCloseInquiryModal(inquiryId) {
         closeInquiryId = inquiryId;
         const modal = document.getElementById('closeInquiryModal');
+        const inner = document.getElementById('closeInquiryModalInner');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         modal.style.display = 'flex';
+        // Animate in
+        requestAnimationFrame(() => {
+            inner.classList.remove('scale-95', 'opacity-0');
+            inner.classList.add('scale-100', 'opacity-100');
+        });
     }
 
     function closeCloseInquiryModal() {
         closeInquiryId = null;
+        selectedOutcome = null;
         const modal = document.getElementById('closeInquiryModal');
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
+        const inner = document.getElementById('closeInquiryModalInner');
+        // Reset visual selection states via inline styles
+        const wonCircle = document.getElementById('wonCircle');
+        const lostCircle = document.getElementById('lostCircle');
+        const wonBtn = document.getElementById('wonBtn');
+        const lostBtn = document.getElementById('lostBtn');
+        const submitBtn = document.getElementById('submitCloseBtn');
+        if (wonCircle) {
+            wonCircle.style.background = '';
+            wonCircle.style.boxShadow = '';
+            wonCircle.style.transform = '';
+        }
+        if (lostCircle) {
+            lostCircle.style.background = '';
+            lostCircle.style.boxShadow = '';
+            lostCircle.style.transform = '';
+        }
+        if (wonBtn) { wonBtn.style.borderColor = wonBtn.style.boxShadow = ''; }
+        if (lostBtn) { lostBtn.style.borderColor = lostBtn.style.boxShadow = ''; }
+        if (submitBtn) submitBtn.disabled = true;
+        inner.classList.add('scale-95', 'opacity-0');
+        inner.classList.remove('scale-100', 'opacity-100');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+    // Show visual feedback on click and store the selected outcome
+    function selectOutcome(outcome) {
+        const wonCircle = document.getElementById('wonCircle');
+        const lostCircle = document.getElementById('lostCircle');
+        const wonBtn = document.getElementById('wonBtn');
+        const lostBtn = document.getElementById('lostBtn');
+        const submitBtn = document.getElementById('submitCloseBtn');
+        
+        // Reset both cards to default first
+        if (wonCircle) {
+            wonCircle.style.background = '';
+            wonCircle.style.boxShadow = '';
+            wonCircle.style.transform = '';
+        }
+        if (lostCircle) {
+            lostCircle.style.background = '';
+            lostCircle.style.boxShadow = '';
+            lostCircle.style.transform = '';
+        }
+        if (wonBtn) { wonBtn.style.borderColor = wonBtn.style.boxShadow = ''; }
+        if (lostBtn) { lostBtn.style.borderColor = lostBtn.style.boxShadow = ''; }
+        
+        selectedOutcome = outcome;
+        
+        if (outcome === 'WON') {
+            // Turn the won circle solid blue (secondary) with glow
+            wonCircle.style.background = '#6698CC';
+            wonCircle.style.boxShadow = '0 0 0 4px rgba(102,152,204,0.3), 0 10px 25px -5px rgba(102,152,204,0.5)';
+            wonCircle.style.transform = 'scale(1.1)';
+            wonBtn.style.borderColor = '#6698CC';
+            wonBtn.style.boxShadow = '0 10px 15px -3px rgba(102,152,204,0.3)';
+        } else {
+            // Turn the lost circle solid red with glow
+            lostCircle.style.background = '#E36888';
+            lostCircle.style.boxShadow = '0 0 0 4px rgba(227,104,136,0.3), 0 10px 25px -5px rgba(227,104,136,0.5)';
+            lostCircle.style.transform = 'scale(1.1)';
+            lostBtn.style.borderColor = '#E36888';
+            lostBtn.style.boxShadow = '0 10px 15px -3px rgba(227,104,136,0.3)';
+        }
+        
+        // Enable the submit button
+        if (submitBtn) submitBtn.disabled = false;
+    }
+
+    function submitCloseInquiry() {
+        if (!selectedOutcome || !closeInquiryId) return;
+        const submitBtn = document.getElementById('submitCloseBtn');
+        if (submitBtn) submitBtn.disabled = true;
+        closeInquiry(selectedOutcome);
     }
 
     function closeInquiry(outcome) {
