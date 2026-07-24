@@ -1,6 +1,8 @@
 import io
 import requests
+from pathlib import Path
 from decimal import Decimal
+from django.conf import settings
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, KeepTogether
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -101,17 +103,24 @@ def generate_invoice_pdf(order, is_admin=False):
     story = []
     
     # --- HEADER SECTION (Logo & Title) ---
-    logo_url = "https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g"
+    logo_path = getattr(settings, 'BASE_DIR', Path(__file__).resolve().parent.parent) / 'frontend' / 'static' / 'images' / 'logo.png'
     logo_img = None
     
-    try:
-        resp = requests.get(logo_url, timeout=2.5)
-        if resp.status_code == 200:
-            logo_data = io.BytesIO(resp.content)
-            # Render logo image keeping constraints
-            logo_img = Image(logo_data, width=1.1 * inch, height=0.35 * inch)
-    except Exception:
-        pass
+    if logo_path.exists():
+        try:
+            logo_img = Image(str(logo_path), width=1.3 * inch, height=0.66 * inch)
+        except Exception:
+            pass
+            
+    if not logo_img:
+        logo_url = "https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g"
+        try:
+            resp = requests.get(logo_url, timeout=2.5)
+            if resp.status_code == 200:
+                logo_data = io.BytesIO(resp.content)
+                logo_img = Image(logo_data, width=1.3 * inch, height=0.66 * inch)
+        except Exception:
+            pass
         
     if logo_img:
         left_flow = logo_img
