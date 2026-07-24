@@ -7,6 +7,10 @@
     <title>{% block title %}A kids | India's Premier Educational Play Solutions{% endblock %}</title>
     <meta name="description" content="A kids India — premium kindergarten furniture, playground equipment, and sports gear. Safety-certified play solutions for schools, daycare centers, and homes.">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logo.png' %}">
+
     <!-- Preconnect to third-party origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,7 +96,7 @@
         <!-- Sidebar Header -->
         <div class="p-5 border-b border-outline-variant/30 flex items-center justify-between bg-butter/20">
             <div class="flex items-center gap-2">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-8 w-auto">
+                <img src="{% static 'images/logo.png' %}" alt="A kids Logo" class="h-9 w-auto object-contain">
                 <span class="font-display-lg text-lg font-bold text-tangerine">A kids</span>
             </div>
             <button onclick="toggleLeftSidebar()" class="text-on-surface-variant hover:text-on-surface focus:outline-none flex items-center justify-center p-1">
@@ -183,8 +187,8 @@
                     <span class="material-symbols-outlined text-[28px]">menu</span>
                 </button>
 
-                <a href="{% url 'home' %}" class="flex items-center gap-2">
-                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2SUWICEEV2KuppRGJwIxvv5M3-0vWkAQTe2q7DtuItSZM8IkSfhdqfnly_haUPDrmskE8bv1kUxA-6jZ5V3r81ndpeUL0wigMB2wwRHI8SEuNPM2jT-lkG8DjoW2NbHhF8rUDzcdXi5joEbaZv2JisZ2LdE7QK4dO4i2riQTTJ5yPnjP3QPqm2XrIjOdqw0F1QXo9qHTrM-CYJ0AnPKRPync29-qMcDY-fh-wN-ErFL4_S8av2QE3RvSTN3ChCbqVvqWKRc1Z7g" alt="A kids" class="h-8 sm:h-9 w-auto" loading="eager">
+                <a href="{% url 'home' %}" class="flex items-center gap-2.5">
+                    <img src="{% static 'images/logo.png' %}" alt="A kids Logo" class="h-9 sm:h-10 w-auto object-contain" loading="eager">
                     <div class="flex flex-col logo-text">
                         <span class="font-display-lg text-lg sm:text-2xl font-extrabold tracking-tight text-tangerine leading-none font-black">A kids</span>
                         <span class="text-[8px] sm:text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-0.5 whitespace-nowrap">India's Play Experts</span>
@@ -252,9 +256,12 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12 border-b border-outline-variant/20">
                 <!-- Brand -->
                 <div class="md:col-span-4 space-y-5">
-                    <div class="flex flex-col">
-                        <span class="font-display-lg text-2xl font-extrabold text-tangerine leading-none">A kids</span>
-                        <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-1">Quality Play Environments</span>
+                    <div class="flex items-center gap-3">
+                        <img src="{% static 'images/logo.png' %}" alt="A kids Logo" class="h-10 w-auto object-contain">
+                        <div class="flex flex-col">
+                            <span class="font-display-lg text-2xl font-extrabold text-tangerine leading-none">A kids</span>
+                            <span class="text-[9px] uppercase tracking-[0.2em] font-bold text-sea mt-1">Quality Play Environments</span>
+                        </div>
                     </div>
                     <p class="font-body-md text-on-surface-variant text-sm leading-relaxed max-w-sm">Manufacturing Excellence in India. Creating safe, vibrant, and skill-building environments for the leaders of tomorrow.</p>
                     <div class="flex gap-3">
