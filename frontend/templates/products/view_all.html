@@ -3,6 +3,12 @@
 {% block title %}{{ module_label }} Catalogue | Little Fingers{% endblock %}
 
 {% block extra_head %}
+<!-- PDF.js CDN for mobile inline viewer -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+</script>
+
 <style>
     /* Hide scrollbars completely */
     html, body, iframe, div {
@@ -119,8 +125,37 @@
 
                         <!-- Mobile PDF Viewport (togglable) -->
                         {% if pdf_url %}
-                        <div id="mobilePdfView" class="w-full rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
-                            <iframe src="{{ pdf_url }}#toolbar=0" class="w-full border-none" style="height: 50vh; min-height: 350px;" type="application/pdf" loading="lazy"></iframe>
+                        <div id="mobilePdfView" class="w-full rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner flex flex-col" style="height: 60vh; min-height: 400px;">
+                            <!-- PDF Toolbar / Controls -->
+                            <div class="flex items-center justify-between px-3 py-2 bg-neutral-100 border-b border-outline-variant/20 text-xs text-on-surface-variant font-bold select-none">
+                                <div class="flex items-center gap-1">
+                                    <button type="button" id="pdfPrevPage" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors disabled:opacity-30">
+                                        <span class="material-symbols-outlined text-base">navigate_before</span>
+                                    </button>
+                                    <span class="font-semibold"><span id="pdfPageNum">1</span> / <span id="pdfPageCount">-</span></span>
+                                    <button type="button" id="pdfNextPage" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors disabled:opacity-30">
+                                        <span class="material-symbols-outlined text-base">navigate_next</span>
+                                    </button>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button type="button" id="pdfZoomOut" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors">
+                                        <span class="material-symbols-outlined text-base">zoom_out</span>
+                                    </button>
+                                    <span id="pdfZoomPercent" class="font-semibold min-w-[35px] text-center">100%</span>
+                                    <button type="button" id="pdfZoomIn" class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-neutral-200 transition-colors">
+                                        <span class="material-symbols-outlined text-base">zoom_in</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- PDF Pages Scroll / Render Area -->
+                            <div id="pdfCanvasContainer" class="flex-1 w-full overflow-auto bg-neutral-500 flex items-center justify-center p-3 relative min-h-0">
+                                <div id="pdfLoadingSpinner" class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10 gap-3">
+                                    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                                    <p class="text-xs text-on-surface-variant font-semibold">Loading catalogue...</p>
+                                </div>
+                                <canvas id="pdfCanvas" class="max-w-full shadow-lg bg-white" style="display: none;"></canvas>
+                            </div>
                         </div>
                         {% endif %}
 
@@ -549,6 +584,151 @@
         updateMobileBadge();
         // Default to PDF view on mobile
         switchMobileCatalogueView('pdf');
+
+        // Custom PDF.js mobile viewer implementation
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        let scale = 1.0;
+        const canvas = document.getElementById('pdfCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+
+        function renderPage(num) {
+            if (!canvas || !ctx || !pdfDoc) return;
+            pageRendering = true;
+            document.getElementById('pdfLoadingSpinner').classList.remove('hidden');
+
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({scale: scale});
+                
+                const outputScale = window.devicePixelRatio || 1;
+                canvas.width = Math.floor(viewport.width * outputScale);
+                canvas.height = Math.floor(viewport.height * outputScale);
+                canvas.style.width = Math.floor(viewport.width) + "px";
+                canvas.style.height = Math.floor(viewport.height) + "px";
+
+                const transform = outputScale !== 1
+                    ? [outputScale, 0, 0, outputScale, 0, 0]
+                    : null;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    transform: transform,
+                    viewport: viewport
+                };
+                const renderTask = page.render(renderContext);
+
+                renderTask.promise.then(function() {
+                    pageRendering = false;
+                    document.getElementById('pdfLoadingSpinner').classList.add('hidden');
+                    canvas.style.display = 'block';
+                    
+                    document.getElementById('pdfPageNum').textContent = num;
+                    document.getElementById('pdfPrevPage').disabled = (num <= 1);
+                    document.getElementById('pdfNextPage').disabled = (num >= pdfDoc.numPages);
+                    document.getElementById('pdfZoomPercent').textContent = Math.round(scale * 100) + '%';
+
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function onPrevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+
+        function onNextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            queueRenderPage(pageNum);
+        }
+
+        function onZoomIn() {
+            if (scale >= 3.0) return;
+            scale += 0.25;
+            queueRenderPage(pageNum);
+        }
+
+        function onZoomOut() {
+            if (scale <= 0.5) return;
+            scale -= 0.25;
+            queueRenderPage(pageNum);
+        }
+
+        const prevBtn = document.getElementById('pdfPrevPage');
+        const nextBtn = document.getElementById('pdfNextPage');
+        const zoomInBtn = document.getElementById('pdfZoomIn');
+        const zoomOutBtn = document.getElementById('pdfZoomOut');
+        
+        if (prevBtn) prevBtn.addEventListener('click', onPrevPage);
+        if (nextBtn) nextBtn.addEventListener('click', onNextPage);
+        if (zoomInBtn) zoomInBtn.addEventListener('click', onZoomIn);
+        if (zoomOutBtn) zoomOutBtn.addEventListener('click', onZoomOut);
+
+        // Swipe gestures support for PDF pages
+        let touchstartX = 0;
+        let touchendX = 0;
+        const container = document.getElementById('pdfCanvasContainer');
+        if (container) {
+            container.addEventListener('touchstart', e => {
+                touchstartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            container.addEventListener('touchend', e => {
+                touchendX = e.changedTouches[0].screenX;
+                handleGesture();
+            }, { passive: true });
+        }
+        
+        function handleGesture() {
+            if (touchendX < touchstartX - 50) {
+                onNextPage();
+            }
+            if (touchendX > touchstartX + 50) {
+                onPrevPage();
+            }
+        }
+
+        // Initialize PDF viewer
+        const pdfUrl = "{{ pdf_url }}";
+        if (pdfUrl && canvas) {
+            pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+                pdfDoc = pdfDoc_;
+                document.getElementById('pdfPageCount').textContent = pdfDoc.numPages;
+                
+                pdfDoc.getPage(1).then(function(page) {
+                    const containerWidth = document.getElementById('pdfCanvasContainer').clientWidth - 24;
+                    const viewport = page.getViewport({scale: 1.0});
+                    scale = containerWidth / viewport.width;
+                    scale = Math.min(Math.max(scale, 0.5), 2.0);
+                    renderPage(pageNum);
+                });
+            }).catch(err => {
+                console.error('Error loading PDF:', err);
+                const spinner = document.getElementById('pdfLoadingSpinner');
+                if (spinner) {
+                    spinner.innerHTML = `
+                        <span class="material-symbols-outlined text-error text-3xl">error</span>
+                        <p class="text-xs text-error font-semibold mt-1">Failed to load PDF</p>
+                        <a href="${pdfUrl}?download=1" download class="text-[10px] text-primary underline mt-2 font-bold">Download Brochure Directly</a>
+                    `;
+                }
+            });
+        }
     });
 </script>
 {% endblock %}
