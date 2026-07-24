@@ -2,6 +2,42 @@
 
 {% block title %}Admin Dashboard | Little Fingers{% endblock %}
 
+{% block extra_head %}
+<style>
+    @media (min-width: 1024px) {
+        .admin-dashboard-container {
+            display: grid !important;
+            grid-template-columns: 280px 1fr !important;
+            gap: 32px !important;
+            align-items: start !important;
+        }
+        .admin-sidebar {
+            position: sticky !important;
+            top: 32px !important;
+            width: 280px !important;
+            flex-shrink: 0 !important;
+        }
+        .admin-content {
+            flex-grow: 1 !important;
+            min-width: 0 !important;
+        }
+    }
+    @media (max-width: 1023px) {
+        .admin-dashboard-container {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+        }
+        .admin-sidebar {
+            width: 100% !important;
+        }
+        .admin-content {
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- Dashboard Banner -->
 <section class="bg-surface border-b border-outline-variant/30 py-8 px-margin-desktop shadow-sm">
@@ -28,25 +64,39 @@
 
 <!-- Main Dashboard Navigation & Content -->
 <section class="py-12 bg-background min-h-screen px-margin-desktop">
-    <div class="max-w-7xl mx-auto">
-        <!-- Tabs -->
-        <div class="flex flex-wrap gap-4 mb-8">
-            <button onclick="switchTab('products')" id="tab-products" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide">
-                📦 Product Catalog ({{ products|length }})
-            </button>
-            <button onclick="switchTab('orders')" id="tab-orders" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
-                🛒 Orders ({{ orders_count }})
-            </button>
-            <button onclick="switchTab('inquiries')" id="tab-inquiries" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
-                📋 Inquiries ({{ inquiries|length }})
-            </button>
-            <button onclick="switchTab('closed-inquiries')" id="tab-closed-inquiries" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
-                Closed Inquiries
-            </button>
-            <button onclick="switchTab('sales')" id="tab-sales" class="font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide">
-                📈 Sales Reports & Analytics
-            </button>
+    <div class="max-w-7xl mx-auto admin-dashboard-container">
+        <!-- Sidebar Navigation (Col span 3) -->
+        <div class="bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-4 admin-sidebar">
+            <h3 class="font-display-lg text-lg text-on-surface border-b border-outline-variant/20 pb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[24px]">space_dashboard</span> Admin Menu
+            </h3>
+            
+            <div class="flex flex-col gap-2">
+                <button onclick="switchTab('products')" id="tab-products" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-[1.02] transition-transform flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">package_2</span>
+                    <span>Product Catalog ({{ products|length }})</span>
+                </button>
+                <button onclick="switchTab('orders')" id="tab-orders" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-neutral-50 hover:text-on-surface transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                    <span>Orders ({{ orders_count }})</span>
+                </button>
+                <button onclick="switchTab('inquiries')" id="tab-inquiries" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-neutral-50 hover:text-on-surface transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">inbox</span>
+                    <span>Inquiries ({{ inquiries|length }})</span>
+                </button>
+                <button onclick="switchTab('closed-inquiries')" id="tab-closed-inquiries" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-neutral-50 hover:text-on-surface transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">assignment_turned_in</span>
+                    <span>Closed Inquiries</span>
+                </button>
+                <button onclick="switchTab('sales')" id="tab-sales" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-neutral-50 hover:text-on-surface transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-[20px]">trending_up</span>
+                    <span>Sales & Analytics</span>
+                </button>
+            </div>
         </div>
+
+        <!-- Main Content Area (Col span 9) -->
+        <div class="flex flex-col gap-8 w-full min-w-0 admin-content">
 
         <!-- SECTION 1: PRODUCT LIST -->
         <div id="section-products">
@@ -540,8 +590,8 @@
         </div>
 
         <div class="flex justify-end gap-4 pt-4 border-t border-outline-variant/20">
-            <a href="#" id="modalInvoiceBtn" target="_blank" class="bg-primary text-on-primary font-label-md px-6 py-3 rounded-full hover:scale-105 transition-transform flex items-center gap-2 text-xs uppercase tracking-wider shadow-md shadow-primary/20">
-                <span class="material-symbols-outlined text-[18px]">download</span> Download Invoice
+            <a href="#" id="modalInvoiceBtn" target="_blank" class="bg-primary text-on-primary font-label-md px-8 py-3.5 rounded-full hover:scale-105 hover:bg-primary/95 transition-all flex items-center gap-2 text-xs uppercase tracking-wider shadow-md shadow-primary/25 font-bold">
+                <span class="material-symbols-outlined text-[20px]">download</span> Download Invoice PDF
             </a>
             <button onclick="closeOrderDetailModal()" class="bg-surface text-on-surface-variant border border-outline-variant/30 font-label-md px-6 py-3 rounded-full hover:bg-background transition-colors text-xs uppercase tracking-wider">Close</button>
         </div>
@@ -817,27 +867,30 @@
         const btnClosedInquiries = document.getElementById('tab-closed-inquiries');
         const btnSales = document.getElementById('tab-sales');
         
-        btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
-        if (btnOrders) btnOrders.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
-        btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
-        btnClosedInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
-        btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-white hover:text-on-surface transition-colors tracking-wide";
+        const inactiveClass = "w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-surface text-on-surface-variant hover:bg-neutral-50 hover:text-on-surface transition-colors flex items-center gap-3";
+        const activeClass = "w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-[1.02] transition-transform flex items-center gap-3";
+
+        btnProducts.className = inactiveClass;
+        if (btnOrders) btnOrders.className = inactiveClass;
+        btnInquiries.className = inactiveClass;
+        btnClosedInquiries.className = inactiveClass;
+        btnSales.className = inactiveClass;
 
         document.getElementById('section-' + tab).classList.remove('hidden');
         
         if (tab === 'products') {
-            btnProducts.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            btnProducts.className = activeClass;
         } else if (tab === 'orders') {
-            if (btnOrders) btnOrders.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            if (btnOrders) btnOrders.className = activeClass;
             loadOrders();
         } else if (tab === 'inquiries') {
-            btnInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            btnInquiries.className = activeClass;
             loadInquiries();
         } else if (tab === 'closed-inquiries') {
-            btnClosedInquiries.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            btnClosedInquiries.className = activeClass;
             loadClosedInquiries();
         } else if (tab === 'sales') {
-            btnSales.className = "font-label-md px-8 py-4 rounded-full border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-105 transition-transform tracking-wide";
+            btnSales.className = activeClass;
         }
     }
 
@@ -1039,8 +1092,8 @@
                         <button onclick="viewOrderDetails(${order.id})" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-secondary/20" title="View Order Detail">
                             <span class="material-symbols-outlined text-[16px]">visibility</span> Detail
                         </button>
-                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors p-1.5 rounded-lg border border-primary/20" title="Download Invoice">
-                            <span class="material-symbols-outlined text-[18px]">download</span>
+                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary text-on-primary hover:bg-primary/95 transition-all px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm hover:shadow-md" title="Download Invoice">
+                            <span class="material-symbols-outlined text-[16px]">download</span> Invoice
                         </a>
                     </div>
                 </td>
