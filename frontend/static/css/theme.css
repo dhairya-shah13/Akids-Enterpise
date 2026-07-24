@@ -433,6 +433,9 @@ img[loading="lazy"] {
     .train-connector::after {
         display: none;
     }
+    .skeleton-box::after {
+        animation: none;
+    }
     html {
         scroll-behavior: auto;
     }

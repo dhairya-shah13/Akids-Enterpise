@@ -12,7 +12,7 @@
 
     <div class="flex-grow">
         <a href="{% url 'product_detail' product.pk %}" class="block aspect-square bg-gradient-to-br from-tangerine/5 to-sea/5 rounded-xl sm:rounded-2xl mb-3 sm:mb-5 overflow-hidden relative border border-outline-variant/20 p-3 sm:p-5 flex items-center justify-center group-hover:border-tangerine/30 transition-colors">
-            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm">
+            <img src="{{ product.display_image }}" alt="{{ product.name }}" width="300" height="300" class="max-h-full w-auto object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm" loading="lazy" decoding="async">
         </a>
         
         <div class="flex flex-wrap gap-1.5 mb-2">

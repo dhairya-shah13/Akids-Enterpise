@@ -21,16 +21,16 @@
                     <span class="material-symbols-outlined text-[200px]">toys</span>
                 </div>
                 
-                <img id="mainProductImage" src="{{ selected_variant.display_image }}" alt="{{ product.name }}" width="1" height="1" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500" loading="lazy">
+                <img id="mainProductImage" src="{{ selected_variant.display_image }}" alt="{{ product.name }}" width="500" height="500" class="max-h-full w-auto object-contain relative z-10 hover:scale-105 transition-transform duration-500" loading="eager">
             </div>
             
             <!-- Thumbnails -->
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-white border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 hover:border-primary transition-colors">
-                    <img src="{{ selected_variant.display_image }}" alt="View 1" width="1" height="1" class="max-h-full object-contain" loading="lazy">
+                    <img src="{{ selected_variant.display_image }}" alt="View 1" width="100" height="100" class="max-h-full object-contain" loading="lazy" decoding="async">
                 </div>
                 <div class="bg-background border border-outline-variant/30 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 opacity-60 hover:opacity-100 transition-opacity">
-                    <img src="{{ product.display_image }}" alt="View 2" width="1" height="1" class="max-h-full object-contain grayscale" loading="lazy">
+                    <img src="{{ product.display_image }}" alt="View 2" width="100" height="100" class="max-h-full object-contain grayscale" loading="lazy" decoding="async">
                 </div>
                 <div class="bg-secondary/10 border border-secondary/20 rounded-2xl p-4 cursor-pointer flex items-center justify-center h-24 text-secondary hover:bg-secondary/20 transition-colors">
                     <span class="material-symbols-outlined text-4xl">play_circle</span>

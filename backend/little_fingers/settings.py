@@ -89,6 +89,7 @@ if db_url and db_url.startswith("postgres"):
             'PASSWORD': unquote(url.password or ""),
             'HOST': url.hostname,
             'PORT': url.port or 5432,
+            'CONN_MAX_AGE': 600,  # Keep DB connections alive for 10 minutes (connection pooling)
         }
     }
 else:
@@ -137,10 +138,38 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR.parent / 'frontend' / 'static']
 STATIC_ROOT = BASE_DIR.parent / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Server-side caching (in-memory for Vercel/SQLite; swap to Redis for production PostgreSQL)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'akids-cache',
+    }
+}
+
+# Use cached session backend — avoids DB hit on every request for session load
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR.parent / 'frontend' / 'media'
 
 # Allow same-origin framing of pages/PDFs
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Test database settings (avoid "database already exists" errors)
+TEST = {
+    'DATABASES': {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+}
+
+# Request timing middleware (at end so it only measures the view, not other middleware)
+MIDDLEWARE.append('little_fingers.middleware.RequestTimingMiddleware')
 

@@ -131,7 +131,12 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 stagger-children">
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 skeleton-grid">
+        {% for i in "123456" %}
+            {% include "products/skeleton_card.html" %}
+        {% endfor %}
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-8 stagger-children real-grid" style="display:none">
         {% for product in featured_products %}
             <div class="selection-card">
                 {% include "products/product_card.html" with product=product %}

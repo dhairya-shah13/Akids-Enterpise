@@ -36,7 +36,12 @@
 
     <!-- Results Grid -->
     {% if page_obj %}
-    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mb-16 stagger-children">
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 skeleton-grid mb-16">
+        {% for i in "123456789101112" %}
+            {% include "products/skeleton_card.html" %}
+        {% endfor %}
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 mb-16 stagger-children real-grid" style="display:none">
         {% for product in page_obj %}
             {% include "products/product_card.html" with product=product %}
         {% endfor %}

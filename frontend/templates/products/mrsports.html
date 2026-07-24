@@ -64,7 +64,12 @@
                 <span class="bg-sea/10 text-sea font-bold text-xs px-3 py-1.5 rounded-full border border-sea/20">Supabase Cloud</span>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 stagger-children">
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 skeleton-grid">
+                {% for i in "12345678" %}
+                    {% include "products/skeleton_card.html" %}
+                {% endfor %}
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 stagger-children real-grid" style="display:none">
                 {% for product in products %}
                     {% include "products/product_card.html" with product=product %}
                 {% empty %}

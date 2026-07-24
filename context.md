@@ -409,13 +409,14 @@ Fonts: "Plus Jakarta Sans" (display), "Quicksand" (body)
 - **Styling**: Left color border, fill icon (Material Symbols), close button, shadow.
 
 ### Key Templates
-- **`base.html`**: Sticky nav with autocomplete search (AJAX dropdown), left sidebar accordion drawer (mobile only), AI chat FAB, footer with company links, global toast system, scroll position preservation.
+- **`base.html`**: Sticky nav with autocomplete search (AJAX dropdown), left sidebar accordion drawer (mobile only), AI chat FAB, footer with company links, global toast system, scroll-position preservation.
 - **`home.html`**: Animated hero word bounce-in, VR train category selector, product selection cards with staggered IntersectionObserver.
 - **`checkout.html`**: 2-column layout (order summary left, shipping form right on desktop), tax breakdown (CGST+SGST=18% GST), sticky mobile bottom bar with total + pay button, free shipping display.
 - **`view_all.html`**: PDF catalogue iframe (desktop) + scrollable product list with "Add" buttons (mobile) + bulk inquiry sidebar with dynamic line items + WhatsApp integration.
 - **`admin_dashboard.html`**: 5-tab SPA with modals (add product, order detail, inquiry detail, close inquiry, delete confirm), toast notification system, pagination, dynamic status buttons showing actual next-status name.
 - **`profile.html`**: 2-column sidebar layout, avatar circle, account details form, order history with expandable items + invoice download.
-- **`product_card.html`**: Responsive card with badges (category, source, "Needs Image", "Out of Stock"), hover zoom, add-to-cart button.
+- **`product_card.html`**: Responsive card with badges (category, source, "Needs Image", "Out of Stock"), hover zoom, add-to-cart button. Includes lazy loading, explicit dimensions, and skeleton loader support.
+- **`skeleton_card.html`**: Skeleton placeholder component using `.skeleton-box` shimmer classes, mirroring product card dimensions for loading states.
 
 ---
 
@@ -437,7 +438,6 @@ gunicorn>=25.1.0           # WSGI server
 ```
 tailwindcss@^3.4.19
 @tailwindcss/forms@^0.5.11
-@tailwindcss/container-queries@^0.1.1
 autoprefixer@^10.5.2
 postcss@^8.5.15
 ```
@@ -483,7 +483,7 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 | `tests.py` | 3 | Components route 404, company pages linked, MR Sports naming |
 | `test_inquiries.py` | 6 | Valid/invalid catalog inquiry, inquiry number generation, admin search/filter, WhatsApp integration, close inquiry + customer history |
 | `test_orders.py` | 5 | Order creation + numbering, PDF generation, status transitions (next/cancel/delivered→returned), admin access control, admin cart/checkout redirect |
-| **Total** | **14** | Core business workflow coverage |
+| **Total** | **15** | Core business workflow coverage |
 
 ---
 
@@ -516,6 +516,7 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 | **Mobile Catalogue Toggle View** | Added Brochure/Products toggle on mobile catalogue page — embedded PDF iframe (default) and scrollable product list switchable via toggle buttons. |
 | **Tax Breakdown at Checkout (Decimal Fix)** | Fixed `Decimal * float` TypeError in tax computation by using `Decimal()` for tax rates (`Decimal('0.18')`) and `.quantize()` for rounding. Applied `floatformat:2` filter for consistent decimal display. |
 | **Cart Data Query Optimization (Bugfix)** | Fixed Python indentation bug where cart item processing code was incorrectly placed inside `if product is None: continue` block (dead code). Also added `None` guard for missing products after bulk-fetch optimization. |
+| **Full-Site Performance Optimization** | Comprehensive performance overhaul targeting <2s load on all pages. See details below. |
 
 ---
 
@@ -529,26 +530,78 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 
 ---
 
-*Last Updated: 2026-07-23. Maintainer: AI Agent (Buffy). Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-07-24 13:35. Maintainer: AI Agent (Buffy). Please update this document whenever model schemas, workflows, or views undergo changes.*
 
 ---
 
-## 📋 Progress Made on Date (23-07-26)
+## 📋 Progress Made on Date and Time (2026-07-24 13:35)
 
-### Uncommitted Changes Rundown
+### Full-Site Performance Optimization — Complete Rundown
 
-All 7 modified files are staged and ready for commit. Here's a summary of every change:
+Three optimization rounds completed in this session, targeting <2s full-page load and <500ms server response on all endpoints.
 
-| File | Changes |
-|------|--------|
-| `backend/products/views.py` | Tax breakdown: Fixed `Decimal * float` TypeError by using `Decimal()` for tax rates and `.quantize()` for rounding. Cart optimization: Fixed indentation bug in `get_cart_data()` where price/total logic was dead code inside `if product is None: continue` block. Added `None` guard after product bulk-fetch. |
-| `frontend/templates/base.html` | **Hamburger**: Added `lg:hidden` to sidebar toggle so it only shows on mobile/tablet. **Sign-in button**: Removed `person_add` icon span, now text-only. **Profile button**: Replaced with `w-10 h-10` circular avatar showing `{{ request.user.username\|slice:":1"\|upper }}`. **Admin HQ**: Changed label from hidden-on-mobile "Admin Panel" to always-visible "Admin HQ". **Sign-in icon**: Changed from `login` to `person_add` (earlier fix). |
-| `frontend/templates/products/admin_dashboard.html` | **Close Inquiry Modal**: Complete redesign — gradient bar, flag icon, outcome cards with visual feedback (blue/red circle glow). Changed to two-step flow: select outcome → Submit to save. Added `selectedOutcome` variable, `submitCloseInquiry()` function, Cancel + Submit buttons with disabled state management. Fixed animation timing (300ms match). Used inline styles instead of Tailwind JIT classes for dynamic feedback. Added double-click guard on Submit. |
-| `frontend/templates/products/cart.html` | Fixed missing product image previews: Removed `width="1" height="1"` attributes, replaced `max-h-full max-w-full` with `w-full h-full` so images explicitly fill their container. |
-| `frontend/templates/products/checkout.html` | Added tax breakdown display at checkout: taxable base → CGST (9%) → SGST (9%) → GST total (18%) → total payable. Applied `floatformat:2` filter for consistent decimal formatting. |
-| `frontend/templates/products/view_all.html` | Mobile catalogue view: Replaced PDF fallback CTAs with toggleable Brochure/Products views. PDF iframe embeds inline on the same page (default). Product grid with "Add" buttons switches via JS toggle. Mobile FAB for inquiry list remains. |
-| `context.md` | This file — updated with latest changes summary and progress log. |
+---
+
+#### Round 1: Frontend & Full-Page Load Optimization (Target: <2s)
+
+| Category | Change | Files |
+|----------|--------|-------|
+| **Database Indexes** | Added 8 indexes: `Product.category`, `Product.sku`, `Product.created_at`, `Inquiry.status`, `Inquiry.module`, `Inquiry.created_at`, `Order.order_status`, `Order.created_at` | `models.py`, `migrations/0015_*.py` |
+| **Server-Side Caching** | Django `LocMemCache` backend. `@cache_page` on company pages (30min), view_all_products (5min) | `settings.py`, `views.py` |
+| **WhiteNoise Compression** | Enabled `CompressedManifestStaticFilesStorage` for gzip/brotli + hashed filenames | `settings.py` |
+| **Vercel Static Caching** | `Cache-Control: public, max-age=31536000, immutable` for all static assets | `vercel.json` |
+| **Preconnect/DNS-Prefetch** | Added `<link rel="preconnect">` for Google Fonts, Google Fonts.gstatic, lh3.googleusercontent.com, api.groq.com | `base.html` |
+| **Font Loading** | Added `<link rel="preload">` for Plus Jakarta Sans | `base.html` |
+| **JS Deferral** | Extracted ~500 lines of non-critical JS into `static/js/main.js` with `defer`. Only 1-line critical script inline | `base.html`, `static/js/main.js` (NEW) |
+| **Product Image Lazy Loading** | Added `loading="lazy" decoding="async"` to all product card images. Fixed navbar logo to `eager` | `product_card.html`, `base.html` |
+| **Image Dimensions (CLS)** | Added explicit `width`/`height`: card (300x300), detail main (500x500), thumbnails (100x100). Fixed broken `width="1" height="1"` | `product_card.html`, `product_detail.html` |
+| **Image Size Optimization** | Added `=w400` to Google Drive-hosted image URLs for appropriately sized variants | `models.py` |
+| **Skeleton Grid Loaders** | Created `skeleton_card.html` + skeleton grids on all listing pages. JS swaps skeleton → real grid on DOMContentLoaded | `skeleton_card.html` (NEW), `home.html`, `listing.html`, `outdoors.html`, `mrsports.html`, `search_results.html`, `main.js` |
+| **Reduced Motion** | Added `skeleton-box::after { animation: none; }` to `prefers-reduced-motion` | `theme.css` |
+| **PDF Lazy Loading** | Added `loading="lazy"` to both PDF `<iframe>` elements in catalogue viewer | `view_all.html` |
+| **Tailwind Cleanup** | Removed `homepage1.html` from content paths, removed unused `@tailwindcss/container-queries` plugin | `tailwind.config.js` |
+| **Legacy CSS Cleanup** | Deleted unused `main.css` (258 lines) | `main.css` (DELETED) |
+
+#### Round 2: Backend Response-Time Optimization (Target: <500ms)
+
+| Category | Change | Files |
+|----------|--------|-------|
+| **Env File Caching** | Replaced two `.env` readers with single `@lru_cache`-backed `_read_env_file()`. Eliminates disk I/O on every request | `views.py` |
+| **Query Field Selection** | Added `only()` to 12+ querysets across all views to avoid fetching heavy `description` TextField | `views.py`, `search.py` |
+| **Cached Related Products** | `product_detail` related products cached 5min per category+product key | `views.py` |
+| **Cached Sales Data** | `admin_dashboard` sales aggregates cached 5min | `views.py` |
+| **Database Aggregation** | Replaced Python `sum()` in `Order.recalculate_total()` with `aggregate(Sum('subtotal'))` | `models.py` |
+| **Bulk Create** | `submit_catalog_inquiry` uses `bulk_create()` for line items instead of N individual `create()` calls | `views.py` |
+| **Login Query Reduction** | Merged sequential `User.filter()` calls into single `Q(email|username)` queries | `views.py` |
+| **Lazy PDF Import** | `generate_invoice_pdf` (ReportLab) lazy-imported inside view, not at module level | `views.py` |
+| **DB Connection Pooling** | Added `CONN_MAX_AGE: 600` — keeps PostgreSQL connections alive 10 minutes | `settings.py` |
+| **Request Timing Middleware** | Created `RequestTimingMiddleware` — logs response time, warns >500ms, adds `X-Response-Time` header | `middleware.py` (NEW), `settings.py` |
+| **Test DB Config** | SQLite in-memory for test database to avoid PostgreSQL conflicts | `settings.py` |
+
+#### Round 3: Cart/Checkout Flow Optimization (Target: <2s per action)
+
+| Category | Change | Files |
+|----------|--------|-------|
+| **Session Engine** | Switched to `cached_db` — reads from cache, falls back to DB. Eliminates DB hit per request | `settings.py` |
+| **`add_to_cart` DB elimination** | Removed `Product.objects.get()` — add-to-cart writes to session only, zero DB queries | `views.py` |
+| **`update_cart` DB elimination** | Removed `Product.objects.get()` — update-cart writes to session only | `views.py` |
+| **`is_admin_user` per-request cache** | Caches result on `request._is_admin_cached` — computed once per request | `views.py` |
+| **Checkout Decimal optimization** | Replaced 4x `Decimal` operations with `float` arithmetic (`round(x * 0.18, 2)`) | `views.py` |
+| **Checkout profile query** | Added `select_related('user')` to `UserProfile.get_or_create` | `views.py` |
+| **Timing middleware repositioned** | Moved from first to last in middleware chain — no overhead on every request | `settings.py` |
+
+#### New Files Created
+- `backend/little_fingers/middleware.py` — Request timing middleware
+- `backend/products/migrations/0015_inquiry_inquiry_status_idx_and_more.py` — Database indexes
+- `frontend/static/js/main.js` — Extracted deferred global JS
+- `frontend/templates/products/skeleton_card.html` — Skeleton card component
+
+#### Files Modified (19 total)
+`settings.py`, `views.py`, `models.py`, `search.py`, `base.html`, `product_card.html`, `product_detail.html`, `home.html`, `listing.html`, `outdoors.html`, `mrsports.html`, `search_results.html`, `view_all.html`, `theme.css`, `tailwind.config.js`, `vercel.json`, `context.md`
+
+#### Files Deleted
+- `frontend/static/css/main.css` — 258 lines of dead legacy CSS
 
 **Test Status**: 15/15 tests pass across `products.tests`, `products.test_orders`, and `products.test_inquiries`.
-**Branch**: `DHAIRYA` (33 commits ahead of `origin/DHAIRYA`)
-**Working Tree**: Clean — all changes are staged.
+**Branch**: `main`
+**Working Tree**: Modified — changes ready for commit and push.

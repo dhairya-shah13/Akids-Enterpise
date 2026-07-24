@@ -102,7 +102,7 @@
                     {% if pdf_url %}
                     <!-- Desktop PDF Viewport (hidden on mobile) -->
                     <div class="hidden md:block w-full h-[650px] rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
-                        <iframe src="{{ pdf_url }}#toolbar=0" class="w-full h-full border-none" type="application/pdf"></iframe>
+                        <iframe src="{{ pdf_url }}#toolbar=0" class="w-full h-full border-none" type="application/pdf" loading="lazy"></iframe>
                     </div>
 
                     <!-- Mobile: PDF Viewer + Scrollable Product List (hidden on desktop) -->
@@ -120,7 +120,7 @@
                         <!-- Mobile PDF Viewport (togglable) -->
                         {% if pdf_url %}
                         <div id="mobilePdfView" class="w-full rounded-2xl overflow-hidden bg-background border border-outline-variant/20 shadow-inner">
-                            <iframe src="{{ pdf_url }}#toolbar=0" class="w-full border-none" style="height: 50vh; min-height: 350px;" type="application/pdf"></iframe>
+                            <iframe src="{{ pdf_url }}#toolbar=0" class="w-full border-none" style="height: 50vh; min-height: 350px;" type="application/pdf" loading="lazy"></iframe>
                         </div>
                         {% endif %}
 

@@ -2,7 +2,6 @@
 module.exports = {
     content: [
         './frontend/templates/**/*.html',
-        './homepage1.html',
     ],
     darkMode: "class",
     theme: {
@@ -72,6 +71,5 @@ module.exports = {
     },
     plugins: [
         require('@tailwindcss/forms'),
-        require('@tailwindcss/container-queries'),
     ],
 }

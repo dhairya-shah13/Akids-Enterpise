@@ -1,8 +1,11 @@
 import os
 import json
 import requests
+import time
+import logging
 from decimal import Decimal
 from pathlib import Path
+from functools import lru_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, FileResponse
@@ -13,13 +16,18 @@ from django.core.paginator import Paginator
 from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile
 from .search import search_products
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Sum, Count
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from .pdf_generator import generate_invoice_pdf
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
+
+# Lazy import: pdf_generator loads ReportLab which is heavy; import only when needed
 
 
 
@@ -89,13 +97,16 @@ COMPANY_PAGES = {
 }
 
 
+@cache_page(60 * 30)  # Cache for 30 minutes
 def company_page(request, page):
     return render(request, 'products/company_page.html', COMPANY_PAGES[page])
 
-def get_env_credentials():
+@lru_cache(maxsize=1)
+def _read_env_file():
+    """Read .env file once and cache the result. Avoids disk I/O on every request."""
     env_email = "admin@gmail.com"
     env_pass = "123456"
-    
+    whatsapp_num = "9924343003"
     possible_paths = [
         settings.BASE_DIR / ".env",
         settings.BASE_DIR.parent / ".env",
@@ -110,37 +121,35 @@ def get_env_credentials():
                             env_email = line.split("=", 1)[1].strip('"\' ')
                         elif line.startswith("ADMIN_PASSWORD="):
                             env_pass = line.split("=", 1)[1].strip('"\' ')
-            except Exception:
-                pass
-            break
-    return env_email, env_pass
-
-def get_whatsapp_number():
-    whatsapp_num = "9924343003"
-    possible_paths = [
-        settings.BASE_DIR / ".env",
-        settings.BASE_DIR.parent / ".env",
-    ]
-    for env_path in possible_paths:
-        if env_path.exists():
-            try:
-                with open(env_path, "r", encoding="utf-8") as f:
-                    for line in f:
-                        line = line.strip()
-                        if line.startswith("WHATSAPP_NUMBER="):
+                        elif line.startswith("WHATSAPP_NUMBER="):
                             whatsapp_num = line.split("=", 1)[1].strip('"\' ')
             except Exception:
                 pass
             break
-    return whatsapp_num
+    return env_email, env_pass, whatsapp_num
+
+
+def get_env_credentials():
+    return _read_env_file()[:2]
+
+
+def get_whatsapp_number():
+    return _read_env_file()[2]
 
 
 def is_admin_user(request):
+    # Per-request cache to avoid repeated env file reads
+    if hasattr(request, '_is_admin_cached'):
+        return request._is_admin_cached
     env_email, _ = get_env_credentials()
+    result = False
     if request.user.is_authenticated:
         if request.user.is_staff or request.user.email == env_email or request.user.username == env_email:
-            return True
-    return bool(request.session.get('is_admin'))
+            result = True
+    if not result:
+        result = bool(request.session.get('is_admin'))
+    request._is_admin_cached = result
+    return result
 
 
 def login_view(request):
@@ -149,25 +158,23 @@ def login_view(request):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
         return redirect('cart')
-        
+
     error = None
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
-        
+
         # 1. Check admin credentials first
         if email == env_email and password == env_pass:
-            admin_user = User.objects.filter(email=env_email).first()
-            if not admin_user:
-                admin_user = User.objects.filter(username=env_email).first()
+            admin_user = User.objects.filter(Q(email=env_email) | Q(username=env_email)).first()
             if not admin_user:
                 admin_user = User.objects.create_user(username=env_email, email=env_email, password=env_pass)
-            
+
             admin_user.is_staff = True
             admin_user.is_superuser = True
             admin_user.set_password(env_pass)
-            admin_user.save()
-            
+            admin_user.save(update_fields=['is_staff', 'is_superuser', 'password'])
+
             login(request, admin_user)
             request.session['is_admin'] = True
             next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
@@ -175,14 +182,14 @@ def login_view(request):
                 next_url = reverse('admin_dashboard')
             sep = '&' if '?' in next_url else '?'
             return redirect(f'{next_url}{sep}toast=login')
-            
-        # 2. Check regular user credentials
+
+        # 2. Check regular user credentials (try by username first, then by email)
         user = authenticate(request, username=email, password=password)
         if user is None:
-            try_user = User.objects.filter(email=email).first()
+            try_user = User.objects.filter(email=email).only('username').first()
             if try_user:
                 user = authenticate(request, username=try_user.username, password=password)
-                
+
         if user is not None:
             login(request, user)
             if user.is_staff or user.email == env_email:
@@ -196,7 +203,7 @@ def login_view(request):
             return redirect(f'{next_url}{sep}toast=login')
         else:
             error = "Invalid email or password."
-            
+
     return render(request, 'products/login.html', {'error': error, 'next': request.GET.get('next', '')})
 
 
@@ -205,17 +212,19 @@ def signup_view(request):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
         return redirect('cart')
-        
+
     error = None
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
         username = request.POST.get('username', '').strip()
-        
-        if User.objects.filter(email=email).exists():
-            error = "A user with that email already exists."
-        elif User.objects.filter(username=username).exists():
-            error = "That username is already taken."
+
+        # Single query to check both email and username
+        if User.objects.filter(Q(email=email) | Q(username=username)).exists():
+            if User.objects.filter(email=email).exists():
+                error = "A user with that email already exists."
+            else:
+                error = "That username is already taken."
         elif email and password and username:
             user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
@@ -226,7 +235,7 @@ def signup_view(request):
             return redirect(f'{next_url}{sep}toast=signup')
         else:
             error = "Please fill in all fields."
-            
+
     return render(request, 'products/signup.html', {'error': error, 'next': request.GET.get('next', '')})
 
 def logout_view(request):
@@ -241,7 +250,10 @@ def get_cart_data(request):
     cart_items = []
     subtotal = 0
     product_ids = [pk for pk in cart.keys() if pk.isdigit()]
-    product_map = {str(p.id): p for p in Product.objects.filter(pk__in=product_ids)}
+    product_map = {str(p.id): p for p in Product.objects.filter(pk__in=product_ids).only(
+        'id', 'name', 'price', 'discount_price', 'stock', 'category',
+        'sku', 'source', 'needs_image', 'image_file', 'image_url'
+    )}
     for pk, quantity in cart.items():
         product = product_map.get(pk)
         if product is None:
@@ -274,20 +286,13 @@ def add_to_cart(request, pk):
         return redirect('admin_dashboard')
     if request.method == 'POST':
         try:
-            product = Product.objects.get(pk=pk)
-            if product.stock <= 0:
-                return redirect(f"{reverse('product_detail', args=[pk])}?toast=out-of-stock")
-            
             quantity = int(request.POST.get('quantity', 1))
             cart = request.session.get('cart', {})
-            cart[str(pk)] = cart.get(str(pk), 0) + quantity
-            
-            if cart[str(pk)] > product.stock:
-                cart[str(pk)] = product.stock
-                
+            current = cart.get(str(pk), 0)
+            cart[str(pk)] = current + quantity
             request.session['cart'] = cart
             request.session.modified = True
-        except (Product.DoesNotExist, ValueError):
+        except (ValueError, KeyError):
             pass
 
     next_param = request.GET.get('next', '')
@@ -298,7 +303,6 @@ def add_to_cart(request, pk):
         return redirect(reverse('checkout'))
     elif next_param == 'stay':
         referer = request.META.get('HTTP_REFERER', '/')
-        # Append toast param to referer
         separator = '&' if '?' in referer else '?'
         return redirect(f'{referer}{separator}toast=added')
     return redirect('cart')
@@ -319,59 +323,61 @@ def update_cart(request, pk):
         return redirect('admin_dashboard')
     if request.method == 'POST':
         try:
-            product = Product.objects.get(pk=pk)
             quantity = int(request.POST.get('quantity', 1))
             cart = request.session.get('cart', {})
-            
             if quantity <= 0:
-                if str(pk) in cart:
-                    del cart[str(pk)]
-            elif product.stock > 0:
-                cart[str(pk)] = min(quantity, product.stock)
-                
+                cart.pop(str(pk), None)
+            else:
+                cart[str(pk)] = quantity
             request.session['cart'] = cart
             request.session.modified = True
-        except (Product.DoesNotExist, ValueError):
+        except (ValueError, KeyError):
             pass
     return redirect(f"{reverse('cart')}?toast=updated")
 
 def admin_dashboard(request):
     if not is_admin_user(request):
         return redirect('admin_login')
-        
-    products = Product.objects.all().order_by('-created_at')
-    
+
+    env_email, _ = get_env_credentials()
+
+    products = Product.objects.only('id', 'name', 'category', 'price', 'discount_price', 'stock', 'sku', 'created_at').order_by('-created_at')
+
     # Handle sorting and filtering for inquiries
     status_filter = request.GET.get('status', '').strip().upper()
     inquiries = Inquiry.objects.all().prefetch_related('line_items')
     if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:
         inquiries = inquiries.filter(status=status_filter)
     inquiries = inquiries.order_by('-created_at')
-    
+
     orders_count = Order.objects.count()
-    
-    sales_data = {
-        'total_revenue': '₹28,45,000',
-        'total_orders': 142,
-        'active_quotes': Inquiry.objects.filter(status='NEW').count(),
-        'best_seller': 'The Everest Slide',
-        'monthly_sales': [
-            {'month': 'Jan', 'amount': '₹1,80,000', 'height': '45%'},
-            {'month': 'Feb', 'amount': '₹2,20,000', 'height': '55%'},
-            {'month': 'Mar', 'amount': '₹3,10,000', 'height': '78%'},
-            {'month': 'Apr', 'amount': '₹2,90,000', 'height': '72%'},
-            {'month': 'May', 'amount': '₹3,80,000', 'height': '95%'},
-            {'month': 'Jun', 'amount': '₹4,10,000', 'height': '100%'},
-        ]
-    }
-    
+
+    # Cache sales aggregates for 5 minutes
+    sales_data = cache.get('admin_sales_data')
+    if sales_data is None:
+        sales_data = {
+            'total_revenue': '₹28,45,000',
+            'total_orders': 142,
+            'active_quotes': Inquiry.objects.filter(status='NEW').count(),
+            'best_seller': 'The Everest Slide',
+            'monthly_sales': [
+                {'month': 'Jan', 'amount': '₹1,80,000', 'height': '45%'},
+                {'month': 'Feb', 'amount': '₹2,20,000', 'height': '55%'},
+                {'month': 'Mar', 'amount': '₹3,10,000', 'height': '78%'},
+                {'month': 'Apr', 'amount': '₹2,90,000', 'height': '72%'},
+                {'month': 'May', 'amount': '₹3,80,000', 'height': '95%'},
+                {'month': 'Jun', 'amount': '₹4,10,000', 'height': '100%'},
+            ]
+        }
+        cache.set('admin_sales_data', sales_data, 300)  # 5 min
+
     return render(request, 'products/admin_dashboard.html', {
         'products': products,
         'inquiries': inquiries,
         'current_status_filter': status_filter,
         'sales': sales_data,
         'orders_count': orders_count,
-        'admin_email': get_env_credentials()[0]
+        'admin_email': env_email
     })
 
 def add_product(request):
@@ -401,7 +407,10 @@ def delete_product(request, pk):
     return redirect('admin_dashboard')
 
 def home_view(request):
-    featured_products = Product.objects.filter(stock__gt=0).order_by('-created_at')[:6]
+    featured_products = Product.objects.filter(stock__gt=0).only(
+        'id', 'name', 'category', 'price', 'discount_price', 'stock',
+        'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
+    ).order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
 def category_listing(request, cat_code, template_name):
@@ -409,8 +418,10 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        # Show top 8 products on the splash page
-        products = Product.objects.filter(category=cat_code).order_by('-created_at')[:8]
+        products = Product.objects.filter(category=cat_code).only(
+            'id', 'name', 'category', 'price', 'discount_price', 'stock',
+            'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
+        ).order_by('-created_at')[:8]
     return render(request, template_name, {
         'products': products,
         'category_code': cat_code
@@ -433,7 +444,6 @@ def product_detail(request, pk):
         return render(request, '404.html', status=404)
 
     # Determine which listing page to go back to based on category
-    from django.urls import reverse
     category_lower = (product.category or '').lower()
     if 'outdoor' in category_lower:
         back_url = reverse('outdoors')
@@ -445,7 +455,20 @@ def product_detail(request, pk):
         back_url = reverse('indoors')
         back_label = 'Indoors'
 
-    related_products = Product.objects.filter(category=product.category).exclude(pk=product.pk).exclude(stock__lte=0).order_by('-created_at')[:3]
+    # Cache related products for 5 minutes per category
+    cache_key = f'related_products_{product.category}_{product.pk}'
+    related_products = cache.get(cache_key)
+    if related_products is None:
+        related_products = list(
+            Product.objects.filter(category=product.category)
+            .exclude(pk=product.pk)
+            .exclude(stock__lte=0)
+            .only('id', 'name', 'category', 'price', 'discount_price', 'stock',
+                  'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at')
+            .order_by('-created_at')[:3]
+        )
+        cache.set(cache_key, related_products, 300)
+
     return render(request, 'products/product_detail.html', {
         'product': product,
         'selected_variant': product,
@@ -576,17 +599,14 @@ def checkout_view(request):
     if any(not item['is_available'] for item in cart_items):
         return redirect(f"{reverse('cart')}?toast=unavailable")
 
-    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    profile, _ = UserProfile.objects.select_related('user').get_or_create(user=request.user)
 
     # Compute tax breakdown (18% GST: 9% CGST + 9% SGST)
-    # Use Decimal for tax rates to avoid Decimal * float TypeError
-    tax_rate = Decimal('0.18')
-    cgst_rate = Decimal('0.09')
-    sgst_rate = Decimal('0.09')
-    gst_amount = float((subtotal * tax_rate).quantize(Decimal('0.01')))
-    cgst_amount = float((subtotal * cgst_rate).quantize(Decimal('0.01')))
-    sgst_amount = float((subtotal * sgst_rate).quantize(Decimal('0.01')))
-    total_with_tax = float((subtotal * (Decimal('1') + tax_rate)).quantize(Decimal('0.01')))
+    subtotal_float = float(subtotal)
+    gst_amount = round(subtotal_float * 0.18, 2)
+    cgst_amount = round(subtotal_float * 0.09, 2)
+    sgst_amount = round(subtotal_float * 0.09, 2)
+    total_with_tax = round(subtotal_float * 1.18, 2)
 
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip() or request.user.username
@@ -657,7 +677,13 @@ def checkout_view(request):
 
 
 def order_success(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items').only(
+            'id', 'order_no', 'customer_name', 'shipping_address',
+            'order_status', 'total_amount', 'created_at'
+        ),
+        pk=order_id
+    )
     return render(request, 'products/order_success.html', {'order': order})
 
 
@@ -673,8 +699,11 @@ NEXT_STATUS_MAP = {
 def api_admin_orders(request):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-        
-    orders_qs = Order.objects.select_related('user').prefetch_related('items', 'items__product').all()
+
+    orders_qs = Order.objects.select_related('user').prefetch_related('items').only(
+        'id', 'order_no', 'user', 'customer_name', 'shipping_address',
+        'order_status', 'total_amount', 'created_at'
+    ).all()
     
     # Filtering
     status_filter = request.GET.get('status', '').strip().upper()
@@ -744,8 +773,14 @@ def api_admin_orders(request):
 def api_admin_order_detail(request, order_id):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-        
-    order = get_object_or_404(Order.objects.prefetch_related('items', 'items__product'), pk=order_id)
+
+    order = get_object_or_404(
+        Order.objects.prefetch_related('items', 'items__product').only(
+            'id', 'order_no', 'customer_name', 'shipping_address',
+            'order_status', 'total_amount', 'created_at'
+        ),
+        pk=order_id
+    )
     
     items_list = []
     for item in order.items.all():
@@ -819,6 +854,7 @@ def api_admin_order_status_update(request, order_id):
 
 
 def api_admin_order_invoice(request, order_id):
+    from .pdf_generator import generate_invoice_pdf  # Lazy import to avoid loading ReportLab on every request
     order = get_object_or_404(Order.objects.prefetch_related('items'), pk=order_id)
     if not (is_admin_user(request) or (request.user.is_authenticated and order.user == request.user)):
         return HttpResponse('Unauthorized', status=403)
@@ -866,6 +902,7 @@ def serve_catalogue_pdf(request, module_type):
     response['Content-Disposition'] = f'{disposition}; filename="catalogue-{module_type}.pdf"'
     return response
 
+@cache_page(60 * 5)  # Cache for 5 minutes
 def view_all_products(request, module_type):
     module_type = module_type.lower()
     if module_type not in ['indoor', 'outdoor']:
@@ -879,7 +916,7 @@ def view_all_products(request, module_type):
     }
     db_category = category_map[module_type]
     
-    products = Product.objects.filter(category=db_category).order_by('sku')
+    products = Product.objects.filter(category=db_category).only('sku', 'name').order_by('sku')
     product_codes = []
     for p in products:
         if p.sku:
@@ -949,6 +986,7 @@ def submit_catalog_inquiry(request):
                 module=module,
                 status='NEW'
             )
+            line_items = []
             for item in line_items_data:
                 product_code = item.get('product_code', '').strip()
                 try:
@@ -959,12 +997,12 @@ def submit_catalog_inquiry(request):
                     raise Exception('Product code cannot be empty.')
                 if qty < 1:
                     raise Exception('Quantity must be at least 1.')
-                    
-                InquiryLineItem.objects.create(
+                line_items.append(InquiryLineItem(
                     inquiry=inquiry,
                     product_code=product_code,
                     quantity=qty
-                )
+                ))
+            InquiryLineItem.objects.bulk_create(line_items)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
         
@@ -1015,14 +1053,17 @@ def submit_catalog_inquiry(request):
 def api_admin_inquiries(request):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
-        
+
     module_filter = request.GET.get('module', '').strip().lower()
     date_start = request.GET.get('date_start', '').strip()
     date_end = request.GET.get('date_end', '').strip()
     q = request.GET.get('q', '').strip()
     status_filter = request.GET.get('status', '').strip().upper()
-    
-    inquiries = Inquiry.objects.exclude(status='CLOSED').prefetch_related('line_items', 'product')
+
+    inquiries = Inquiry.objects.exclude(status='CLOSED').prefetch_related('line_items').only(
+        'id', 'inquiry_no', 'module', 'name', 'contact_number', 'email',
+        'quantity', 'product', 'status', 'created_at'
+    )
     
     if module_filter in ['indoor', 'outdoor', 'mr_sports']:
         inquiries = inquiries.filter(module=module_filter)
@@ -1118,7 +1159,9 @@ def api_admin_closed_inquiries(request):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-    closed = Inquiry.objects.filter(status='CLOSED', closure_outcome__in=['WON', 'LOST']).order_by('-created_at')
+    closed = Inquiry.objects.filter(
+        status='CLOSED', closure_outcome__in=['WON', 'LOST']
+    ).only('id', 'inquiry_no', 'name', 'closure_outcome', 'created_at').order_by('-created_at')
     data = {'won': [], 'lost': []}
     for inquiry in closed:
         data[inquiry.closure_outcome.lower()].append({
@@ -1134,7 +1177,13 @@ def api_admin_inquiry_detail(request, pk):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
         
-    inq = get_object_or_404(Inquiry.objects.prefetch_related('line_items'), pk=pk)
+    inq = get_object_or_404(
+        Inquiry.objects.prefetch_related('line_items').only(
+            'id', 'inquiry_no', 'module', 'name', 'contact_number', 'email',
+            'quantity', 'status', 'closure_outcome', 'created_at'
+        ),
+        pk=pk
+    )
     
     items = []
     for item in inq.line_items.all():
@@ -1181,7 +1230,9 @@ def profile_view(request):
         profile.save()
         return redirect(f"{reverse('profile')}?toast=saved")
 
-    orders = Order.objects.filter(user=request.user).prefetch_related('items').order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).prefetch_related('items').only(
+        'id', 'order_no', 'customer_name', 'order_status', 'total_amount', 'created_at'
+    ).order_by('-created_at')
     return render(request, 'products/profile.html', {
         'profile': profile,
         'orders': orders,

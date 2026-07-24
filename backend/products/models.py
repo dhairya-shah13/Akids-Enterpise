@@ -33,6 +33,13 @@ class Product(models.Model):
     needs_image = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['category'], name='product_category_idx'),
+            models.Index(fields=['sku'], name='product_sku_idx'),
+            models.Index(fields=['-created_at'], name='product_created_idx'),
+        ]
+
     @property
     def display_image(self):
         if self.image_file:
@@ -44,11 +51,11 @@ class Product(models.Model):
                 # Match /file/d/<file_id>/view or similar
                 match = re.search(r'/file/d/([^/]+)', url)
                 if match:
-                    return f"https://lh3.googleusercontent.com/d/{match.group(1)}"
+                    return f"https://lh3.googleusercontent.com/d/{match.group(1)}=w400"
                 # Match open?id=<file_id>
                 match_id = re.search(r'[?&]id=([^&]+)', url)
                 if match_id:
-                    return f"https://lh3.googleusercontent.com/d/{match_id.group(1)}"
+                    return f"https://lh3.googleusercontent.com/d/{match_id.group(1)}=w400"
             return url
         return "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
 
@@ -98,6 +105,13 @@ class Inquiry(models.Model):
                 self.inquiry_no = f"INQ-{new_no:04d}"
         super().save(*args, **kwargs)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status'], name='inquiry_status_idx'),
+            models.Index(fields=['module'], name='inquiry_module_idx'),
+            models.Index(fields=['-created_at'], name='inquiry_created_idx'),
+        ]
+
     def __str__(self):
         prod_name = self.product.name if self.product else f"General Module ({self.module})"
         return f"{self.inquiry_no} - Inquiry for {prod_name} by {self.name}"
@@ -135,6 +149,10 @@ class Order(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['order_status'], name='order_status_idx'),
+            models.Index(fields=['-created_at'], name='order_created_idx'),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.order_no:
@@ -153,7 +171,9 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def recalculate_total(self):
-        self.total_amount = sum(item.subtotal for item in self.items.all())
+        from django.db.models import Sum
+        result = self.items.aggregate(total=Sum('subtotal'))
+        self.total_amount = result['total'] or 0
         self.save(update_fields=['total_amount'])
 
     def __str__(self):
