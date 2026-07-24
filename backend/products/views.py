@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from decimal import Decimal
 from pathlib import Path
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
@@ -235,22 +236,25 @@ def logout_view(request):
 
 def get_cart_data(request):
     cart = request.session.get('cart', {})
+    if not cart:
+        return [], 0
     cart_items = []
     subtotal = 0
+    product_ids = [pk for pk in cart.keys() if pk.isdigit()]
+    product_map = {str(p.id): p for p in Product.objects.filter(pk__in=product_ids)}
     for pk, quantity in cart.items():
-        try:
-            product = Product.objects.get(pk=pk)
-            price = product.discount_price if product.discount_price else product.price
-            total_price = price * quantity
-            subtotal += total_price
-            cart_items.append({
-                'product': product,
-                'quantity': quantity,
-                'total_price': total_price,
-                'is_available': product.stock > 0,
-            })
-        except Product.DoesNotExist:
+        product = product_map.get(pk)
+        if product is None:
             continue
+        price = product.discount_price if product.discount_price else product.price
+        total_price = price * quantity
+        subtotal += total_price
+        cart_items.append({
+            'product': product,
+            'quantity': quantity,
+            'total_price': total_price,
+            'is_available': product.stock > 0,
+        })
     return cart_items, subtotal
 
 def cart_view(request):
@@ -339,7 +343,7 @@ def admin_dashboard(request):
     
     # Handle sorting and filtering for inquiries
     status_filter = request.GET.get('status', '').strip().upper()
-    inquiries = Inquiry.objects.all()
+    inquiries = Inquiry.objects.all().prefetch_related('line_items')
     if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:
         inquiries = inquiries.filter(status=status_filter)
     inquiries = inquiries.order_by('-created_at')
@@ -574,6 +578,16 @@ def checkout_view(request):
 
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
+    # Compute tax breakdown (18% GST: 9% CGST + 9% SGST)
+    # Use Decimal for tax rates to avoid Decimal * float TypeError
+    tax_rate = Decimal('0.18')
+    cgst_rate = Decimal('0.09')
+    sgst_rate = Decimal('0.09')
+    gst_amount = float((subtotal * tax_rate).quantize(Decimal('0.01')))
+    cgst_amount = float((subtotal * cgst_rate).quantize(Decimal('0.01')))
+    sgst_amount = float((subtotal * sgst_rate).quantize(Decimal('0.01')))
+    total_with_tax = float((subtotal * (Decimal('1') + tax_rate)).quantize(Decimal('0.01')))
+
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip() or request.user.username
         shipping_address = request.POST.get('shipping_address', '').strip()
@@ -582,6 +596,10 @@ def checkout_view(request):
                 'cart_items': cart_items,
                 'subtotal': subtotal,
                 'total': subtotal,
+                'total_with_tax': total_with_tax,
+                'gst_amount': gst_amount,
+                'cgst_amount': cgst_amount,
+                'sgst_amount': sgst_amount,
                 'profile': profile,
                 'error': 'Please enter your delivery address.',
             })
@@ -630,6 +648,10 @@ def checkout_view(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'total': subtotal,
+        'total_with_tax': total_with_tax,
+        'gst_amount': gst_amount,
+        'cgst_amount': cgst_amount,
+        'sgst_amount': sgst_amount,
         'profile': profile,
     })
 

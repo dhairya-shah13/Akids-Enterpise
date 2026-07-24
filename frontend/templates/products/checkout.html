@@ -52,25 +52,33 @@
                         {% endfor %}
                     </div>
 
-                    <!-- Pricing Details -->
+                    <!-- Pricing Details with Tax Breakdown -->
                     <div class="border-t border-outline-variant/30 pt-4 space-y-3 font-body-md text-on-surface-variant text-sm">
                         <div class="flex justify-between">
-                            <span>Subtotal</span>
+                            <span>Taxable Amount (Base Price)</span>
                             <span class="font-bold text-on-surface">₹{{ subtotal }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>CGST @ 9%</span>
+                            <span class="font-bold">₹{{ cgst_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>SGST @ 9%</span>
+                            <span class="font-bold">₹{{ sgst_amount|floatformat:2 }}</span>
+                        </div>
+                        <div class="flex justify-between border-t border-dashed border-outline-variant/20 pt-2 text-xs text-on-surface-variant/80">
+                            <span>GST (18%) Total</span>
+                            <span class="font-bold">₹{{ gst_amount|floatformat:2 }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span>Shipping</span>
                             <span class="font-bold text-secondary">FREE</span>
                         </div>
-                        <div class="flex justify-between text-xs text-on-surface-variant/80">
-                            <span>Tax Breakup (inclusive of 18% GST)</span>
-                            <span>Calculated on invoice</span>
-                        </div>
                         
                         <!-- Desktop-only total (hidden on mobile where sticky bar shows it) -->
                         <div class="hidden lg:flex justify-between text-2xl text-on-surface border-t border-outline-variant/30 pt-4 font-display-lg">
-                            <span>Total</span>
-                            <span class="text-primary">₹{{ subtotal }}</span>
+                            <span>Total Payable</span>
+                            <span class="text-primary">₹{{ total_with_tax|floatformat:2 }}</span>
                         </div>
                     </div>
                 </div>
@@ -109,7 +117,7 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div>
             <p class="text-xs text-on-surface-variant font-label-md uppercase tracking-wider">Total</p>
-            <p class="font-display-lg text-2xl text-primary">₹{{ subtotal }}</p>
+            <p class="font-display-lg text-2xl text-primary">₹{{ total_with_tax|floatformat:2 }}</p>
         </div>
         <button type="submit" form="checkout-form" onclick="document.querySelector('form[action*=checkout]').submit()" class="bg-primary text-on-primary font-label-md uppercase text-sm px-8 py-3.5 rounded-2xl shadow-lg shadow-primary/20 flex items-center gap-2 font-bold hover:scale-[1.02] transition-transform">
             Pay Now <span class="material-symbols-outlined text-[20px]">payment</span>
