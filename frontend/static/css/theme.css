@@ -122,6 +122,25 @@ html, body, iframe, div, textarea {
     color: #C66B0D !important; /* Darker version of Tangerine for AA contrast */
 }
 
+/* WCAG AA contrast: darken brand colors on light backgrounds (butter/40 ≈ #FDF5E6) */
+header .text-tangerine {
+    color: #A86200 !important; /* Darker Tangerine for 4.5:1 on light bg */
+}
+header .text-sea {
+    color: #2E5F8A !important; /* Darker Sea for 4.5:1 on light bg */
+}
+footer .text-tangerine {
+    color: #A86200 !important;
+}
+footer .text-sea {
+    color: #2E5F8A !important;
+}
+
+/* WCAG AA contrast: darken secondary background for white text (3.7:1 → 4.5:1+) */
+.bg-secondary {
+    background-color: #3D6E94 !important;
+}
+
 /* ==========================================================================
    Lazy Loading & Page Load Optimizations
    ========================================================================== */

@@ -37,7 +37,7 @@
                                 {% csrf_token %}
                                 <div class="flex items-center bg-background border border-outline-variant/50 rounded-xl overflow-hidden shadow-inner">
                                     <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" aria-label="Decrease quantity">-</button>
-                                    <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly>
+                                    <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly aria-label="Quantity">
                                     <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" {% if not item.is_available or item.quantity >= item.product.stock %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %} aria-label="Increase quantity">+</button>
                                 </div>
                             </form>

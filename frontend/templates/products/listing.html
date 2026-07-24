@@ -35,7 +35,7 @@
     <section class="max-w-2xl mx-auto px-margin-desktop mb-12 fade-in-section">
         <form action="{% url 'search' %}" method="GET" class="relative search-wrapper">
             <input type="hidden" name="category" value="INDOORS">
-            <input type="text" name="q" placeholder="Search indoor wonders..." required autocomplete="off" class="w-full bg-white border border-outline-variant/20 rounded-full py-3.5 pr-5 pl-12 focus:ring-2 focus:ring-tangerine outline-none shadow-sm text-on-surface">
+            <input type="text" name="q" placeholder="Search indoor wonders..." required autocomplete="off" aria-label="Search indoor products" class="w-full bg-white border border-outline-variant/20 rounded-full py-3.5 pr-5 pl-12 focus:ring-2 focus:ring-tangerine outline-none shadow-sm text-on-surface">
             <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-tangerine transition-colors">
                 <span class="material-symbols-outlined text-xl">search</span>
             </button>

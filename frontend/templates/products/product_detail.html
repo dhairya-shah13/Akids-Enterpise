@@ -118,7 +118,7 @@
                     {% csrf_token %}
                     <div class="flex items-center bg-white border-2 border-outline-variant/50 rounded-2xl overflow-hidden w-full sm:w-auto shrink-0 shadow-inner">
                         <button type="button" onclick="const q=document.getElementById('cartQty'); if(parseInt(q.value)>1) { q.value--; document.getElementById('cartQtyHidden').value = q.value; }" class="px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none">-</button>
-                        <input type="number" id="cartQty" name="quantity_display" value="1" min="1" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly>
+                        <input type="number" id="cartQty" name="quantity_display" value="1" min="1" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly aria-label="Quantity">
                         <input type="hidden" id="cartQtyHidden" name="quantity" value="1">
                         <button type="button" onclick="const q=document.getElementById('cartQty'); if(parseInt(q.value) < {{ product.stock }}) { q.value++; document.getElementById('cartQtyHidden').value = q.value; }" class="px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none">+</button>
                     </div>
