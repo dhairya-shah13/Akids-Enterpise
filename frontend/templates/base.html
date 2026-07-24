@@ -111,6 +111,13 @@
                 <span class="material-symbols-outlined text-primary text-xl">home</span> Home
             </a>
 
+            <!-- Admin HQ Link (Only visible if admin/staff) -->
+            {% if request.user.is_authenticated and request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-tangerine/10 text-tangerine hover:bg-tangerine/20 font-bold transition-all border border-tangerine/20">
+                <span class="material-symbols-outlined text-tangerine text-xl">admin_panel_settings</span> Admin Panel (HQ)
+            </a>
+            {% endif %}
+
             <!-- Indoors Accordion Group -->
             <div class="border border-outline-variant/20 rounded-xl overflow-hidden">
                 <button onclick="toggleSidebarAccordion('indoors-acc')" class="w-full flex items-center justify-between px-4 py-3 hover:bg-primary-container/20 text-on-surface font-bold text-left transition-colors">
