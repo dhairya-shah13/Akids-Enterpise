@@ -65,13 +65,15 @@
 <!-- Main Dashboard Navigation & Content -->
 <section class="py-12 bg-background min-h-screen px-margin-desktop">
     <div class="max-w-7xl mx-auto admin-dashboard-container">
-        <!-- Sidebar Navigation (Col span 3) -->
         <div class="bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-4 admin-sidebar">
-            <h3 class="font-display-lg text-lg text-on-surface border-b border-outline-variant/20 pb-3 flex items-center gap-2">
-                <span class="material-symbols-outlined text-primary text-[24px]">space_dashboard</span> Admin Menu
-            </h3>
+            <button type="button" onclick="toggleMobileAdminMenu()" class="w-full flex items-center justify-between lg:pointer-events-none text-left focus:outline-none select-none">
+                <h3 class="font-display-lg text-lg text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-[24px]">space_dashboard</span> Admin Menu
+                </h3>
+                <span id="admin-menu-toggle-icon" class="material-symbols-outlined text-lg lg:hidden transition-transform duration-200">keyboard_arrow_down</span>
+            </button>
             
-            <div class="flex flex-col gap-2">
+            <div id="adminMenuContent" class="hidden lg:flex flex-col gap-2 border-t border-outline-variant/15 pt-3 lg:border-none lg:pt-0">
                 <button onclick="switchTab('products')" id="tab-products" class="w-full text-left font-label-md px-5 py-3.5 rounded-xl border border-outline-variant/30 bg-primary text-on-primary shadow-sm hover:scale-[1.02] transition-transform flex items-center gap-3">
                     <span class="material-symbols-outlined text-[20px]">package_2</span>
                     <span>Product Catalog ({{ products|length }})</span>
@@ -482,8 +484,8 @@
                 <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-primary flex items-center gap-2">
                     <span class="material-symbols-outlined">link</span> Product Image URL
                 </label>
-                <input type="url" name="image_url" id="imageUrlInput" placeholder="https://drive.google.com/uc?export=view&id=YOUR_FILE_ID" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary transition-shadow" oninput="previewImageUrl(event)">
-                <span class="font-body-md text-xs opacity-60 mt-2 block text-on-surface-variant">Paste a direct image link from Google Drive, Imgur, or any hosting service</span>
+                <input type="url" name="image_url" id="imageUrlInput" placeholder="Paste image link directly..." class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary transition-shadow" oninput="handleImageUrlChange(event)">
+                <span class="font-body-md text-xs opacity-60 mt-2 block text-on-surface-variant">Paste a link from Google Drive, Imgur, or any hosting service</span>
                 
                 <div id="imagePreviewContainer" class="hidden mt-4 text-center">
                     <p class="font-label-md text-[10px] uppercase tracking-wider mb-2 text-primary">Image Preview:</p>
@@ -501,11 +503,11 @@
                 <textarea name="description" rows="3" placeholder="Describe safety specs, dimensions, materials..." required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow resize-y"></textarea>
             </div>
 
-            <div class="bg-surface/50 p-4 rounded-xl border border-outline-variant/20">
-                <p class="font-body-md text-xs text-on-surface-variant flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[16px] text-secondary">info</span>
-                    <strong>Google Drive tip:</strong> Share your image file, copy the link, and replace <code class="bg-white px-1 rounded">file/d/FILE_ID/view</code> with <code class="bg-white px-1 rounded">uc?export=view&id=FILE_ID</code>
-                </p>
+            <div class="bg-surface/50 p-4 rounded-xl border border-outline-variant/20 flex items-start gap-2.5">
+                <span class="material-symbols-outlined text-[18px] text-secondary shrink-0 mt-0.5">info</span>
+                <div class="text-xs text-on-surface-variant leading-relaxed">
+                    <strong>Google Drive Tip:</strong> You can paste your Google Drive sharing link directly! The system will automatically convert it to a direct image link so it displays correctly on the website.
+                </div>
             </div>
 
             <div class="flex justify-end gap-4 mt-4 pt-4 border-t border-outline-variant/20">
@@ -892,6 +894,37 @@
         } else if (tab === 'sales') {
             btnSales.className = activeClass;
         }
+
+        // Auto-collapse the admin menu after view selection on mobile
+        if (window.innerWidth < 1024) {
+            const menuContent = document.getElementById('adminMenuContent');
+            const menuIcon = document.getElementById('admin-menu-toggle-icon');
+            if (menuContent) {
+                menuContent.classList.add('hidden');
+                menuContent.classList.remove('flex');
+            }
+            if (menuIcon) {
+                menuIcon.style.transform = '';
+            }
+        }
+    }
+
+    // Toggle Admin Menu display on mobile
+    function toggleMobileAdminMenu() {
+        if (window.innerWidth >= 1024) return;
+        const menuContent = document.getElementById('adminMenuContent');
+        const menuIcon = document.getElementById('admin-menu-toggle-icon');
+        if (menuContent) {
+            if (menuContent.classList.contains('hidden')) {
+                menuContent.classList.remove('hidden');
+                menuContent.classList.add('flex');
+                if (menuIcon) menuIcon.style.transform = 'rotate(180deg)';
+            } else {
+                menuContent.classList.add('hidden');
+                menuContent.classList.remove('flex');
+                if (menuIcon) menuIcon.style.transform = '';
+            }
+        }
     }
 
     // Restore tab on DOMContentLoaded
@@ -935,6 +968,17 @@
             }
         }
         return url;
+    }
+
+    function handleImageUrlChange(event) {
+        const input = event.target;
+        const rawUrl = input.value.trim();
+        const converted = convertGoogleDriveUrl(rawUrl);
+        if (rawUrl && converted !== rawUrl) {
+            input.value = converted;
+            showToast('Link Auto-Formatted', 'Converted Google Drive link to a direct image link.', 'success');
+        }
+        previewImageUrl(event);
     }
 
     function previewImageUrl(event) {

@@ -390,6 +390,17 @@ def add_product(request):
         price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
+        
+        # Auto-convert Google Drive sharing links to direct hotlink preview URLs
+        if image_url and 'drive.google.com' in image_url:
+            import re
+            d_match = re.search(r'/file/d/([^/]+)', image_url)
+            if d_match:
+                image_url = f"https://lh3.googleusercontent.com/d/{d_match.group(1)}"
+            else:
+                id_match = re.search(r'[?&]id=([^&]+)', image_url)
+                if id_match:
+                    image_url = f"https://lh3.googleusercontent.com/d/{id_match.group(1)}"
             
         if name and price:
             if not image_url:
