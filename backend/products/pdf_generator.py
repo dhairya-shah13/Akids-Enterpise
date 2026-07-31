@@ -152,8 +152,8 @@ def generate_invoice_pdf(order, is_admin=False):
     <b>Little Fingers India Pvt. Ltd.</b><br/>
     Plot No. 42, Industrial Area,<br/>
     Phase 1, New Delhi - 110020<br/>
-    Email: hello@littlefingersindia.com<br/>
-    Phone: +91 99243 43003
+    Email: info@akidsenterprise.com<br/>
+    Phone: +91 7433 026 008
     """
     company_p = Paragraph(company_details, body_style)
     

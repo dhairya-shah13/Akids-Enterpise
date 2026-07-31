@@ -8,9 +8,36 @@ class UserProfile(models.Model):
     full_name = models.CharField(max_length=200, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
     shipping_address = models.TextField(blank=True)
+    avatar_color = models.CharField(max_length=20, default='sea')
+    username_changed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Profile: {self.user.username}"
+
+
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    full_name = models.CharField(max_length=200, blank=True)
+    phone_number = models.CharField(max_length=20, blank=True)
+    street_address = models.TextField()
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    pincode = models.CharField(max_length=20, blank=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-is_default', '-created_at']
+
+    def save(self, *args, **kwargs):
+        if not self.pk and Address.objects.filter(user=self.user).count() >= 5:
+            raise ValueError("Maximum 5 saved addresses allowed per account.")
+        if self.is_default:
+            Address.objects.filter(user=self.user).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.street_address[:30]} ({'Default' if self.is_default else 'Saved'})"
 
 
 class Product(models.Model):

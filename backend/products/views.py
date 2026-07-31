@@ -3,6 +3,7 @@ import json
 import requests
 import time
 import logging
+import socket
 from decimal import Decimal
 from pathlib import Path
 from functools import lru_cache
@@ -13,7 +14,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
-from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile, Address
 from .search import search_products
 from django.db import transaction
 from django.db.models import Q, Sum, Count
@@ -70,8 +74,8 @@ COMPANY_PAGES = {
         'eyebrow': 'Let’s build a better play space',
         'intro': 'Talk to us about products, project requirements, availability, or a quote for your school, daycare centre, home, or sports space.',
         'sections': [
-            ('Call us', 'For larger requirements, installation discussions, safety concerns, or urgent assistance, call our team on +91 9924343003.'),
-            ('Email us', 'Send product and quote enquiries to hello@littlefingersindia.com. Including the product name, quantity, and your location helps us respond more effectively.'),
+            ('Call us', 'For larger requirements, installation discussions, safety concerns, or urgent assistance, call our team on +91 7433 026 008.'),
+            ('Email us', 'Send product and quote enquiries to info@akidsenterprise.com. Including the product name, quantity, and your location helps us respond more effectively.'),
             ('Request a quote online', 'You can also use the enquiry option on a product page to share your requirements directly with our team.'),
         ],
     },
@@ -83,7 +87,7 @@ COMPANY_PAGES = {
             ('Information we collect', 'We may collect the details you provide when you create an account, submit an enquiry, use the cart, contact us, or communicate with our support team. This may include your name, contact details, product interest, quantity, and message.'),
             ('How we use it', 'We use this information to respond to enquiries, prepare quotes, provide support, manage accounts and carts, improve our website, and meet legal or operational requirements. We do not sell your personal information.'),
             ('Sharing and retention', 'We share information only with service providers or authorities where needed to operate the website, deliver requested services, or comply with law. We keep information only for as long as reasonably necessary for these purposes.'),
-            ('Your choices', 'To ask about or update the personal information you have shared with us, contact hello@littlefingersindia.com. Please do not send sensitive personal information through product enquiry forms.'),
+            ('Your choices', 'To ask about or update the personal information you have shared with us, contact info@akidsenterprise.com. Please do not send sensitive personal information through product enquiry forms.'),
         ],
     },
     'terms': {
@@ -94,7 +98,7 @@ COMPANY_PAGES = {
             ('Product information and enquiries', 'Product images, descriptions, availability, and prices are provided for general information and may change. A cart or enquiry is a request for information or a quote; it does not create an order or guarantee availability.'),
             ('Quotes and orders', 'Final product selection, pricing, delivery, installation, and payment terms are confirmed directly with our team before an order is accepted. Please review your quote carefully and share accurate contact and project details.'),
             ('Safe and appropriate use', 'Products must be assembled, used, maintained, and supervised in line with the applicable product guidance. Buyers are responsible for confirming that a product is appropriate for their space, intended users, and local requirements.'),
-            ('Website use', 'Please use this website lawfully and do not interfere with its operation, submit misleading information, or attempt unauthorised access. For questions about these terms, contact hello@littlefingersindia.com.'),
+            ('Website use', 'Please use this website lawfully and do not interfere with its operation, submit misleading information, or attempt unauthorised access. For questions about these terms, contact info@akidsenterprise.com.'),
         ],
     },
 }
@@ -109,10 +113,10 @@ def _read_env_file():
     """Read .env file once and cache the result. Avoids disk I/O on every request."""
     env_email = "admin@gmail.com"
     env_pass = "123456"
-    whatsapp_num = "9924343003"
+    whatsapp_num = "7433026008"
     possible_paths = [
-        settings.BASE_DIR / ".env",
         settings.BASE_DIR.parent / ".env",
+        settings.BASE_DIR / ".env",
     ]
     for env_path in possible_paths:
         if env_path.exists():
@@ -120,15 +124,19 @@ def _read_env_file():
                 with open(env_path, "r", encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
-                        if line.startswith("ADMIN_EMAIL="):
-                            env_email = line.split("=", 1)[1].strip('"\' ')
-                        elif line.startswith("ADMIN_PASSWORD="):
-                            env_pass = line.split("=", 1)[1].strip('"\' ')
-                        elif line.startswith("WHATSAPP_NUMBER="):
-                            whatsapp_num = line.split("=", 1)[1].strip('"\' ')
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k = k.strip()
+                            v = v.strip('"\' ')
+                            os.environ[k] = v
+                            if k == "ADMIN_EMAIL":
+                                env_email = v
+                            elif k == "ADMIN_PASSWORD":
+                                env_pass = v
+                            elif k == "WHATSAPP_NUMBER":
+                                whatsapp_num = v
             except Exception:
                 pass
-            break
     return env_email, env_pass, whatsapp_num
 
 
@@ -155,6 +163,55 @@ def is_admin_user(request):
     return result
 
 
+def validate_email_and_domain(email):
+    """Validate email syntax and check whether the domain host exists."""
+    if not email:
+        return False, "Please enter an email address."
+    try:
+        validate_email(email)
+    except ValidationError:
+        return False, "Please enter a valid email address format (e.g. user@example.com)."
+    
+    parts = email.split('@')
+    if len(parts) != 2:
+        return False, "Invalid email address format."
+    
+    domain = parts[1].lower().strip()
+    try:
+        socket.gethostbyname(domain)
+    except Exception:
+        return False, f"The email domain (@{domain}) does not exist or cannot receive emails."
+    
+    return True, None
+
+
+def send_verification_email(request, user):
+    """Sends a verification email link via Firebase / signed token link."""
+    _read_env_file()
+    signer = TimestampSigner()
+    token = signer.sign(str(user.id))
+    verify_url = request.build_absolute_uri(reverse('verify_email_confirm') + f'?token={token}&email={user.email}')
+    
+    firebase_key = os.getenv("FIREBASE_API_KEY", "").strip()
+    firebase_sent = False
+    
+    if firebase_key and not firebase_key.startswith("YOUR_"):
+        try:
+            payload = {
+                "requestType": "EMAIL_SIGNIN",
+                "email": user.email,
+                "continueUrl": verify_url
+            }
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={firebase_key}"
+            resp = requests.post(url, json=payload, timeout=8)
+            if resp.status_code == 200:
+                firebase_sent = True
+        except Exception:
+            pass
+            
+    return verify_url, firebase_sent
+
+
 def login_view(request):
     env_email, env_pass = get_env_credentials()
     if is_admin_user(request):
@@ -163,6 +220,8 @@ def login_view(request):
         return redirect('cart')
 
     error = None
+    unverified_email = None
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
@@ -175,8 +234,9 @@ def login_view(request):
 
             admin_user.is_staff = True
             admin_user.is_superuser = True
+            admin_user.is_active = True
             admin_user.set_password(env_pass)
-            admin_user.save(update_fields=['is_staff', 'is_superuser', 'password'])
+            admin_user.save(update_fields=['is_staff', 'is_superuser', 'is_active', 'password'])
 
             login(request, admin_user)
             request.session['is_admin'] = True
@@ -186,10 +246,18 @@ def login_view(request):
             sep = '&' if '?' in next_url else '?'
             return redirect(f'{next_url}{sep}toast=login')
 
+        # Check if user exists but is_active is False (unverified email)
+        try_user = User.objects.filter(Q(email=email) | Q(username=email)).first()
+        if try_user and not try_user.is_active and try_user.check_password(password):
+            return render(request, 'products/login.html', {
+                'error': f"Your email ({try_user.email}) has not been verified yet. Please check your inbox for the activation link.",
+                'unverified_email': try_user.email,
+                'next': request.GET.get('next', '')
+            })
+
         # 2. Check regular user credentials (try by username first, then by email)
         user = authenticate(request, username=email, password=password)
         if user is None:
-            try_user = User.objects.filter(email=email).only('username').first()
             if try_user:
                 user = authenticate(request, username=try_user.username, password=password)
 
@@ -222,29 +290,343 @@ def signup_view(request):
         password = request.POST.get('password', '').strip()
         username = request.POST.get('username', '').strip()
 
-        # Single query to check both email and username
-        if User.objects.filter(Q(email=email) | Q(username=username)).exists():
+        # 1. Format and Domain Validation
+        valid_email, domain_err = validate_email_and_domain(email)
+        if not valid_email:
+            error = domain_err
+        # 2. Single query to check both email and username
+        elif User.objects.filter(Q(email=email) | Q(username=username)).exists():
             if User.objects.filter(email=email).exists():
                 error = "A user with that email already exists."
             else:
                 error = "That username is already taken."
         elif email and password and username:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            login(request, user)
-            next_url = request.POST.get('next') or request.GET.get('next') or reverse('cart')
-            if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
-                next_url = reverse('cart')
-            sep = '&' if '?' in next_url else '?'
-            return redirect(f'{next_url}{sep}toast=signup')
+            if len(password) < 6:
+                error = "Password must be at least 6 characters long."
+            else:
+                # Create user with is_active = False (unverified)
+                user = User.objects.create_user(username=username, email=email, password=password)
+                user.is_active = False
+                user.save()
+                UserProfile.objects.get_or_create(user=user)
+
+                # Send verification email
+                verify_url, firebase_sent = send_verification_email(request, user)
+                
+                return render(request, 'products/verify_email_pending.html', {
+                    'email': email,
+                    'verify_url': verify_url,
+                    'firebase_sent': firebase_sent
+                })
         else:
             error = "Please fill in all fields."
 
     return render(request, 'products/signup.html', {'error': error, 'next': request.GET.get('next', '')})
 
+
+def verify_email_confirm(request):
+    token = request.GET.get('token')
+    email = request.GET.get('email')
+    
+    user = None
+    if token:
+        signer = TimestampSigner()
+        try:
+            user_id = signer.unsign(token, max_age=259200) # 3 days expiration
+            user = User.objects.filter(pk=user_id).first()
+        except (BadSignature, SignatureExpired):
+            user = None
+            
+    if not user and email:
+        user = User.objects.filter(email=email, is_active=False).first()
+        
+    if user:
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return render(request, 'products/verify_email_success.html', {'user': user})
+    else:
+        return render(request, 'products/login.html', {
+            'error': 'Invalid or expired verification link. Please log in or request a new verification email.'
+        })
+
+
+def resend_verification(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        user = User.objects.filter(email=email, is_active=False).first()
+        if user:
+            verify_url, firebase_sent = send_verification_email(request, user)
+            return render(request, 'products/verify_email_pending.html', {
+                'email': email,
+                'verify_url': verify_url,
+                'firebase_sent': firebase_sent,
+                'resent': True
+            })
+        else:
+            return render(request, 'products/login.html', {
+                'error': 'No unverified account found with that email address.'
+            })
+    return redirect('admin_login')
+
+
 def logout_view(request):
     request.session.flush()
     logout(request)
     return redirect(f"{reverse('home')}?toast=logout")
+
+
+# --- Third-Party Auth: Google OAuth & Firebase Passwordless ---
+
+def google_login(request):
+    _read_env_file()
+    client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+    if not client_id or client_id.startswith("YOUR_"):
+        return redirect(f"{reverse('admin_login')}?toast=google-not-configured")
+    
+    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    google_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth?"
+        f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&"
+        f"scope=openid%20email%20profile"
+    )
+    return redirect(google_url)
+
+
+def google_callback(request):
+    _read_env_file()
+    code = request.GET.get('code')
+    if not code:
+        return redirect(f"{reverse('admin_login')}?toast=google-error")
+    
+    client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+    client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
+    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
+    
+    try:
+        resp = requests.post(token_url, data=data, timeout=10)
+        tokens = resp.json()
+        access_token = tokens.get('access_token')
+        if not access_token:
+            return redirect(f"{reverse('admin_login')}?toast=google-error")
+        
+        user_info_resp = requests.get(
+            'https://www.googleapis.com/oauth2/v2/userinfo',
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=10
+        )
+        info = user_info_resp.json()
+        email = info.get('email')
+        name = info.get('name', '')
+        
+        if not email:
+            return redirect(f"{reverse('admin_login')}?toast=google-error")
+        
+        user = User.objects.filter(email=email).first()
+        if not user:
+            username = email.split('@')[0]
+            base_username = username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+            user = User.objects.create_user(username=username, email=email)
+            user.first_name = name
+            user.is_active = True
+            user.save()
+            UserProfile.objects.get_or_create(user=user, defaults={'full_name': name})
+        else:
+            if not user.is_active:
+                user.is_active = True
+                user.save()
+            
+        login(request, user)
+        return redirect(f"{reverse('cart')}?toast=login")
+    except Exception:
+        return redirect(f"{reverse('admin_login')}?toast=google-error")
+
+
+@csrf_exempt
+def firebase_login(request):
+    """Send a Firebase passwordless sign-in email link (does NOT log the user in immediately)."""
+    _read_env_file()
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        email = data.get('email', '').strip()
+    except Exception:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    if not email:
+        return JsonResponse({'error': 'Email required'}, status=400)
+
+    firebase_key = os.getenv("FIREBASE_API_KEY", "").strip()
+    if not firebase_key or firebase_key.startswith("YOUR_"):
+        return JsonResponse({'error': 'Firebase Auth is not configured yet. See docs/CREDENTIALS_SETUP.md'}, status=400)
+
+    # Build the callback URL that Firebase will embed in the email
+    callback_url = request.build_absolute_uri(reverse('firebase_email_callback'))
+
+    # Send the sign-in email via Firebase REST API
+    firebase_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={firebase_key}"
+    payload = {
+        "requestType": "EMAIL_SIGNIN",
+        "email": email,
+        "continueUrl": callback_url,
+        "canHandleCodeInApp": False,
+    }
+
+    try:
+        resp = requests.post(firebase_url, json=payload, timeout=10)
+        result = resp.json()
+
+        if resp.status_code != 200:
+            error_msg = result.get('error', {}).get('message', 'Failed to send email.')
+            # Provide user-friendly error messages
+            if 'INVALID_EMAIL' in error_msg:
+                return JsonResponse({'error': 'Please enter a valid email address.'}, status=400)
+            elif 'TOO_MANY_ATTEMPTS' in error_msg:
+                return JsonResponse({'error': 'Too many attempts. Please try again later.'}, status=400)
+            return JsonResponse({'error': 'Unable to send reset link. Please try again.'}, status=400)
+    except requests.exceptions.RequestException:
+        return JsonResponse({'error': 'Network error. Please try again.'}, status=500)
+
+    # Store the email in session so callback can verify it
+    request.session['forgot_password_email'] = email
+
+    return JsonResponse({
+        'status': 'ok',
+        'redirect_url': f"{reverse('forgot_password_waiting')}?email={email}"
+    })
+
+
+def forgot_password_waiting(request):
+    """Display a 'Check Your Email' waiting page."""
+    email = request.GET.get('email', request.session.get('forgot_password_email', ''))
+    return render(request, 'products/forgot_password_waiting.html', {'email': email})
+
+
+def firebase_email_callback(request):
+    """Handle the magic link callback from Firebase email."""
+    _read_env_file()
+    firebase_key = os.getenv("FIREBASE_API_KEY", "").strip()
+
+    # The oobCode is passed as a query parameter by Firebase
+    oob_code = request.GET.get('oobCode', '').strip()
+
+    if not oob_code or not firebase_key:
+        return redirect(f"{reverse('admin_login')}?toast=link-invalid")
+
+    # Verify the oobCode via Firebase REST API to get the email
+    verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithEmailLink?key={firebase_key}"
+    # We need the email — try from session first, then from query param
+    email = request.session.get('forgot_password_email', request.GET.get('email', '')).strip()
+
+    if not email:
+        # If no email in session (e.g., different browser), ask the user
+        return redirect(f"{reverse('admin_login')}?toast=link-expired")
+
+    payload = {
+        "oobCode": oob_code,
+        "email": email,
+    }
+
+    try:
+        resp = requests.post(verify_url, json=payload, timeout=10)
+        result = resp.json()
+
+        if resp.status_code != 200:
+            return redirect(f"{reverse('admin_login')}?toast=link-invalid")
+
+        verified_email = result.get('email', email)
+    except requests.exceptions.RequestException:
+        return redirect(f"{reverse('admin_login')}?toast=link-invalid")
+
+    # Find or create the user
+    user = User.objects.filter(email=verified_email).first()
+    if not user:
+        username = verified_email.split('@')[0]
+        base_username = username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        user = User.objects.create_user(username=username, email=verified_email)
+        user.is_active = True
+        user.save()
+        UserProfile.objects.get_or_create(user=user)
+    else:
+        if not user.is_active:
+            user.is_active = True
+            user.save()
+
+    # Log the user in and redirect to set password
+    login(request, user)
+    request.session['force_password_set'] = True
+    request.session.pop('forgot_password_email', None)
+    return redirect('set_password')
+
+
+def set_password_view(request):
+    if not request.user.is_authenticated:
+        return redirect('admin_login')
+    
+    error = None
+    if request.method == 'POST':
+        password = request.POST.get('password', '').strip()
+        confirm_password = request.POST.get('confirm_password', '').strip()
+        if not password or password != confirm_password:
+            error = "Passwords do not match."
+        elif len(password) < 6:
+            error = "Password must be at least 6 characters long."
+        else:
+            request.user.set_password(password)
+            request.user.is_active = True
+            request.user.save()
+            request.session.pop('force_password_set', None)
+            login(request, request.user)
+            return redirect(f"{reverse('profile')}?toast=password-set")
+            
+    return render(request, 'products/set_password.html', {'error': error})
+
+
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["POST"])
+def change_password_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Authentication required.'}, status=401)
+
+    current_password = request.POST.get('current_password', '').strip()
+    new_password = request.POST.get('new_password', '').strip()
+    confirm_new_password = request.POST.get('confirm_new_password', '').strip()
+
+    if not current_password or not new_password or not confirm_new_password:
+        return JsonResponse({'error': 'All fields are required.'}, status=400)
+
+    if new_password != confirm_new_password:
+        return JsonResponse({'error': 'New passwords do not match.'}, status=400)
+
+    if len(new_password) < 6:
+        return JsonResponse({'error': 'Password must be at least 6 characters long.'}, status=400)
+
+    if not request.user.check_password(current_password):
+        return JsonResponse({'error': 'Current password is incorrect.'}, status=400)
+
+    request.user.set_password(new_password)
+    request.user.save()
+    login(request, request.user)
+    return JsonResponse({'status': 'ok', 'message': 'Password changed successfully.'})
 
 def get_cart_data(request):
     cart = request.session.get('cart', {})
@@ -391,6 +773,7 @@ def add_product(request):
         name = request.POST.get('name', '').strip()
         category = request.POST.get('category', 'INDOORS').strip()
         price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
+        stock = request.POST.get('stock', '10').strip()
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
         
@@ -408,8 +791,51 @@ def add_product(request):
         if name and price:
             if not image_url:
                 image_url = "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
-            Product.objects.create(name=name, category=category, price=price, description=description, image_url=image_url)
+            try:
+                stock_val = int(stock)
+            except ValueError:
+                stock_val = 10
+            Product.objects.create(name=name, category=category, price=price, stock=stock_val, description=description, image_url=image_url)
                 
+    return redirect('admin_dashboard')
+
+def edit_product(request, pk):
+    if not is_admin_user(request):
+        return redirect('admin_login')
+        
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        category = request.POST.get('category', 'INDOORS').strip()
+        price = request.POST.get('price', '0').replace(',', '').replace('₹', '').strip()
+        stock = request.POST.get('stock', '10').strip()
+        description = request.POST.get('description', '').strip()
+        image_url = request.POST.get('image_url', '').strip()
+        
+        if image_url and 'drive.google.com' in image_url:
+            import re
+            d_match = re.search(r'/file/d/([^/]+)', image_url)
+            if d_match:
+                image_url = f"https://lh3.googleusercontent.com/d/{d_match.group(1)}"
+            else:
+                id_match = re.search(r'[?&]id=([^&]+)', image_url)
+                if id_match:
+                    image_url = f"https://lh3.googleusercontent.com/d/{id_match.group(1)}"
+
+        if name and price:
+            product.name = name
+            product.category = category
+            product.price = price
+            try:
+                product.stock = int(stock)
+            except ValueError:
+                pass
+            product.description = description
+            if image_url:
+                product.image_url = image_url
+            product.save()
+            return redirect(f"{reverse('admin_dashboard')}?toast=saved")
+
     return redirect('admin_dashboard')
 
 def delete_product(request, pk):
@@ -598,7 +1024,7 @@ def chat_api(request):
         "You are Mohanlal, the friendly, enthusiastic, and knowledgeable AI assistant and mascot for Little Fingers India / Mohanlal website. "
         "We specialize in premium children's playground equipment, indoor & outdoor toys, Shreem Sports gear, educational furniture, and spare parts. "
         "Your goal is to engage warmly with customers, give them expert advice on playground products, answer their queries with enthusiasm, and help them find the right equipment. "
-        "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: 9924343003. "
+        "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: +91 7433 026 008. "
         "Keep your tone upbeat, helpful, and concise. Format your advice clearly using markdown if appropriate."
     )
 
@@ -635,9 +1061,9 @@ def chat_api(request):
                 res_json = resp2.json()
                 bot_reply = res_json["choices"][0]["message"]["content"]
                 return JsonResponse({"reply": bot_reply})
-            return JsonResponse({"reply": "Namaste! I'm Mohanlal. I'm having a little trouble connecting right now, but for any urgent queries or larger requirements, please feel free to call us directly at 9924343003!"}, status=200)
+            return JsonResponse({"reply": "Namaste! I'm Mohanlal. I'm having a little trouble connecting right now, but for any urgent queries or larger requirements, please feel free to call us directly at +91 7433 026 008!"}, status=200)
     except Exception:
-        return JsonResponse({"reply": "Namaste! I'm Mohanlal. I encountered a momentary connection glitch. For any important queries or immediate advice, please call us at 9924343003!"}, status=200)
+        return JsonResponse({"reply": "Namaste! I'm Mohanlal. I encountered a momentary connection glitch. For any important queries or immediate advice, please call us at +91 7433 026 008!"}, status=200)
 
 
 
@@ -745,6 +1171,9 @@ def checkout_view(request):
         request.session.modified = True
         return redirect('order_success', order_id=order.pk)
 
+    addresses = Address.objects.filter(user=request.user)
+    default_address = addresses.filter(is_default=True).first()
+
     return render(request, 'products/checkout.html', {
         'cart_items': cart_items,
         'subtotal': subtotal,
@@ -754,6 +1183,8 @@ def checkout_view(request):
         'cgst_amount': cgst_amount,
         'sgst_amount': sgst_amount,
         'profile': profile,
+        'addresses': addresses,
+        'default_address': default_address,
     })
 
 
@@ -1299,22 +1730,196 @@ def api_admin_inquiry_detail(request, pk):
     return JsonResponse(data)
 
 
+from datetime import timedelta
+
 def profile_view(request):
     if not request.user.is_authenticated:
         return redirect(f"{reverse('admin_login')}?next={reverse('profile')}")
 
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
+    # Auto-migrate legacy shipping_address data to Address model if no addresses exist
+    if profile.shipping_address and not Address.objects.filter(user=request.user).exists():
+        Address.objects.create(
+            user=request.user,
+            full_name=profile.full_name or request.user.username,
+            phone_number=profile.phone_number,
+            street_address=profile.shipping_address,
+            is_default=True
+        )
+
+    error = None
+    success_toast = 'saved'
+
     if request.method == 'POST':
-        profile.phone_number = request.POST.get('phone_number', '').strip()
-        profile.shipping_address = request.POST.get('shipping_address', '').strip()
-        profile.save()
-        return redirect(f"{reverse('profile')}?toast=saved")
+        action = request.POST.get('action', 'update_profile')
+
+        if action == 'add_address':
+            street = request.POST.get('street_address', '').strip()
+            full_name = request.POST.get('full_name', '').strip()
+            phone = request.POST.get('phone_number', '').strip()
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+            make_default = request.POST.get('is_default') == 'on' or not Address.objects.filter(user=request.user).exists()
+
+            if street:
+                try:
+                    Address.objects.create(
+                        user=request.user,
+                        full_name=full_name,
+                        phone_number=phone,
+                        street_address=street,
+                        city=city,
+                        state=state,
+                        pincode=pincode,
+                        is_default=make_default
+                    )
+                except ValueError as ve:
+                    error = str(ve)
+        elif action == 'edit_address':
+            addr_id = request.POST.get('address_id')
+            address = get_object_or_404(Address, pk=addr_id, user=request.user)
+            address.street_address = request.POST.get('street_address', '').strip()
+            address.full_name = request.POST.get('full_name', '').strip()
+            address.phone_number = request.POST.get('phone_number', '').strip()
+            address.city = request.POST.get('city', '').strip()
+            address.state = request.POST.get('state', '').strip()
+            address.pincode = request.POST.get('pincode', '').strip()
+            if request.POST.get('is_default') == 'on':
+                address.is_default = True
+            address.save()
+        elif action == 'delete_address':
+            addr_id = request.POST.get('address_id')
+            Address.objects.filter(pk=addr_id, user=request.user).delete()
+        elif action == 'set_default_address':
+            addr_id = request.POST.get('address_id')
+            address = get_object_or_404(Address, pk=addr_id, user=request.user)
+            address.is_default = True
+            address.save()
+        else: # update_profile
+            # 1. Phone number & Avatar color
+            profile.phone_number = request.POST.get('phone_number', '').strip()
+            avatar_color = request.POST.get('avatar_color', '').strip().lower()
+            valid_colors = {'sea', 'tangerine', 'blush', 'matcha', 'butter', 'coral', 'lavender', 'mint', 'midnight', 'emerald', 'sunset', 'berry'}
+            if avatar_color in valid_colors:
+                profile.avatar_color = avatar_color
+
+            # 2. Username change with 30-day cooldown
+            new_username = request.POST.get('username', '').strip()
+            if new_username and new_username != request.user.username:
+                if profile.username_changed_at and timezone.now() < profile.username_changed_at + timedelta(days=30):
+                    next_eligible = (profile.username_changed_at + timedelta(days=30)).strftime('%d %b %Y')
+                    error = f"Username can only be changed once every 30 days. Next eligible change: {next_eligible}."
+                elif User.objects.filter(username=new_username).exclude(pk=request.user.pk).exists():
+                    error = "That username is already taken by another user."
+                else:
+                    request.user.username = new_username
+                    request.user.save(update_fields=['username'])
+                    profile.username_changed_at = timezone.now()
+
+            profile.save()
+
+        if not error:
+            return redirect(f"{reverse('profile')}?toast={success_toast}")
+
+    addresses = Address.objects.filter(user=request.user)
+    default_address = addresses.filter(is_default=True).first()
+
+    # Calculate username change eligibility
+    can_change_username = True
+    next_username_date = None
+    if profile.username_changed_at and timezone.now() < profile.username_changed_at + timedelta(days=30):
+        can_change_username = False
+        next_username_date = (profile.username_changed_at + timedelta(days=30)).strftime('%d %b %Y')
 
     orders = Order.objects.filter(user=request.user).prefetch_related('items').only(
         'id', 'order_no', 'customer_name', 'order_status', 'total_amount', 'created_at'
     ).order_by('-created_at')
+
     return render(request, 'products/profile.html', {
         'profile': profile,
+        'addresses': addresses,
+        'default_address': default_address,
+        'can_change_username': can_change_username,
+        'next_username_date': next_username_date,
         'orders': orders,
+        'error': error,
     })
+
+
+# --- Third-Party Auth: Google OAuth & Firebase Passwordless ---
+
+def google_login(request):
+    _read_env_file()
+    client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+    if not client_id or client_id.startswith("YOUR_"):
+        return redirect(f"{reverse('admin_login')}?toast=google-not-configured")
+    
+    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    google_url = (
+        f"https://accounts.google.com/o/oauth2/v2/auth?"
+        f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&"
+        f"scope=openid%20email%20profile"
+    )
+    return redirect(google_url)
+
+
+def google_callback(request):
+    _read_env_file()
+    code = request.GET.get('code')
+    if not code:
+        return redirect(f"{reverse('admin_login')}?toast=google-error")
+    
+    client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
+    client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
+    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
+    
+    try:
+        resp = requests.post(token_url, data=data, timeout=10)
+        tokens = resp.json()
+        access_token = tokens.get('access_token')
+        if not access_token:
+            return redirect(f"{reverse('admin_login')}?toast=google-error")
+        
+        user_info_resp = requests.get(
+            'https://www.googleapis.com/oauth2/v2/userinfo',
+            headers={'Authorization': f'Bearer {access_token}'},
+            timeout=10
+        )
+        info = user_info_resp.json()
+        email = info.get('email')
+        name = info.get('name', '')
+        
+        if not email:
+            return redirect(f"{reverse('admin_login')}?toast=google-error")
+        
+        user = User.objects.filter(email=email).first()
+        if not user:
+            username = email.split('@')[0]
+            base_username = username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+            user = User.objects.create_user(username=username, email=email)
+            user.first_name = name
+            user.save()
+            UserProfile.objects.get_or_create(user=user, defaults={'full_name': name})
+            
+        login(request, user)
+        return redirect(f"{reverse('cart')}?toast=login")
+    except Exception:
+        return redirect(f"{reverse('admin_login')}?toast=google-error")
+
+
+

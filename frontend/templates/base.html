@@ -50,8 +50,8 @@
                 "contactPoint": {
                     "@type": "ContactPoint",
                     "contactType": "sales",
-                    "telephone": "+91-9924343003",
-                    "email": "hello@littlefingersindia.com",
+                    "telephone": "+91-7433-026-008",
+                    "email": "info@akidsenterprise.com",
                     "availableLanguage": ["English", "Hindi"]
                 },
                 "areaServed": "IN"
@@ -175,6 +175,20 @@
         @keyframes ac-bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Global Avatar Background Color Gradients */
+        .avatar-bg-sea { background: linear-gradient(135deg, #6698CC, #4170A0) !important; color: #ffffff !important; }
+        .avatar-bg-tangerine { background: linear-gradient(135deg, #F08C21, #C66B0D) !important; color: #ffffff !important; }
+        .avatar-bg-blush { background: linear-gradient(135deg, #E36888, #C54466) !important; color: #ffffff !important; }
+        .avatar-bg-matcha { background: linear-gradient(135deg, #B4B534, #7C7D20) !important; color: #ffffff !important; }
+        .avatar-bg-butter { background: linear-gradient(135deg, #F2D88F, #D8B75C) !important; color: #4A3800 !important; }
+        .avatar-bg-coral { background: linear-gradient(135deg, #FF6B6B, #EE5253) !important; color: #ffffff !important; }
+        .avatar-bg-lavender { background: linear-gradient(135deg, #A55EEA, #8854D0) !important; color: #ffffff !important; }
+        .avatar-bg-mint { background: linear-gradient(135deg, #26DE81, #20BF6B) !important; color: #ffffff !important; }
+        .avatar-bg-midnight { background: linear-gradient(135deg, #34495E, #2C3E50) !important; color: #ffffff !important; }
+        .avatar-bg-emerald { background: linear-gradient(135deg, #2ECC71, #27AE60) !important; color: #ffffff !important; }
+        .avatar-bg-sunset { background: linear-gradient(135deg, #FF793F, #CD6133) !important; color: #ffffff !important; }
+        .avatar-bg-berry { background: linear-gradient(135deg, #8E44AD, #6C3483) !important; color: #ffffff !important; }
     </style>
     
     {% block extra_head %}{% endblock %}
@@ -325,7 +339,7 @@
                         <span class="inline">Admin HQ</span>
                     </a>
                     {% endif %}
-                    <a href="{% url 'profile' %}" class="w-10 h-10 rounded-full bg-sea text-white flex items-center justify-center font-bold text-sm hover:scale-105 hover:shadow-md transition-all shadow-sm" title="My Profile">
+                    <a href="{% url 'profile' %}" class="w-10 h-10 rounded-full avatar-bg-{{ request.user.profile.avatar_color|default:'sea' }} flex items-center justify-center font-bold text-sm hover:scale-105 hover:shadow-md transition-all shadow-sm shrink-0" title="My Profile">
                         {{ request.user.username|slice:":1"|upper }}
                     </a>
                 {% else %}
@@ -367,11 +381,11 @@
                         <a href="#" class="w-10 h-10 min-w-[40px] min-h-[40px] bg-sea/5 rounded-full flex items-center justify-center text-sea hover:bg-sea hover:text-white transition-all" aria-label="Phone">
                             <span class="material-symbols-outlined text-lg">call</span>
                         </a>
+                        <!-- Hotline -->
                     </div>
-                    <!-- Hotline -->
                     <div class="bg-butter/20 rounded-xl p-4 border border-butter/30">
                         <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Hotline</p>
-                        <a href="tel:+919924343003" class="text-tangerine font-extrabold text-xl hover:underline">+91 9924343003</a>
+                        <a href="tel:+917433026008" class="text-tangerine font-extrabold text-xl hover:underline">+91 7433 026 008</a>
                     </div>
                 </div>
                 
@@ -399,8 +413,8 @@
                     <h2 class="font-display-lg text-xs uppercase tracking-widest text-on-surface font-extrabold">Contact</h2>
                     <div class="space-y-3 text-sm text-on-surface-variant">
                         <p>Plot No. 42, Industrial Area,<br>Phase 1, New Delhi - 110020</p>
-                        <p class="font-bold text-tangerine">+91 9924343003</p>
-                        <a href="mailto:hello@littlefingersindia.com" class="text-sea underline hover:text-tangerine transition-colors">hello@littlefingersindia.com</a>
+                        <p class="font-bold text-tangerine">+91 7433 026 008</p>
+                        <a href="mailto:info@akidsenterprise.com" class="text-sea underline hover:text-tangerine transition-colors">info@akidsenterprise.com</a>
                     </div>
                 </div>
             </div>
@@ -416,7 +430,8 @@
         </div>
     </footer>
 
-    <!-- Mohanlal AI Mascot Chat Widget -->
+    {% if request.resolver_match.url_name != 'admin_dashboard' and 'admin-panel' not in request.path %}
+    <!-- Mohanlal AI Mascot Chat Widget (Customer-facing only) -->
     <div class="fixed bottom-8 right-8 z-50 flex flex-col items-end">
         <!-- Chat Modal Window -->
         <div id="mohanlalChatModal" class="hidden w-80 md:w-96 bg-surface text-on-surface rounded-3xl border-t-[5px] border-r-[5px] border-b-[2px] border-l-[2px] border-tangerine/40 shadow-lg overflow-hidden transition-all duration-300 mb-4 flex flex-col" style="height: 520px; max-height: 80vh;">
@@ -453,7 +468,7 @@
             <!-- Urgent Call Banner -->
             <div class="bg-butter/10 border-t border-outline-variant px-3 py-1.5 text-[11px] text-amber-900 font-medium flex items-center justify-between">
                 <span>⚠️ Larger query or urgent matter?</span>
-                <a href="tel:9924343003" class="font-bold underline text-tangerine flex items-center gap-0.5">📞 9924343003</a>
+                <a href="tel:+917433026008" class="font-bold underline text-tangerine flex items-center gap-0.5">📞 +91 7433 026 008</a>
             </div>
 
             <!-- Input Bar -->
@@ -471,6 +486,7 @@
             <div class="absolute -top-2 -right-2 bg-sea text-[10px] px-2 py-1 rounded-full font-bold animate-bounce shadow-md text-white">Support</div>
         </button>
     </div>
+    {% endif %}
 
     <!-- Critical inline: enable animation classes before paint -->
     <script>document.documentElement.classList.add('js-animations');</script>

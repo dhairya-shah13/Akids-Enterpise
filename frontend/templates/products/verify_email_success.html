@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Email Verified | Little Fingers{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-margin-desktop bg-background relative overflow-hidden">
+    <!-- Decorative Floating Elements -->
+    <div class="absolute top-[10%] right-[10%] text-secondary opacity-20 hidden md:block animate-[wiggle_3s_ease-in-out_infinite]">
+        <span class="material-symbols-outlined text-[100px]">task_alt</span>
+    </div>
+    <div class="absolute bottom-[15%] left-[12%] text-primary opacity-20 hidden md:block rotate-3">
+        <span class="material-symbols-outlined text-[120px]">celebration</span>
+    </div>
+
+    <div class="bg-white p-8 md:p-10 rounded-2xl border border-outline-variant/30 w-full max-w-md shadow-sm relative z-10 text-center flex flex-col items-center">
+        <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center text-success mb-5 shadow-sm">
+            <span class="material-symbols-outlined text-4xl text-green-600">check_circle</span>
+        </div>
+
+        <h1 class="font-display-lg text-2xl mb-2 text-on-surface">Email Verified Successfully!</h1>
+        
+        <p class="font-body-md text-on-surface-variant opacity-90 text-sm mb-6">
+            Thank you, <strong class="text-on-surface">{{ user.username }}</strong>! Your email address (<strong class="text-on-surface">{{ user.email }}</strong>) has been verified and your account is now fully active.
+        </p>
+
+        <a href="{% url 'cart' %}" class="w-full bg-primary text-on-primary font-bold py-3.5 px-4 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-primary/20 uppercase tracking-wide flex items-center justify-center gap-2 text-sm">
+            Continue to Shop <span class="material-symbols-outlined">shopping_cart</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

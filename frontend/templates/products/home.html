@@ -12,14 +12,9 @@
     </div>
 
     <div class="relative z-10 px-margin-desktop max-w-7xl mx-auto w-full py-20 flex flex-col items-center justify-center text-center">
-        <!-- H1: Primary page heading for SEO -->
-        <h1 class="font-display-lg text-3xl md:text-4xl lg:text-5xl font-extrabold text-on-surface mb-6 max-w-4xl mx-auto leading-tight">
-            A kids India — Kindergarten Furniture, Playground Equipment & Sports Gear
-        </h1>
-
-        <!-- Three Hero Words (visual brand statement, not headings) -->
-        <div class="max-w-5xl mx-auto flex flex-col items-center">
-            <div class="hero-words flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-4 lg:gap-6 mb-8">
+        <!-- Three Hero Words (Primary Visual Brand Statement) -->
+        <div class="max-w-5xl mx-auto flex flex-col items-center mb-6">
+            <div class="hero-words flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-4 lg:gap-6 mb-6">
                 <span class="hero-word-safe font-display-lg text-6xl md:text-7xl lg:text-8xl font-extrabold text-tangerine leading-none">
                     Safe.
                 </span>
@@ -31,9 +26,14 @@
                 </span>
             </div>
 
-            <!-- Tagline -->
+            <!-- H1: Tagline & Primary Page Heading for SEO -->
+            <h1 class="font-display-lg text-2xl md:text-3xl lg:text-4xl font-extrabold text-on-surface mb-6 max-w-4xl mx-auto leading-tight opacity-0" style="animation: fadeInUp 0.6s ease 0.5s both;">
+                A kids India &mdash; Kindergarten Furniture, Playground Equipment &amp; Sports Gear
+            </h1>
+
+            <!-- Descriptive subtext -->
             <p class="font-body-lg text-lg md:text-xl text-on-surface-variant max-w-2xl mx-auto mb-10 opacity-0" style="animation: fadeInUp 0.6s ease 0.7s both;">
-                India's premier manufacturer of playground equipment, educational furniture, and sports gear — built for schools, daycare centers, and homes.
+                India's premier manufacturer of playground equipment, educational furniture, and sports gear &mdash; built for schools, daycare centers, and homes.
             </p>
 
             <!-- CTAs -->
@@ -59,8 +59,9 @@
 <section id="train-section" class="py-24 lg:py-32 bg-gradient-to-b from-butter/40 via-butter/20 to-white overflow-hidden">
     <div class="px-margin-desktop max-w-7xl mx-auto">
         <div class="text-center mb-16 fade-in-section">
-            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Our World</h2>
-            <p class="text-on-surface-variant text-lg max-w-xl mx-auto">Three interconnected categories — each built with the same promise of quality and safety.</p>
+            <span class="inline-block px-4 py-1.5 rounded-full bg-tangerine/15 text-tangerine border border-tangerine/30 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">Product Categories</span>
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Our World<span class="block h-1.5 w-20 bg-tangerine rounded-full mx-auto mt-3"></span></h2>
+            <p class="text-on-surface-variant text-lg max-w-xl mx-auto">Three interconnected categories &mdash; each built with the same promise of quality and safety.</p>
         </div>
 
         <!-- One complete train: locomotive + three category carriages -->
@@ -75,7 +76,7 @@
                         <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
                     </div>
                     <h3 class="font-display-lg text-2xl text-on-surface mb-2 group-hover:text-tangerine transition-colors">Indoor</h3>
-                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Smart, stackable classroom furniture and soft play — designed for early learners.</p>
+                    <p class="font-body-md text-on-surface-variant text-sm mb-auto">Smart, stackable classroom furniture and soft play &mdash; designed for early learners.</p>
                     <div class="mt-6 text-tangerine font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all">
                         Browse Indoors <span class="material-symbols-outlined text-sm">arrow_forward</span>
                     </div>
@@ -127,8 +128,8 @@
 <section class="py-24 px-margin-desktop max-w-7xl mx-auto bg-white">
     <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-4 fade-in-section">
         <div>
-            <span class="text-tangerine font-bold uppercase tracking-widest text-sm mb-2 block">Handpicked for you</span>
-            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Top Selections</h2>
+            <span class="inline-block px-4 py-1.5 rounded-full bg-tangerine/15 text-tangerine border border-tangerine/30 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">Handpicked for you</span>
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface">Top Selections<span class="block h-1.5 w-20 bg-tangerine rounded-full mt-3"></span></h2>
             <p class="text-on-surface-variant mt-2 max-w-xl">Our best-selling products, trusted by schools and parents across India.</p>
         </div>
         <a href="{% url 'search' %}" class="text-sea font-bold flex items-center hover:translate-x-2 transition-transform group text-sm">
@@ -165,8 +166,8 @@
 <section class="py-24 lg:py-32 px-margin-desktop max-w-7xl mx-auto bg-gradient-to-b from-white via-butter/10 to-white">
     <div class="fade-in-section">
         <div class="text-center mb-16">
-            <span class="text-tangerine font-bold uppercase tracking-widest text-sm mb-2 block">Why choose us</span>
-            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Built for Schools, Daycare Centres &amp; Homes</h2>
+            <span class="inline-block px-4 py-1.5 rounded-full bg-sea/15 text-sea border border-sea/30 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">Why choose us</span>
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Built for Schools, Daycare Centres &amp; Homes<span class="block h-1.5 w-24 bg-sea rounded-full mx-auto mt-3"></span></h2>
             <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">Every product we offer is chosen with children's safety, durability, and developmental value in mind.</p>
         </div>
 
@@ -198,48 +199,48 @@
     </div>
 </section>
 
-<!-- ===================== ABOUT / WHO WE SERVE ===================== -->
+<!-- ===================== ABOUT A KIDS INDIA ===================== -->
 <section class="py-24 lg:py-32 px-margin-desktop max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center fade-in-section">
-        <div>
-            <span class="text-sea font-bold uppercase tracking-widest text-sm mb-2 block">About A kids India</span>
-            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-6">Creating Playful Learning Environments Across India</h2>
-            <div class="space-y-4 text-on-surface-variant leading-relaxed">
-                <p>A kids India is a New Delhi-based manufacturer and supplier of kindergarten furniture, playground equipment, and sports gear. We serve schools, daycare centres, preschools, and families across India who believe that well-designed spaces help children learn, move, and grow with confidence.</p>
-                <p>Our product range brings together three interconnected categories under one roof: <strong>Indoor</strong> &mdash; smart, stackable classroom furniture and soft play essentials; <strong>Outdoor</strong> &mdash; multi-play stations, adventure structures, and safety surfacing; and <strong>Shreem Sports</strong> &mdash; professional-grade sports gear for the next generation of athletes.</p>
-                <p>Whether you are equipping a new preschool, upgrading an existing playground, or stocking a school sports programme, we make it simple to explore products, request a quote, and get the right guidance for your project.</p>
-            </div>
+    <div class="fade-in-section mb-16">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-sea/15 text-sea border border-sea/30 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">About A kids India</span>
+        <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-6">Creating Playful Learning Environments Across India<span class="block h-1.5 w-24 bg-sea rounded-full mt-3"></span></h2>
+        <div class="space-y-4 text-on-surface-variant leading-relaxed max-w-4xl text-base lg:text-lg">
+            <p>A kids India is a New Delhi-based manufacturer and supplier of kindergarten furniture, playground equipment, and sports gear. We serve schools, daycare centres, preschools, and families across India who believe that well-designed spaces help children learn, move, and grow with confidence.</p>
+            <p>Our product range brings together three interconnected categories under one roof: <strong>Indoor</strong> &mdash; smart, stackable classroom furniture and soft play essentials; <strong>Outdoor</strong> &mdash; multi-play stations, adventure structures, and safety surfacing; and <strong>Shreem Sports</strong> &mdash; professional-grade sports gear for the next generation of athletes.</p>
+            <p>Whether you are equipping a new preschool, upgrading an existing playground, or stocking a school sports programme, we make it simple to explore products, request a quote, and get the right guidance for your project.</p>
         </div>
-        <div class="bg-gradient-to-br from-butter/30 to-sea/10 rounded-3xl p-8 lg:p-12 border border-outline-variant/20">
-            <h3 class="font-display-lg text-2xl text-on-surface mb-6">Who We Serve</h3>
-            <div class="space-y-5">
-                <div class="flex items-start gap-4">
-                    <div class="bg-tangerine/10 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                        <span class="material-symbols-outlined text-tangerine">school</span>
-                    </div>
-                    <div>
-                        <p class="font-bold text-on-surface">Schools &amp; Preschools</p>
-                        <p class="text-sm text-on-surface-variant">Classroom furniture, library seating, play areas, and sports equipment for early learning centres and K-12 schools.</p>
-                    </div>
+    </div>
+
+    <!-- WHO WE SERVE — Full Width 3-Card Grid with Entrance Animation -->
+    <div class="fade-in-section">
+        <div class="text-center mb-12">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-blush/20 text-blush border border-blush/30 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">Target Audience</span>
+            <h3 class="font-display-lg text-3xl lg:text-4xl text-on-surface">Who We Serve<span class="block h-1.5 w-20 bg-blush rounded-full mx-auto mt-3"></span></h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <div class="bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-tangerine/40 hover:shadow-xl transition-all flex flex-col items-start text-left group">
+                <div class="bg-tangerine/10 text-tangerine w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">school</span>
                 </div>
-                <div class="flex items-start gap-4">
-                    <div class="bg-sea/10 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                        <span class="material-symbols-outlined text-sea">family_home</span>
-                    </div>
-                    <div>
-                        <p class="font-bold text-on-surface">Daycare Centres</p>
-                        <p class="text-sm text-on-surface-variant">Safe, age-appropriate indoor and outdoor equipment designed for supervised group play and early development.</p>
-                    </div>
+                <h4 class="font-display-lg text-xl text-on-surface mb-3 group-hover:text-tangerine transition-colors">Schools &amp; Preschools</h4>
+                <p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Classroom furniture, library seating, play areas, and sports equipment for early learning centres and K-12 schools.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-sea/40 hover:shadow-xl transition-all flex flex-col items-start text-left group">
+                <div class="bg-sea/10 text-sea w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">family_home</span>
                 </div>
-                <div class="flex items-start gap-4">
-                    <div class="bg-blush/20 w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                        <span class="material-symbols-outlined text-blush">home</span>
-                    </div>
-                    <div>
-                        <p class="font-bold text-on-surface">Homes &amp; Families</p>
-                        <p class="text-sm text-on-surface-variant">Compact play equipment, sports gear, and learning furniture for parents building play-friendly spaces at home.</p>
-                    </div>
+                <h4 class="font-display-lg text-xl text-on-surface mb-3 group-hover:text-sea transition-colors">Daycare Centres</h4>
+                <p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Safe, age-appropriate indoor and outdoor equipment designed for supervised group play and early development.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-blush/40 hover:shadow-xl transition-all flex flex-col items-start text-left group">
+                <div class="bg-blush/20 text-blush w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">home</span>
                 </div>
+                <h4 class="font-display-lg text-xl text-on-surface mb-3 group-hover:text-blush transition-colors">Homes &amp; Families</h4>
+                <p class="font-body-md text-on-surface-variant text-sm leading-relaxed">Compact play equipment, sports gear, and learning furniture for parents building play-friendly spaces at home.</p>
             </div>
         </div>
     </div>
@@ -249,35 +250,35 @@
 <section class="py-24 lg:py-32 px-margin-desktop bg-matcha/5 border-t border-outline-variant/10">
     <div class="max-w-7xl mx-auto fade-in-section">
         <div class="text-center mb-16">
-            <span class="text-matcha-dark font-bold uppercase tracking-widest text-sm mb-2 block">Safety &amp; Quality</span>
-            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Every Child Deserves a Safe Place to Play</h2>
+            <span class="inline-block px-4 py-1.5 rounded-full bg-matcha/20 text-matcha-dark border border-matcha/40 font-black uppercase tracking-widest text-xs mb-3 shadow-sm">Safety &amp; Quality</span>
+            <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-4">Every Child Deserves a Safe Place to Play<span class="block h-1.5 w-24 bg-matcha-dark rounded-full mx-auto mt-3"></span></h2>
             <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">We take child safety seriously. Here is how we approach it across our product range.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4">
-                <span class="material-symbols-outlined text-tangerine text-2xl shrink-0">check_circle</span>
+            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <span class="material-symbols-outlined text-tangerine text-2xl shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                 <div>
                     <h3 class="font-bold text-on-surface mb-1">Child-Friendly Materials</h3>
                     <p class="text-sm text-on-surface-variant">We prioritise non-toxic finishes, rounded edges, and stable designs suited for energetic play in classrooms and outdoor spaces.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4">
-                <span class="material-symbols-outlined text-sea text-2xl shrink-0">check_circle</span>
+            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <span class="material-symbols-outlined text-sea text-2xl shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                 <div>
                     <h3 class="font-bold text-on-surface mb-1">Indian Safety Standards</h3>
                     <p class="text-sm text-on-surface-variant">Our products align with relevant Indian safety requirements for educational and play equipment. We work with manufacturers who follow standard quality processes.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4">
-                <span class="material-symbols-outlined text-tangerine text-2xl shrink-0">check_circle</span>
+            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <span class="material-symbols-outlined text-tangerine text-2xl shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                 <div>
                     <h3 class="font-bold text-on-surface mb-1">India-Wide Delivery</h3>
                     <p class="text-sm text-on-surface-variant">Based in New Delhi, we ship products across all Indian states and union territories. Contact us for delivery timelines to your location.</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4">
-                <span class="material-symbols-outlined text-sea text-2xl shrink-0">check_circle</span>
+            <div class="bg-white rounded-2xl p-6 border border-outline-variant/20 flex items-start gap-4 shadow-sm hover:shadow-md transition-shadow">
+                <span class="material-symbols-outlined text-sea text-2xl shrink-0" style="font-variation-settings: 'FILL' 1;">check_circle</span>
                 <div>
                     <h3 class="font-bold text-on-surface mb-1">Expert Guidance</h3>
                     <p class="text-sm text-on-surface-variant">Not sure what you need? Tell us about your space, age group, and requirements. Our team helps you choose the right products without guesswork.</p>
@@ -285,20 +286,22 @@
             </div>
         </div>
 
-        <!-- External authoritative links -->
-        <div class="mt-16 text-center">
-            <p class="text-sm text-on-surface-variant mb-4">Relevant safety resources and standards organisations:</p>
+        <!-- External Authoritative Resources & Standards Organisations Trust Card -->
+        <div class="mt-16 bg-gradient-to-r from-butter/30 via-white to-sea/10 border border-sea/20 rounded-3xl p-8 shadow-sm text-center max-w-4xl mx-auto">
+            <div class="flex items-center justify-center gap-2 mb-4 text-sea font-bold text-sm uppercase tracking-wider">
+                <span class="material-symbols-outlined text-sea">verified_user</span>
+                Relevant Safety Resources &amp; Standards Organisations
+            </div>
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="https://www.bis.gov.in/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-white border border-outline-variant/30 hover:border-sea/40 px-4 py-2.5 rounded-full text-xs font-bold text-on-surface-variant hover:text-sea transition-all">
-                    <span class="material-symbols-outlined text-sm">open_in_new</span> BIS — Bureau of Indian Standards
+                <a href="https://www.bis.gov.in/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white border border-outline-variant/30 hover:border-sea hover:shadow-md px-5 py-3 rounded-full text-xs font-extrabold text-on-surface hover:text-sea transition-all">
+                    <span class="material-symbols-outlined text-base text-sea">open_in_new</span> BIS &mdash; Bureau of Indian Standards
                 </a>
-                <a href="https://www.education.gov.in/nep" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-white border border-outline-variant/30 hover:border-sea/40 px-4 py-2.5 rounded-full text-xs font-bold text-on-surface-variant hover:text-sea transition-all">
-                    <span class="material-symbols-outlined text-sm">open_in_new</span> NEP 2020 — Ministry of Education
+                <a href="https://www.education.gov.in/nep" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white border border-outline-variant/30 hover:border-sea hover:shadow-md px-5 py-3 rounded-full text-xs font-extrabold text-on-surface hover:text-sea transition-all">
+                    <span class="material-symbols-outlined text-base text-sea">open_in_new</span> NEP 2020 &mdash; Ministry of Education
                 </a>
-                <a href="https://www.astm.org/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-white border border-outline-variant/30 hover:border-sea/40 px-4 py-2.5 rounded-full text-xs font-bold text-on-surface-variant hover:text-sea transition-all">
-                    <span class="material-symbols-outlined text-sm">open_in_new</span> ASTM International — Safety Standards
+                <a href="https://www.astm.org/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-white border border-outline-variant/30 hover:border-sea hover:shadow-md px-5 py-3 rounded-full text-xs font-extrabold text-on-surface hover:text-sea transition-all">
+                    <span class="material-symbols-outlined text-base text-sea">open_in_new</span> ASTM International &mdash; Safety Standards
                 </a>
-
             </div>
         </div>
     </div>
@@ -310,12 +313,12 @@
         <h2 class="font-display-lg text-4xl lg:text-5xl text-on-surface mb-6">Ready to Build a Better Play Space?</h2>
         <p class="text-on-surface-variant text-lg max-w-xl mx-auto mb-10">Whether you are furnishing a single classroom or planning a full playground, we are here to help. Explore our catalogues, request a quote, or call us to discuss your requirements.</p>
         <div class="flex flex-wrap justify-center gap-4">
-            <a href="{% url 'search' %}" class="bg-tangerine text-white px-10 py-4 rounded-full font-label-md text-lg hover:scale-105 active:scale-95 shadow-xl shadow-tangerine/20 transition-all inline-flex items-center gap-2">
+            <a href="#train-section" onclick="document.getElementById('train-section').scrollIntoView({behavior: 'smooth'}); return false;" class="bg-tangerine text-white px-10 py-4 rounded-full font-label-md text-lg hover:scale-105 active:scale-95 shadow-xl shadow-tangerine/20 transition-all inline-flex items-center gap-2">
                 Browse Products
                 <span class="material-symbols-outlined text-lg">arrow_forward</span>
             </a>
-            <a href="tel:+919924343003" class="bg-white border-2 border-sea text-sea px-10 py-4 rounded-full font-label-md text-lg hover:bg-sea/5 active:scale-95 transition-all">
-                Call +91 9924343003
+            <a href="tel:+917433026008" class="bg-white border-2 border-sea text-sea px-10 py-4 rounded-full font-label-md text-lg hover:bg-sea/5 active:scale-95 transition-all">
+                Call +91 7433 026 008
             </a>
         </div>
     </div>

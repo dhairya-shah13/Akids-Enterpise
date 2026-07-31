@@ -136,7 +136,7 @@ class InquiryTestCase(TestCase):
         data = response.json()
         self.assertTrue(data['success'])
         self.assertIn('whatsapp_url', data)
-        self.assertTrue(data['whatsapp_url'].startswith('https://wa.me/919924343003?text='))
+        self.assertTrue(data['whatsapp_url'].startswith('https://wa.me/917433026008?text='))
         
         # Verify text elements are URL-encoded properly
         import urllib.parse

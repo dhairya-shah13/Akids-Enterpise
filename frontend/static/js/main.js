@@ -203,11 +203,11 @@ async function sendMohanlalMessage(e) {
         var data = await res.json();
         var lDiv = document.getElementById('mohanlalLoading');
         if (lDiv) lDiv.remove();
-        var reply = data.reply || "I am having a little connectivity trouble right now. For urgent queries or larger requirements, please call us at 9924343003!";
+        var reply = data.reply || "I am having a little connectivity trouble right now. For urgent queries or larger requirements, please call us at +91 7433 026 008!";
         mohanlalHistory.push({ role: "user", content: text });
         mohanlalHistory.push({ role: "assistant", content: reply });
         var formattedReply = reply.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
-        formattedReply = formattedReply.replace(/(9924343003)/g, '<a href="tel:9924343003" class="font-extrabold text-tangerine underline">$1</a>');
+        formattedReply = formattedReply.replace(/(\+?91\s*7433\s*026\s*008|7433026008|9924343003)/g, '<a href="tel:+917433026008" class="font-extrabold text-tangerine underline">$1</a>');
         formattedReply = formattedReply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         var botDiv = document.createElement('div');
         botDiv.className = 'flex items-start gap-2';
@@ -219,7 +219,7 @@ async function sendMohanlalMessage(e) {
         if (lDiv) lDiv.remove();
         var errDiv = document.createElement('div');
         errDiv.className = 'flex items-start gap-2';
-        errDiv.innerHTML = '<div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div><div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm"><p class="font-semibold text-xs text-tangerine mb-1">Mohanlal</p><p>Oops! Network issue. For larger queries or immediate help, please call us directly at <a href="tel:9924343003" class="font-bold text-tangerine underline">9924343003</a>.</p></div>';
+        errDiv.innerHTML = '<div class="w-7 h-7 rounded-full bg-tangerine text-white flex items-center justify-center text-xs font-bold shrink-0">M</div><div class="bg-white p-3 rounded-2xl rounded-tl-md shadow-sm max-w-[85%] text-on-surface text-sm"><p class="font-semibold text-xs text-tangerine mb-1">Mohanlal</p><p>Oops! Network issue. For larger queries or immediate help, please call us directly at <a href="tel:+917433026008" class="font-bold text-tangerine underline">+91 7433 026 008</a>.</p></div>';
         msgBox.appendChild(errDiv);
         msgBox.scrollTop = msgBox.scrollHeight;
     } finally {
@@ -381,7 +381,9 @@ function showToast(msgOrTitle, typeOrMsg, maybeType) {
         'saved': ['Profile updated successfully!', 'success'],
         'login': ['Logged in successfully!', 'success'],
         'signup': ['Account created successfully!', 'success'],
-        'logout': ['Logged out successfully', 'success']
+        'logout': ['Logged out successfully', 'success'],
+        'google-not-configured': ['Google Sign-In is not configured yet.', 'error'],
+        'google-error': ['Google Sign-In failed or was cancelled.', 'error']
     };
     if (t && msgs[t]) {
         showToast(msgs[t][0], msgs[t][1]);

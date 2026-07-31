@@ -13,54 +13,97 @@
         <span class="material-symbols-outlined text-[120px]">child_care</span>
     </div>
 
-    <div class="bg-white p-10 md:p-12 rounded-2xl border border-outline-variant/30 w-full max-w-md shadow-sm relative z-10">
-        <div class="flex flex-col items-center text-center mb-8">
-            <img src="{% static 'images/logo.png' %}" alt="A kids Logo" class="h-16 w-auto object-contain mb-4">
-            <h1 class="font-display-lg text-3xl mb-2 text-on-surface">Join the Fun!</h1>
+    <div class="bg-white p-8 md:p-10 rounded-2xl border border-outline-variant/30 w-full max-w-md shadow-sm relative z-10">
+        <div class="flex flex-col items-center text-center mb-5">
+            <img src="{% static 'images/logo.png' %}" alt="A kids Logo" class="h-14 w-auto object-contain mb-3">
+            <h1 class="font-display-lg text-2xl mb-1 text-on-surface">Join the Fun!</h1>
             <p class="font-body-md text-on-surface-variant opacity-90 text-sm">Create an account to save designs, track orders, and explore our full catalog.</p>
         </div>
 
         {% if error %}
-        <div class="bg-error text-white px-4 py-3 rounded-xl mb-6 flex items-center gap-3 shadow-sm border border-error/20">
+        <div class="bg-error text-white px-4 py-2.5 rounded-xl mb-4 flex items-center gap-3 shadow-sm border border-error/20">
             <span class="material-symbols-outlined text-xl shrink-0">error</span>
             <span class="font-bold text-sm">{{ error }}</span>
         </div>
         {% endif %}
 
-        <form method="POST" action="{% url 'signup' %}" class="flex flex-col gap-6 text-left">
+        <!-- Google Sign-In Button -->
+        <a href="{% url 'google_login' %}" class="w-full bg-white border border-outline-variant/40 hover:border-sea text-on-surface font-bold py-3 px-4 rounded-xl shadow-sm hover:shadow transition-all flex items-center justify-center gap-3 text-sm">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.24v3.15C3.26 21.37 7.37 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.28 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.24C.45 8.19 0 10.04 0 12s.45 3.81 1.24 5.39l4.04-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.26 2.63 1.24 6.61l4.04 3.15c.95-2.85 3.6-4.96 6.72-4.96z"/>
+            </svg>
+            Continue with Google
+        </a>
+
+        <div class="relative flex items-center justify-center my-4">
+            <div class="border-t border-outline-variant/30 w-full"></div>
+            <span class="bg-white px-3 text-xs uppercase tracking-widest text-on-surface-variant font-bold shrink-0">OR</span>
+            <div class="border-t border-outline-variant/30 w-full"></div>
+        </div>
+
+        <form method="POST" action="{% url 'signup' %}" class="flex flex-col gap-4 text-left">
             {% csrf_token %}
             {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
             <div>
-                <label class="font-label-md text-sm mb-2 block uppercase tracking-wider text-on-surface">Username</label>
-                <input type="text" name="username" placeholder="SuperParent123" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
+                <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Username</label>
+                <input type="text" name="username" placeholder="SuperParent123" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
             </div>
 
             <div>
-                <label class="font-label-md text-sm mb-2 block uppercase tracking-wider text-on-surface">Email Address</label>
-                <input type="email" name="email" placeholder="your.name@example.com" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
+                <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Email Address</label>
+                <input type="email" name="email" placeholder="yourname@example.com" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
             </div>
 
             <div>
-                <label class="font-label-md text-sm mb-2 block uppercase tracking-wider text-on-surface">Password</label>
+                <label class="font-label-md text-xs mb-1.5 block uppercase tracking-wider text-on-surface">Password</label>
                 <div class="relative">
-                    <input type="password" id="signupPassword" name="password" placeholder="••••••••" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
+                    <input type="password" id="signupPassword" name="password" placeholder="••••••••" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-2.5 pr-12 outline-none focus:ring-2 focus:ring-secondary text-on-surface transition-shadow">
                     <button type="button" onclick="togglePassword('signupPassword', 'signupEyeIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:opacity-100 flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface transition-colors">
                         <span id="signupEyeIcon" class="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" class="bg-secondary text-on-secondary font-label-md uppercase py-4 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-secondary/20 tracking-wide mt-2 flex items-center justify-center gap-2">
+            <button type="submit" class="bg-secondary text-on-secondary font-label-md uppercase py-3 rounded-xl shadow-sm hover:shadow-md transition-shadow hover:scale-105 shadow-lg shadow-secondary/20 tracking-wide mt-1 flex items-center justify-center gap-2 font-bold">
                 Sign Up <span class="material-symbols-outlined">arrow_forward</span>
             </button>
         </form>
 
-        <div class="mt-8 pt-6 border-t border-outline-variant/30 text-center flex flex-col gap-4 items-center">
-            <p class="font-body-md text-sm font-bold text-on-surface-variant">Already have an account?</p>
-            <a href="{% url 'admin_login' %}?next={{ next|urlencode }}" class="bg-primary text-on-primary font-label-md uppercase px-6 py-2.5 rounded-full shadow-sm hover:shadow-md transition-shadow hover:bg-primary/90 text-sm tracking-wide">
-                Sign In
-            </a>
+        <div class="mt-5 pt-4 border-t border-outline-variant/30 text-center">
+            <p class="font-body-md text-sm text-on-surface-variant">
+                Already have an account? 
+                <a href="{% url 'admin_login' %}?next={{ next|urlencode }}" class="font-bold text-primary hover:underline">Sign-in</a>
+            </p>
         </div>
     </div>
 </div>
+
+<script>
+function promptPasswordlessLogin() {
+    var email = prompt("Enter your email address to receive a passwordless sign-in link:");
+    if (!email) return;
+    email = email.strip ? email.strip() : email.trim();
+    if (!email) return;
+    
+    fetch("{% url 'firebase_login' %}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else if (data.error) {
+            alert(data.error);
+        }
+    })
+    .catch(err => {
+        alert("Unable to initiate passwordless sign-in. Please try again.");
+    });
+}
+</script>
 {% endblock %}
