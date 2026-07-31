@@ -389,22 +389,105 @@ img[loading="lazy"] {
 .js-animations .train-set { opacity: 0; transform: translateX(-110vw); transition: opacity .35s ease-out, transform 8s cubic-bezier(.16, 1, .3, 1); }
 .js-animations .train-set.is-visible { opacity: 1; transform: translateX(0); }
 .js-animations .train-set .train-compartment { opacity: 1; transform: none; }
-.train-engine { position: relative; width: 11rem; min-width: 11rem; margin-left: 1.5rem; align-self: flex-end; height: 10.5rem; padding: 2rem 1rem; align-items: center; justify-content: center; color: #fff; background: #F08C21; border: 5px solid #C66B0D; border-radius: 1rem 2.5rem 1rem 1rem; box-shadow: inset 14px 0 0 rgba(0,0,0,.08), 0 12px 20px rgba(240,140,33,.22); }
-.train-engine::before, .train-engine::after, .train-compartment::before, .train-compartment::after { content: ''; position: absolute; z-index: 2; bottom: -1.45rem; width: 2rem; height: 2rem; border: 5px solid #1C1C18; border-radius: 999px; background: #F2D88F; box-shadow: inset 0 0 0 4px #fff; }
-.train-engine::before, .train-compartment::before { left: 1.5rem; }
-.train-engine::after, .train-compartment::after { right: 1.5rem; }
-.train-engine-window { position: absolute; top: 1.1rem; right: 1.35rem; width: 2.4rem; height: 2.4rem; border: 4px solid #1C1C18; border-radius: .7rem; background: #6698CC; }
-.train-engine-smoke { position: absolute; top: -1.1rem; right: 1.2rem; width: 1.25rem; height: 1.8rem; border-radius: .4rem .4rem 0 0; background: #1C1C18; }
-.train-engine-smoke i { position: absolute; display: block; width: 1.15rem; height: 1.15rem; border-radius: 999px; background: #5D5D5D; box-shadow: .55rem -.15rem 0 #707070; animation: train-smoke 3.5s ease-out infinite; }
-.train-engine-smoke i:nth-child(2) { width: 1.45rem; height: 1.45rem; animation-delay: .6s; }
-.train-engine-smoke i:nth-child(3) { width: 1.8rem; height: 1.8rem; animation-delay: 1.2s; }
-.train-engine-smoke i:nth-child(4) { width: 2.1rem; height: 2.1rem; animation-delay: 1.8s; }
-.train-engine-smoke i:nth-child(5) { width: 2.35rem; height: 2.35rem; background: #B8B8B8; box-shadow: .5rem -.15rem 0 #D0D0D0; animation-delay: 2.4s; }
+/* Wooden Train Engine Locomotive (Replaces old CSS box) */
+.train-engine {
+    position: relative !important;
+    width: 18rem !important;
+    min-width: 18rem !important;
+    height: auto !important;
+    margin-left: 0.75rem !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    align-self: flex-end !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    z-index: 5 !important;
+    transform: translateY(1.5rem) !important; /* Move down so wheels sit precisely on the track */
+}
+.train-engine-img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    filter: drop-shadow(0 10px 15px rgba(180, 83, 9, 0.25)) !important;
+    transition: transform 0.3s ease !important;
+}
+.train-engine:hover .train-engine-img {
+    transform: translateY(-3px) scale(1.02) !important;
+}
+.train-engine::before,
+.train-engine::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Wooden Wheels/Tires under Carriages & Pages */
+.train-compartment::before,
+.train-compartment::after,
+.page-carriage-card::before,
+.page-carriage-card::after {
+    content: '' !important;
+    position: absolute !important;
+    z-index: 10 !important;
+    bottom: -1.35rem !important;
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    border: 3.5px solid #78350F !important;
+    border-radius: 999px !important;
+    background: radial-gradient(circle, #FDE68A 0%, #F59E0B 35%, #D97706 70%, #92400E 100%) !important;
+    box-shadow: inset 0 0 0 3px #FFFBEB, inset 0 0 0 5.5px #B45309, 0 5px 10px rgba(120, 53, 15, 0.35) !important;
+}
+.train-compartment::before { left: 1.8rem !important; }
+.train-compartment::after { right: 1.8rem !important; }
+
+/* Smoke Stack animation position over train.png smokestack */
+.train-engine-smoke {
+    position: absolute !important;
+    top: -0.75rem !important;
+    right: 3.8rem !important;
+    width: 1.25rem !important;
+    height: 1.8rem !important;
+    z-index: 12 !important;
+    pointer-events: none !important;
+    background: transparent !important;
+}
+.train-engine-smoke i {
+    position: absolute !important;
+    display: block !important;
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+    border-radius: 999px !important;
+    background: #5D5D5D !important;
+    box-shadow: .55rem -.15rem 0 #707070 !important;
+    animation: train-smoke 3.5s ease-out infinite !important;
+}
+.train-engine-smoke i:nth-child(2) { width: 1.45rem !important; height: 1.45rem !important; animation-delay: .6s !important; }
+.train-engine-smoke i:nth-child(3) { width: 1.8rem !important; height: 1.8rem !important; animation-delay: 1.2s !important; }
+.train-engine-smoke i:nth-child(4) { width: 2.1rem !important; height: 2.1rem !important; animation-delay: 1.8s !important; }
+.train-engine-smoke i:nth-child(5) { width: 2.35rem !important; height: 2.35rem !important; background: #B8B8B8 !important; box-shadow: .5rem -.15rem 0 #D0D0D0 !important; animation-delay: 2.4s !important; }
 @keyframes train-smoke { from { opacity: 0; transform: translate(-.15rem, .35rem) scale(.35); } 12% { opacity: 1; } 75% { opacity: .9; } to { opacity: 0; transform: translate(-4.2rem, -5rem) scale(1); } }
-.train-set .train-connector::after { right: -1.5rem; width: 1.5rem; height: .45rem; background: #1C1C18; }
-.train-track { position: relative; height: .9rem; margin: 1.35rem 0 0; border-top: 5px solid #1C1C18; border-bottom: 5px solid #1C1C18; }
-.train-track::before { content: ''; position: absolute; inset: -1rem 0; background: repeating-linear-gradient(90deg, transparent 0 2rem, #1C1C18 2rem 2.45rem); z-index: -1; }
-@media (max-width: 767px) { .train-stage { overflow: visible; } .train-compartment::before, .train-compartment::after, .train-connector::after, .train-track { display: none; } }
+
+.train-set .train-connector::after {
+    right: -1.95rem !important; /* Move connector inside the next compartment's margin gap */
+    width: 2.1rem !important; /* Increase width to bridge the gap cleanly */
+    height: .6rem !important;
+    background: linear-gradient(180deg, #92400E 0%, #78350F 50%, #451A03 100%) !important;
+    border-radius: 4px !important;
+    border: 1px solid #451A03 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(254, 243, 199, 0.3) !important;
+}
+.train-track { position: relative !important; height: .9rem !important; margin: 1.25rem 0 0 !important; border-top: 5px solid #78350F !important; border-bottom: 5px solid #78350F !important; }
+.train-track::before { content: '' !important; position: absolute !important; inset: -1rem 0 !important; background: repeating-linear-gradient(90deg, transparent 0 2rem, #92400E 2rem 2.45rem) !important; z-index: -1 !important; }
+@media (max-width: 767px) { .train-stage { overflow: visible; } .train-compartment::before, .train-compartment::after, .train-connector::after, .train-track { display: none !important; } }
+
+/* Page Category Carriage Header Wheels Styling */
+.page-carriage-card { position: relative !important; overflow: visible !important; }
+.page-carriage-card::before { left: 2.5rem !important; }
+.page-carriage-card::after { right: 2.5rem !important; }
 
 /* ===========================================================================
    Top Selections Fade/Slide Up

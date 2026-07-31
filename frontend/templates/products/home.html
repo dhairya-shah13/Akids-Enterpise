@@ -66,9 +66,9 @@
 
         <!-- One complete train: locomotive + three category carriages -->
         <div class="train-stage max-w-5xl mx-auto">
-        <div class="train-set flex flex-col md:flex-row md:items-stretch gap-5 md:gap-0 relative">
+        <div class="train-set flex flex-col md:flex-row md:items-stretch gap-6 md:gap-7 relative">
             <!-- 1. Indoor -->
-            <div onclick="window.location.href='{% url 'indoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl md:rounded-none p-8 border border-outline-variant/20 hover:border-tangerine/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative md:mr-0" style="z-index:4">
+            <div onclick="window.location.href='{% url 'indoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-tangerine/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative" style="z-index:4">
                 <!-- Connector dot (visible on mobile as a badge) -->
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-tangerine rounded-full border-2 border-white shadow-md z-10"></div>
                 <div class="flex flex-col h-full">
@@ -84,7 +84,7 @@
             </div>
 
             <!-- 2. Outdoor -->
-            <div onclick="window.location.href='{% url 'outdoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl md:rounded-none p-8 border border-outline-variant/20 hover:border-sea/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative md:mr-0" style="z-index:3">
+            <div onclick="window.location.href='{% url 'outdoors' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-sea/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative" style="z-index:3">
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-sea rounded-full border-2 border-white shadow-md z-10"></div>
                 <div class="flex flex-col h-full">
                     <div class="bg-sea/10 text-sea w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
@@ -99,7 +99,7 @@
             </div>
 
             <!-- 3. Shreem Sports -->
-            <div onclick="window.location.href='{% url 'shreemsports' %}'" class="train-compartment flex-1 bg-white rounded-2xl md:rounded-none md:rounded-r-2xl p-8 border border-outline-variant/20 hover:border-matcha/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative" style="z-index:1">
+            <div onclick="window.location.href='{% url 'shreemsports' %}'" class="train-compartment train-connector flex-1 bg-white rounded-2xl p-8 border border-outline-variant/20 hover:border-matcha/40 hover:shadow-xl transition-all duration-500 cursor-pointer group relative" style="z-index:2">
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden w-6 h-6 bg-matcha rounded-full border-2 border-white shadow-md z-10"></div>
                 <div class="flex flex-col h-full">
                     <div class="bg-matcha/10 text-matcha-dark w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform">
@@ -113,8 +113,7 @@
                 </div>
             </div>
             <div class="train-engine hidden md:flex" aria-hidden="true">
-                <span class="material-symbols-outlined text-5xl">train</span>
-                <span class="train-engine-window"></span>
+                <img src="{% static 'images/train.png' %}" alt="Train Engine" class="train-engine-img">
                 <span class="train-engine-smoke"><i></i><i></i><i></i><i></i><i></i></span>
             </div>
         </div>
