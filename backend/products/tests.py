@@ -21,9 +21,9 @@ class CompanyPagesTests(TestCase):
         self.assertContains(response, reverse('contact'))
 
 
-class MRSportsTests(TestCase):
-    def test_mr_sports_page_uses_its_new_name_and_olive_background(self):
-        response = self.client.get(reverse('mrsports'))
+class ShreemSportsTests(TestCase):
+    def test_shreem_sports_page_uses_its_new_name_and_olive_background(self):
+        response = self.client.get(reverse('shreemsports'))
 
-        self.assertContains(response, 'MR Sports')
+        self.assertContains(response, 'Shreem Sports')
         self.assertContains(response, 'background-color: #e7e9cf')

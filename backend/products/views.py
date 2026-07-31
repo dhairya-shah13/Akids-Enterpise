@@ -24,6 +24,9 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
+from django.utils import timezone
+from django.contrib.sitemaps import Sitemap
+from django.views.decorators.http import require_safe
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ COMPANY_PAGES = {
         'eyebrow': 'Quality play environments',
         'intro': 'A kids India creates purposeful spaces where children can learn, move, imagine, and grow with confidence.',
         'sections': [
-            ('Built for everyday learning and play', 'Our range brings together kindergarten furniture, indoor learning essentials, outdoor playground equipment, and MR Sports products for schools, daycare centres, and homes.'),
+            ('Built for everyday learning and play', 'Our range brings together kindergarten furniture, indoor learning essentials, outdoor playground equipment, and Shreem Sports products for schools, daycare centres, and homes.'),
             ('Designed around growing minds', 'We focus on colourful, practical products that support active play, collaborative learning, and independent exploration. Our team can help you select a range that suits your space, age group, and requirements.'),
             ('From enquiry to environment', 'Whether you are furnishing a classroom or planning a larger play area, we make it simple to explore products, request a quote, and get guidance for your project.'),
         ],
@@ -445,8 +448,8 @@ def outdoors_view(request):
     return category_listing(request, 'OUTDOORS', 'products/outdoors.html')
 
 
-def mrsports_view(request):
-    return category_listing(request, 'MRSPORTS', 'products/mrsports.html')
+def shreemsports_view(request):
+    return category_listing(request, 'SHREEM_SPORTS', 'products/shreemsports.html')
 
 def product_detail(request, pk):
     try:
@@ -459,9 +462,9 @@ def product_detail(request, pk):
     if 'outdoor' in category_lower:
         back_url = reverse('outdoors')
         back_label = 'Outdoors'
-    elif 'mr' in category_lower or 'sports' in category_lower:
-        back_url = reverse('mrsports')
-        back_label = 'MR Sports'
+    elif 'shreem' in category_lower or 'sports' in category_lower:
+        back_url = reverse('shreemsports')
+        back_label = 'Shreem Sports'
     else:
         back_url = reverse('indoors')
         back_label = 'Indoors'
@@ -488,6 +491,73 @@ def product_detail(request, pk):
         'back_url': back_url,
         'back_label': back_label,
     })
+
+# --- SEO: Sitemap & Robots ---
+
+class ProductSitemap(Sitemap):
+    """Generates <urlset> for all products."""
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        return Product.objects.all().only('id', 'name', 'created_at').iterator()
+
+    def lastmod(self, obj):
+        return obj.created_at
+
+    def location(self, obj):
+        from django.urls import reverse
+        return reverse('product_detail', args=[obj.pk])
+
+
+class StaticViewSitemap(Sitemap):
+    """Sitemap entries for static pages that don't depend on a model."""
+    changefreq = "monthly"
+
+    def items(self):
+        return [
+            {'name': 'home', 'priority': 1.0},
+            {'name': 'indoors', 'priority': 0.8},
+            {'name': 'outdoors', 'priority': 0.8},
+            {'name': 'shreemsports', 'priority': 0.8},
+            {'name': 'about', 'priority': 0.6},
+            {'name': 'safety_standards', 'priority': 0.5},
+            {'name': 'testimonials', 'priority': 0.5},
+            {'name': 'contact', 'priority': 0.6},
+        ]
+
+    def priority(self, obj):
+        return obj['priority']
+
+    def location(self, obj):
+        from django.urls import reverse
+        return reverse(obj['name'])
+
+
+@require_safe
+def robots_txt(request):
+    """Serve robots.txt at domain root."""
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "# Sitemap",
+        "Sitemap: https://akidsenterprise.com/sitemap.xml",
+        "",
+        "# Crawl-delay: recommended for server load",
+        "Crawl-delay: 10",
+        "",
+        "# Disallow admin and auth-only paths",
+        "Disallow: /admin/",
+        "Disallow: /admin-panel/",
+        "Disallow: /login/",
+        "Disallow: /logout/",
+        "Disallow: /cart/",
+        "Disallow: /checkout/",
+        "Disallow: /profile/",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+
 
 def search_view(request):
     q = request.GET.get('q', '').strip()
@@ -526,7 +596,7 @@ def chat_api(request):
     
     system_prompt = (
         "You are Mohanlal, the friendly, enthusiastic, and knowledgeable AI assistant and mascot for Little Fingers India / Mohanlal website. "
-        "We specialize in premium children's playground equipment, indoor & outdoor toys, MR sports gear, educational furniture, and spare parts. "
+        "We specialize in premium children's playground equipment, indoor & outdoor toys, Shreem Sports gear, educational furniture, and spare parts. "
         "Your goal is to engage warmly with customers, give them expert advice on playground products, answer their queries with enthusiasm, and help them find the right equipment. "
         "CRITICAL INSTRUCTION: For larger queries with more gravity, complex installations, bulk orders, complaints, safety concerns, or urgent matters, you MUST prompt and advise the user to call our direct hotline at: 9924343003. "
         "Keep your tone upbeat, helpful, and concise. Format your advice clearly using markdown if appropriate."
@@ -696,6 +766,188 @@ def order_success(request, order_id):
         pk=order_id
     )
     return render(request, 'products/order_success.html', {'order': order})
+
+
+# ==========================================
+# Catalog "View All Products" & Inquiries
+# ==========================================
+
+def serve_catalogue_pdf(request, module_type):
+    """Serve a catalogue PDF with inline Content-Disposition so the
+    browser renders it inside an iframe rather than navigating to a new page."""
+    module_type = module_type.lower()
+    if module_type not in ('indoor', 'outdoor'):
+        raise Http404
+
+    pdf_paths = {
+        'indoor': 'catalogues/Indoor Catalogue March 2026-.pdf',
+        'outdoor': 'catalogues/Outdoor Catalogue March 2026-.pdf',
+    }
+    rel_path = pdf_paths[module_type]
+
+    # Resolve relative to the project root (one level up from BASE_DIR)
+    full_path = settings.BASE_DIR.parent / rel_path
+    if not full_path.exists():
+        raise Http404(f"Catalogue PDF not found at {full_path}")
+
+    # Use FileResponse to stream the file without loading it all into memory
+    pdf_file = open(full_path, 'rb')
+    response = FileResponse(pdf_file, content_type='application/pdf')
+
+    # ?download=1 forces attachment (download); otherwise inline (in-page view)
+    if request.GET.get('download') == '1':
+        disposition = 'attachment'
+    else:
+        disposition = 'inline'
+    response['Content-Disposition'] = f'{disposition}; filename="catalogue-{module_type}.pdf"'
+    return response
+
+@cache_page(60 * 5)  # Cache for 5 minutes
+def view_all_products(request, module_type):
+    module_type = module_type.lower()
+    if module_type not in ['indoor', 'outdoor']:
+        return render(request, '404.html', status=404)
+        
+    pdf_url = reverse('serve_catalogue_pdf', args=[module_type])
+    
+    category_map = {
+        'indoor': 'INDOORS',
+        'outdoor': 'OUTDOORS'
+    }
+    db_category = category_map[module_type]
+    
+    products = Product.objects.filter(category=db_category).only('sku', 'name').order_by('sku')
+    product_codes = []
+    for p in products:
+        if p.sku:
+            product_codes.append({
+                'code': p.sku,
+                'name': p.name
+            })
+            
+    module_labels = {
+        'indoor': 'Indoor',
+        'outdoor': 'Outdoor'
+    }
+    
+    # Pre-fill inquiry form for logged-in users
+    prefill_name = ''
+    prefill_email = ''
+    prefill_phone = ''
+    if request.user.is_authenticated:
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        prefill_name = request.user.username
+        prefill_email = request.user.email
+        prefill_phone = profile.phone_number
+
+    return render(request, 'products/view_all.html', {
+        'module_type': module_type,
+        'module_label': module_labels[module_type],
+        'pdf_url': pdf_url,
+        'product_codes': product_codes,
+        'product_codes_json': json.dumps(product_codes),
+        'prefill_name': prefill_name,
+        'prefill_email': prefill_email,
+        'prefill_phone': prefill_phone,
+    })
+
+
+@csrf_exempt
+def submit_catalog_inquiry(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON payload.'}, status=400)
+        
+    name = data.get('name', '').strip()
+    phone_number = data.get('phone_number', '').strip()
+    email = data.get('email', '').strip()
+    module = data.get('module', '').strip().lower()
+    line_items_data = data.get('line_items', [])
+    
+    if not name or not phone_number or not email or not module:
+        return JsonResponse({'success': False, 'error': 'Name, Phone, Email, and Module are required.'}, status=400)
+        
+    if module not in ['indoor', 'outdoor', 'shreem_sports']:
+        return JsonResponse({'success': False, 'error': 'Invalid module type.'}, status=400)
+        
+    if not line_items_data or len(line_items_data) == 0:
+        return JsonResponse({'success': False, 'error': 'At least one product line item is required.'}, status=400)
+        
+    try:
+        with transaction.atomic():
+            inquiry = Inquiry.objects.create(
+                name=name,
+                contact_number=phone_number,
+                email=email,
+                module=module,
+                status='NEW'
+            )
+            line_items = []
+            for item in line_items_data:
+                product_code = item.get('product_code', '').strip()
+                try:
+                    qty = int(item.get('quantity', 1))
+                except (ValueError, TypeError):
+                    qty = 1
+                if not product_code:
+                    raise Exception('Product code cannot be empty.')
+                if qty < 1:
+                    raise Exception('Quantity must be at least 1.')
+                line_items.append(InquiryLineItem(
+                    inquiry=inquiry,
+                    product_code=product_code,
+                    quantity=qty
+                ))
+            InquiryLineItem.objects.bulk_create(line_items)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        
+    # Format dynamic WhatsApp pre-typed message
+    module_display = {
+        'indoor': 'Indoor',
+        'outdoor': 'Outdoor',
+        'shreem_sports': 'Shreem Sports'
+    }.get(module, module.title())
+
+    message_lines = [
+        f"Hello Akids Enterprise,",
+        f"",
+        f"I would like to request a quote for the following items from the *{module_display} Catalogue*:",
+        f"",
+        f"*Customer Name:* {name}",
+        f"*Phone:* {phone_number}",
+        f"*Email:* {email}",
+        f"",
+        f"*Selected Items:*",
+    ]
+    for item in line_items_data:
+        code = item.get('product_code', '').strip()
+        qty = item.get('quantity', 1)
+        message_lines.append(f"• {qty}x {code}")
+
+    message_lines.append("")
+    message_lines.append("Thank you!")
+    message_text = "\n".join(message_lines)
+
+    # Fetch Whatsapp target number from .env
+    raw_target = get_whatsapp_number()
+    clean_target = raw_target.strip()
+    if len(clean_target) == 10 and clean_target.isdigit():
+        clean_target = "91" + clean_target
+
+    import urllib.parse
+    encoded_text = urllib.parse.quote(message_text)
+    whatsapp_url = f"https://wa.me/{clean_target}?text={encoded_text}"
+        
+    return JsonResponse({
+        'success': True,
+        'inquiry_id': inquiry.pk,
+        'whatsapp_url': whatsapp_url
+    })
 
 
 # --- ADMIN API ENDPOINTS (Protected) ---
@@ -879,188 +1131,6 @@ def api_admin_order_invoice(request, order_id):
         return HttpResponse(f"Invoice generation failed: {str(e)}", status=500)
 
 
-# ==========================================
-# Catalog "View All Products" & Inquiries
-# ==========================================
-
-def serve_catalogue_pdf(request, module_type):
-    """Serve a catalogue PDF with inline Content-Disposition so the
-    browser renders it inside an iframe rather than navigating to a new page."""
-    module_type = module_type.lower()
-    if module_type not in ('indoor', 'outdoor'):
-        raise Http404
-
-    pdf_paths = {
-        'indoor': 'catalogues/Indoor Catalogue March 2026-.pdf',
-        'outdoor': 'catalogues/Outdoor Catalogue March 2026-.pdf',
-    }
-    rel_path = pdf_paths[module_type]
-
-    # Resolve relative to the project root (one level up from BASE_DIR)
-    full_path = settings.BASE_DIR.parent / rel_path
-    if not full_path.exists():
-        raise Http404(f"Catalogue PDF not found at {full_path}")
-
-    # Use FileResponse to stream the file without loading it all into memory
-    pdf_file = open(full_path, 'rb')
-    response = FileResponse(pdf_file, content_type='application/pdf')
-
-    # ?download=1 forces attachment (download); otherwise inline (in-page view)
-    if request.GET.get('download') == '1':
-        disposition = 'attachment'
-    else:
-        disposition = 'inline'
-    response['Content-Disposition'] = f'{disposition}; filename="catalogue-{module_type}.pdf"'
-    return response
-
-@cache_page(60 * 5)  # Cache for 5 minutes
-def view_all_products(request, module_type):
-    module_type = module_type.lower()
-    if module_type not in ['indoor', 'outdoor']:
-        return render(request, '404.html', status=404)
-        
-    pdf_url = reverse('serve_catalogue_pdf', args=[module_type])
-    
-    category_map = {
-        'indoor': 'INDOORS',
-        'outdoor': 'OUTDOORS'
-    }
-    db_category = category_map[module_type]
-    
-    products = Product.objects.filter(category=db_category).only('sku', 'name').order_by('sku')
-    product_codes = []
-    for p in products:
-        if p.sku:
-            product_codes.append({
-                'code': p.sku,
-                'name': p.name
-            })
-            
-    module_labels = {
-        'indoor': 'Indoor',
-        'outdoor': 'Outdoor'
-    }
-    
-    # Pre-fill inquiry form for logged-in users
-    prefill_name = ''
-    prefill_email = ''
-    prefill_phone = ''
-    if request.user.is_authenticated:
-        profile, _ = UserProfile.objects.get_or_create(user=request.user)
-        prefill_name = request.user.username
-        prefill_email = request.user.email
-        prefill_phone = profile.phone_number
-
-    return render(request, 'products/view_all.html', {
-        'module_type': module_type,
-        'module_label': module_labels[module_type],
-        'pdf_url': pdf_url,
-        'product_codes': product_codes,
-        'product_codes_json': json.dumps(product_codes),
-        'prefill_name': prefill_name,
-        'prefill_email': prefill_email,
-        'prefill_phone': prefill_phone,
-    })
-
-
-@csrf_exempt
-def submit_catalog_inquiry(request):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
-        
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'success': False, 'error': 'Invalid JSON payload.'}, status=400)
-        
-    name = data.get('name', '').strip()
-    phone_number = data.get('phone_number', '').strip()
-    email = data.get('email', '').strip()
-    module = data.get('module', '').strip().lower()
-    line_items_data = data.get('line_items', [])
-    
-    if not name or not phone_number or not email or not module:
-        return JsonResponse({'success': False, 'error': 'Name, Phone, Email, and Module are required.'}, status=400)
-        
-    if module not in ['indoor', 'outdoor', 'mr_sports']:
-        return JsonResponse({'success': False, 'error': 'Invalid module type.'}, status=400)
-        
-    if not line_items_data or len(line_items_data) == 0:
-        return JsonResponse({'success': False, 'error': 'At least one product line item is required.'}, status=400)
-        
-    try:
-        with transaction.atomic():
-            inquiry = Inquiry.objects.create(
-                name=name,
-                contact_number=phone_number,
-                email=email,
-                module=module,
-                status='NEW'
-            )
-            line_items = []
-            for item in line_items_data:
-                product_code = item.get('product_code', '').strip()
-                try:
-                    qty = int(item.get('quantity', 1))
-                except (ValueError, TypeError):
-                    qty = 1
-                if not product_code:
-                    raise Exception('Product code cannot be empty.')
-                if qty < 1:
-                    raise Exception('Quantity must be at least 1.')
-                line_items.append(InquiryLineItem(
-                    inquiry=inquiry,
-                    product_code=product_code,
-                    quantity=qty
-                ))
-            InquiryLineItem.objects.bulk_create(line_items)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-        
-    # Format dynamic WhatsApp pre-typed message
-    module_display = {
-        'indoor': 'Indoor',
-        'outdoor': 'Outdoor',
-        'mr_sports': 'MR Sports'
-    }.get(module, module.title())
-
-    message_lines = [
-        f"Hello Akids Enterprise,",
-        f"",
-        f"I would like to request a quote for the following items from the *{module_display} Catalogue*:",
-        f"",
-        f"*Customer Name:* {name}",
-        f"*Phone:* {phone_number}",
-        f"*Email:* {email}",
-        f"",
-        f"*Selected Items:*",
-    ]
-    for item in line_items_data:
-        code = item.get('product_code', '').strip()
-        qty = item.get('quantity', 1)
-        message_lines.append(f"• {qty}x {code}")
-
-    message_lines.append("")
-    message_lines.append("Thank you!")
-    message_text = "\n".join(message_lines)
-
-    # Fetch Whatsapp target number from .env
-    raw_target = get_whatsapp_number()
-    clean_target = raw_target.strip()
-    if len(clean_target) == 10 and clean_target.isdigit():
-        clean_target = "91" + clean_target
-
-    import urllib.parse
-    encoded_text = urllib.parse.quote(message_text)
-    whatsapp_url = f"https://wa.me/{clean_target}?text={encoded_text}"
-        
-    return JsonResponse({
-        'success': True,
-        'inquiry_id': inquiry.pk,
-        'whatsapp_url': whatsapp_url
-    })
-
-
 def api_admin_inquiries(request):
     if not is_admin_user(request):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
@@ -1076,7 +1146,7 @@ def api_admin_inquiries(request):
         'quantity', 'product', 'status', 'created_at'
     )
     
-    if module_filter in ['indoor', 'outdoor', 'mr_sports']:
+    if module_filter in ['indoor', 'outdoor', 'shreem_sports']:
         inquiries = inquiries.filter(module=module_filter)
         
     if status_filter in ['NEW', 'CONTACTED', 'CLOSED']:

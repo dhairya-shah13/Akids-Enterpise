@@ -1,6 +1,13 @@
 from django.urls import path
 from django.views.generic import TemplateView
+from django.contrib.sitemaps.views import sitemap
 from . import views
+from .views import ProductSitemap, StaticViewSitemap
+
+sitemaps = {
+    'products': ProductSitemap,
+    'pages': StaticViewSitemap,
+}
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name='products/home.html'), name='home'),
@@ -8,7 +15,7 @@ urlpatterns = [
     path('', views.home_view, name='home'),
     path('indoors/', views.indoors_view, name='indoors'),
     path('outdoors/', views.outdoors_view, name='outdoors'),
-    path('mrsports/', views.mrsports_view, name='mrsports'),
+    path('shreemsports/', views.shreemsports_view, name='shreemsports'),
     path('about/', views.company_page, {'page': 'about'}, name='about'),
     path('safety-standards/', views.company_page, {'page': 'safety'}, name='safety_standards'),
     path('testimonials/', views.company_page, {'page': 'testimonials'}, name='testimonials'),
@@ -51,4 +58,8 @@ urlpatterns = [
     path('api/admin/inquiries/<int:pk>/', views.api_admin_inquiry_detail, name='api_admin_inquiry_detail'),
     path('api/admin/inquiries/<int:pk>/close/', views.api_admin_inquiry_close, name='api_admin_inquiry_close'),
     path('profile/', views.profile_view, name='profile'),
+
+    # SEO: Sitemap & Robots
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', views.robots_txt, name='robots_txt'),
 ]

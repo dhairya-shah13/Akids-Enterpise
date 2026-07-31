@@ -18,7 +18,7 @@ class Product(models.Model):
         ('INDOORS', 'Indoors'),
         ('OUTDOORS', 'Outdoors'),
         ('PARTS', 'Parts'),
-        ('MRSPORTS', 'MR Sports'),
+        ('SHREEM_SPORTS', 'Shreem Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -72,7 +72,7 @@ class Inquiry(models.Model):
     MODULE_CHOICES = [
         ('indoor', 'Indoor'),
         ('outdoor', 'Outdoor'),
-        ('mr_sports', 'MR Sports'),
+        ('shreem_sports', 'Shreem Sports'),
     ]
     CLOSURE_OUTCOME_CHOICES = [
         ('WON', 'Customer Won'),

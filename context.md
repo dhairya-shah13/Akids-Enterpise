@@ -41,7 +41,7 @@ Akids-Enterpise/
 │       ├── search.py           # Product search utility (name/description/SKU)
 │       ├── views.py            # View logic (~30+ views: auth, cart, checkout, admin, orders, inquiries, profile, AI chat)
 │       ├── urls.py             # Product URL routing (~40 routes)
-│       ├── tests.py            # Unit tests (components, company pages, MR Sports)
+│       ├── tests.py            # Unit tests (components, company pages, Shreem Sports)
 │       ├── test_inquiries.py   # Inquiry test suite (catalog, WhatsApp, close workflow, history)
 │       ├── test_orders.py      # Order & workflow test suite (creation, PDF, status transitions, access control)
 │       └── migrations/         # Database migrations (0001 through 0014)
@@ -77,7 +77,7 @@ Akids-Enterpise/
 │           ├── home.html               # Landing page: animated hero, train compartment categories, featured products with fade-in
 │           ├── listing.html            # Indoors category listing (product grid with search)
 │           ├── outdoors.html           # Outdoors category listing (+ accessories section)
-│           ├── mrsports.html           # MR Sports category listing
+│           ├── shreemsports.html           # Shreem Sports category listing
 │           ├── view_all.html           # Catalogue "View All Products": PDF embed (desktop) + scrollable product list (mobile) + bulk inquiry form + WhatsApp
 │           ├── product_detail.html     # Single product: gallery, description, variants, cart/buy-now, related products
 │           ├── cart.html               # Shopping cart: items, quantity controls, login-gating modal
@@ -88,7 +88,7 @@ Akids-Enterpise/
 │           ├── signup.html             # Signup page with validation
 │           ├── search_results.html     # Product search results view (paginated)
 │           ├── company_page.html       # Shared layout for About, Safety, Contact, Privacy, Terms
-│           ├── nav_dropdown.html       # Dynamic header navigation dropdown component (Indoors/Outdoors/MR Sports)
+│           ├── nav_dropdown.html       # Dynamic header navigation dropdown component (Indoors/Outdoors/Shreem Sports)
 │           ├── product_card.html       # Shared card component for grid displays (with responsive badges, "Needs Image", out-of-stock)
 │           └── admin_dashboard.html    # Staff Admin Portal: Products, Orders, Inquiries, Closed Inquiries, Sales Reports
 │
@@ -160,7 +160,7 @@ Auto-created on first profile/signup access. Used to pre-fill checkout and inqui
 class Product(models.Model):
     CATEGORY_CHOICES = [
         ('INDOORS', 'Indoors'), ('OUTDOORS', 'Outdoors'),
-        ('PARTS', 'Parts'), ('MRSPORTS', 'MR Sports'),
+        ('PARTS', 'Parts'), ('SHREEM_SPORTS', 'Shreem Sports'),
     ]
     name = models.CharField(max_length=200)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='INDOORS')
@@ -184,7 +184,7 @@ class Product(models.Model):
 ```python
 class Inquiry(models.Model):
     STATUS_CHOICES = [('NEW', 'New'), ('CONTACTED', 'Contacted'), ('CLOSED', 'Closed')]
-    MODULE_CHOICES = [('indoor', 'Indoor'), ('outdoor', 'Outdoor'), ('mr_sports', 'MR Sports')]
+    MODULE_CHOICES = [('indoor', 'Indoor'), ('outdoor', 'Outdoor'), ('shreem_sports', 'Shreem Sports')]
     CLOSURE_OUTCOME_CHOICES = [('WON', 'Customer Won'), ('LOST', 'Customer Lost')]
     
     inquiry_no = models.CharField(max_length=20, unique=True, editable=False)  # Auto: INQ-0001
@@ -257,7 +257,7 @@ class OrderItem(models.Model):
 | `/search/` | `search_view` | `search` | Filterable by category, paginated (12/page) |
 | `/indoors/` | `indoors_view` | `indoors` | Indoor category listing (8 products) |
 | `/outdoors/` | `outdoors_view` | `outdoors` | Outdoor category listing |
-| `/mrsports/` | `mrsports_view` | `mrsports` | MR Sports category listing |
+| `/shreemsports/` | `shreemsports_view` | `shreemsports` | Shreem Sports category listing |
 | `/about/`, `/safety-standards/`, etc. | `company_page` | `about`, `safety_standards`, etc. | 6 informational company pages |
 | `/product/<pk>/` | `product_detail` | `product_detail` | Product gallery, variants, cart/add, related |
 | `/cart/` | `cart_view` | `cart` | Cart items, subtotal, unavailable detection |
@@ -377,7 +377,7 @@ Fonts: "Plus Jakarta Sans" (display), "Quicksand" (body)
 ```
 
 ### Navigation & Layout
-- **Left Sidebar Drawer**: Full-height sliding drawer from left (320px, max 85vw) with backdrop blur. Contains accordion groups for Indoors, Outdoors, MR Sports (each with "Order Online" and "View All Products" sub-links) plus Company links. **Only visible on tablet/mobile** (`lg:hidden`).
+- **Left Sidebar Drawer**: Full-height sliding drawer from left (320px, max 85vw) with backdrop blur. Contains accordion groups for Indoors, Outdoors, Shreem Sports (each with "Order Online" and "View All Products" sub-links) plus Company links. **Only visible on tablet/mobile** (`lg:hidden`).
 - **Desktop Nav**: Standard horizontal nav bar with dropdowns, **always visible** on `lg:` and above (`hidden lg:flex`).
 - **Sidebar Accordion**: Each category has a toggleable accordion with rotate arrow animation.
 - **Sticky Navbar**: Buttered background with backdrop blur, always-visible buttons.
@@ -480,7 +480,7 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 
 | Test File | Tests | Coverage |
 |-----------|-------|----------|
-| `tests.py` | 3 | Components route 404, company pages linked, MR Sports naming |
+| `tests.py` | 3 | Components route 404, company pages linked, Shreem Sports naming |
 | `test_inquiries.py` | 6 | Valid/invalid catalog inquiry, inquiry number generation, admin search/filter, WhatsApp integration, close inquiry + customer history |
 | `test_orders.py` | 5 | Order creation + numbering, PDF generation, status transitions (next/cancel/delivered→returned), admin access control, admin cart/checkout redirect |
 | **Total** | **15** | Core business workflow coverage |
@@ -499,7 +499,7 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 | **Mobile Scrollable Catalogue (View All Products)** | Replaced mobile PDF fallback CTAs with a full scrollable in-page product list. Each product has an "Add" button that populates the inquiry line items. PDF iframe still used on desktop. |
 | **Cart Data Query Optimization** | `get_cart_data()` now bulk-fetches all cart products in a single query instead of N individual queries. Uses `product_map` dict for O(1) lookup. |
 | **Admin Dashboard Query Optimization** | Added `prefetch_related('line_items')` to inquiries query in `admin_dashboard` view to eliminate N+1 queries. |
-| **Left Sidebar Accordion Navigation** | Replaced old mobile hamburger drawer with a full-height left sidebar containing accordion menus for Indoors, Outdoors, and MR Sports — each with "Order Online" and "View All Products" sub-links. |
+| **Left Sidebar Accordion Navigation** | Replaced old mobile hamburger drawer with a full-height left sidebar containing accordion menus for Indoors, Outdoors, and Shreem Sports — each with "Order Online" and "View All Products" sub-links. |
 | **Global Toast Notification System** | Redesigned toast system with 3 color variants, Material Symbols icons, slide-in animation, auto-dismiss (4s), URL parameter triggers. |
 | **Checkout Page Redesign** | Side-by-side layout, sticky mobile bottom bar, FREE shipping badge, tax breakdown display. |
 | **Product Card Responsive Grid** | Fully responsive product cards with mobile-optimized badges, indicators, hover zoom effects. |
@@ -530,7 +530,32 @@ npx tailwindcss -i ./frontend/static/css/tailwind-input.css -o ./frontend/static
 
 ---
 
-*Last Updated: 2026-07-24 13:35. Maintainer: AI Agent (Buffy). Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-07-31 14:45. Maintainer: AI Agent (Buffy). Please update this document whenever model schemas, workflows, or views undergo changes.*
+
+---
+
+## 📋 Progress Made on Date and Time (2026-07-31 14:45)
+
+### Brand Rename: MR Sports → Shreem Sports
+
+Complete rebranding of the "MR Sports" category to "Shreem Sports" across the entire codebase including models, views, URLs, templates, tests, and documentation.
+
+| Category | Change | Files |
+|----------|--------|-------|
+| **Models** | Updated `Product.CATEGORY_CHOICES`: `('MRSPORTS', 'MR Sports')` → `('SHREEM_SPORTS', 'Shreem Sports')` | `models.py` |
+| **Models** | Updated `Inquiry.MODULE_CHOICES`: `('mr_sports', 'MR Sports')` → `('shreem_sports', 'Shreem Sports')` | `models.py` |
+| **Views** | Renamed `mrsports_view` → `shreemsports_view`; updated all category lookups, back-links, sitemap, AI chat prompt, WhatsApp module display, inquiry validation/filtering | `views.py` |
+| **URLs** | Changed route: `/mrsports/` → `/shreemsports/`; URL name: `'mrsports'` → `'shreemsports'` | `urls.py` |
+| **Templates** | Updated sidebar accordion, nav dropdown, footer links, schema.org JSON-LD | `base.html` |
+| **Templates** | Updated train compartment category card and about section text | `home.html` |
+| **Templates** | Renamed `mrsports.html` → `shreemsports.html`; updated hidden category input and search link | `shreemsports.html` (NEW), `mrsports.html` (DELETED) |
+| **Templates** | Updated inquiry module filter, product category dropdown, JS module badge logic | `admin_dashboard.html` |
+| **Templates** | Updated back link to use `'shreemsports'` route | `view_all.html` |
+| **Tests** | Renamed `MRSportsTests` → `ShreemSportsTests`; updated assertions | `tests.py` |
+| **Documentation** | Updated all references throughout context document | `context.md` |
+| **Migrations** | Created and applied migration `0016_alter_inquiry_module_alter_product_category.py` | `migrations/0016_*.py` |
+
+**Verification**: All 15 Django tests pass. No remaining "MR Sports" or "mrsports" references in active code.
 
 ---
 
@@ -556,7 +581,7 @@ Three optimization rounds completed in this session, targeting <2s full-page loa
 | **Product Image Lazy Loading** | Added `loading="lazy" decoding="async"` to all product card images. Fixed navbar logo to `eager` | `product_card.html`, `base.html` |
 | **Image Dimensions (CLS)** | Added explicit `width`/`height`: card (300x300), detail main (500x500), thumbnails (100x100). Fixed broken `width="1" height="1"` | `product_card.html`, `product_detail.html` |
 | **Image Size Optimization** | Added `=w400` to Google Drive-hosted image URLs for appropriately sized variants | `models.py` |
-| **Skeleton Grid Loaders** | Created `skeleton_card.html` + skeleton grids on all listing pages. JS swaps skeleton → real grid on DOMContentLoaded | `skeleton_card.html` (NEW), `home.html`, `listing.html`, `outdoors.html`, `mrsports.html`, `search_results.html`, `main.js` |
+| **Skeleton Grid Loaders** | Created `skeleton_card.html` + skeleton grids on all listing pages. JS swaps skeleton → real grid on DOMContentLoaded | `skeleton_card.html` (NEW), `home.html`, `listing.html`, `outdoors.html`, `shreemsports.html`, `search_results.html`, `main.js` |
 | **Reduced Motion** | Added `skeleton-box::after { animation: none; }` to `prefers-reduced-motion` | `theme.css` |
 | **PDF Lazy Loading** | Added `loading="lazy"` to both PDF `<iframe>` elements in catalogue viewer | `view_all.html` |
 | **Tailwind Cleanup** | Removed `homepage1.html` from content paths, removed unused `@tailwindcss/container-queries` plugin | `tailwind.config.js` |
@@ -597,7 +622,7 @@ Three optimization rounds completed in this session, targeting <2s full-page loa
 - `frontend/templates/products/skeleton_card.html` — Skeleton card component
 
 #### Files Modified (19 total)
-`settings.py`, `views.py`, `models.py`, `search.py`, `base.html`, `product_card.html`, `product_detail.html`, `home.html`, `listing.html`, `outdoors.html`, `mrsports.html`, `search_results.html`, `view_all.html`, `theme.css`, `tailwind.config.js`, `vercel.json`, `context.md`
+`settings.py`, `views.py`, `models.py`, `search.py`, `base.html`, `product_card.html`, `product_detail.html`, `home.html`, `listing.html`, `outdoors.html`, `shreemsports.html`, `search_results.html`, `view_all.html`, `theme.css`, `tailwind.config.js`, `vercel.json`, `context.md`
 
 #### Files Deleted
 - `frontend/static/css/main.css` — 258 lines of dead legacy CSS
