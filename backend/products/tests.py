@@ -205,6 +205,34 @@ class ProductionFailFastTests(TestCase):
             project_settings.validate_production_env(debug=False)
 
 
+class AllowedHostsTests(TestCase):
+    """§2.5 — Regression: the ALLOWED_HOSTS allow-list must include the real
+    production www hostname. A typo ('www.akidsenterprice.com', missing the
+    second 'e') caused a live 400 Bad Request after the apex 308-redirected to
+    www, because Django's DisallowedHost check rejected the genuine host."""
+
+    def _effective_allowed_hosts(self):
+        # Recompute the allow-list as if no ALLOWED_HOSTS env var is set, so the
+        # test is hermetic regardless of a developer/CI shell exporting one.
+        with mock.patch.dict(os.environ, {'ALLOWED_HOSTS': ''}, clear=False):
+            default = project_settings._DEFAULT_ALLOWED_HOSTS
+        return [h.strip() for h in default.split(',') if h.strip()]
+
+    def test_default_allowed_hosts_includes_production_www(self):
+        hosts = self._effective_allowed_hosts()
+        self.assertIn('akidsenterprise.com', hosts)
+        self.assertIn('www.akidsenterprise.com', hosts)
+
+    def test_default_allowed_hosts_has_no_typo(self):
+        hosts = self._effective_allowed_hosts()
+        self.assertNotIn('akidsenterprice.com', hosts)
+
+    def test_default_allowed_hosts_keeps_dev_and_preview(self):
+        hosts = self._effective_allowed_hosts()
+        for host in ('localhost', '127.0.0.1', '.vercel.app'):
+            self.assertIn(host, hosts)
+
+
 class SecurityHeadersTests(TestCase):
     """§2.7 — Missing Headers: CSP, Permissions-Policy, Referrer-Policy, nosniff."""
 
