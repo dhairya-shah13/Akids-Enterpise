@@ -194,6 +194,11 @@
     {% block extra_head %}{% endblock %}
 </head><body class="bg-background text-on-background font-body-md overflow-x-hidden">
 
+    <!-- Hidden CSRF token form: ensures the csrftoken cookie is set on every
+         page so AJAX/JS endpoints (chat, catalog inquiry, firebase login) can
+         send X-CSRFToken headers without relying on a visible form. -->
+    <form method="post" style="display:none" aria-hidden="true" tabindex="-1">{% csrf_token %}</form>
+
     <!-- Left Navigation Sidebar Drawer -->
     <div id="leftSidebar" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white z-[2000] shadow-2xl transform -translate-x-full transition-transform duration-300 ease-out flex flex-col">
         <!-- Sidebar Header -->
@@ -215,7 +220,7 @@
             </a>
 
             <!-- Admin HQ Link (Only visible if admin/staff) -->
-            {% if request.user.is_authenticated and request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+            {% if request.user.is_authenticated and request.user.is_staff or request.session.is_admin %}
             <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-tangerine/10 text-tangerine hover:bg-tangerine/20 font-bold transition-all border border-tangerine/20">
                 <span class="material-symbols-outlined text-tangerine text-xl">admin_panel_settings</span> Admin Panel (HQ)
             </a>
@@ -333,7 +338,7 @@
                 {% endif %}
                 
                 {% if request.user.is_authenticated %}
-                    {% if request.user.is_staff or request.user.email == 'admin@gmail.com' or request.session.is_admin %}
+                    {% if request.user.is_staff or request.session.is_admin %}
                     <a href="{% url 'admin_dashboard' %}" class="bg-tangerine text-white p-2 sm:px-4 sm:py-2 rounded-full font-label-md text-xs shadow-sm hover:shadow-md transition-shadow inline-flex items-center gap-1 touch-target" title="Admin HQ">
                         <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
                         <span class="inline">Admin HQ</span>

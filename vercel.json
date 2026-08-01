@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cd backend && python manage.py migrate --noinput",
+  "buildCommand": "cd backend && python manage.py migrate --noinput && python manage.py create_admin_from_env --noinput",
   "builds": [
     {
       "src": "backend/little_fingers/wsgi.py",

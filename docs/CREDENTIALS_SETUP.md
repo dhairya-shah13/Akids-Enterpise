@@ -36,7 +36,7 @@ Follow these steps to enable Google authentication on your site:
    - Click **Create**.
 5. **Copy Credentials into `.env`**:
    - Copy the generated **Client ID** and **Client Secret**.
-   - Paste them into your `.env` file in the root directory:
+   - Paste them into your `.env` file at `backend/.env` (the single canonical `.env` for this repo):
      ```env
      GOOGLE_OAUTH_CLIENT_ID="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
      GOOGLE_OAUTH_CLIENT_SECRET="YOUR_GOOGLE_CLIENT_SECRET"
@@ -81,7 +81,7 @@ Follow these steps to configure Firebase Email Link (magic link) sign-in:
      };
      ```
 6. **Copy Credentials into `.env`**:
-   - Paste these values into your `.env` file:
+   - Paste these values into your `.env` file at `backend/.env` (the single canonical `.env` for this repo):
      ```env
      FIREBASE_API_KEY="AIzaSy..."
      FIREBASE_AUTH_DOMAIN="akids-enterprise.firebaseapp.com"
@@ -93,7 +93,24 @@ Follow these steps to configure Firebase Email Link (magic link) sign-in:
 
 ---
 
-## 3. Verify Live Status
+## 3. Database Connectivity (IMPORTANT)
+
+There is now a **single canonical `.env` file**: `backend/.env`. On 2026-08-01 the stale root `.env` (which pointed at the decommissioned Supabase host `db.raonllwzgumhalpjdmqe.supabase.co` whose credentials fail auth) was consolidated into it and removed. The active host is:
+
+| Source | Host | Status |
+|---|---|---|
+| `backend/.env` (canonical) | `aws-0-ap-southeast-2.pooler.supabase.com` | ✅ ACTIVE (used by `runserver`) |
+
+**Trap:** `settings.py` loads `backend/.env` with `load_dotenv(..., override=False)`, so if your shell or machine already exports a `DATABASE_URL` env var, it **silently wins over the `.env` file** and `manage.py` commands can target the *wrong* database without any error.
+
+**To be safe:**
+1. Treat `backend/.env` as the single source of truth — do not create a new root `.env`.
+2. Do **not** export `DATABASE_URL` in your shell; if you already have one set to the old host, remove it (e.g. `unset DATABASE_URL`).
+3. Before any `manage.py migrate` against production, verify the target with `python manage.py showmigrations products` — it must connect (not error) and show `[ ]` on pending items.
+
+---
+
+## 4. Verify Live Status
 
 Once the environment variables are added to `.env` and the server is restarted:
 - The "Continue with Google" button will automatically become active.

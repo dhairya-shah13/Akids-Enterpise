@@ -106,3 +106,56 @@ Completed the replacement of the CSS locomotive with the wooden train engine gra
 - `frontend/templates/products/view_all.html`
 - `frontend/templates/base.html`
 - `docs/progress.md`
+---
+
+## 📋 Progress Made on Date and Time (1 August 2026)
+
+### Security & Financial Integrity Remediation Pass (Re-Audit to 97/100 A)
+
+Completed the full remediation pass targeting every audit dimension in `docs/audit/latest-report.md` (now `docs/audit/audit-reports.md`). Overall score raised from **75 (B)** to **97 (A)**.
+
+| # | Feature / Change | Status | Implementation Details |
+|---|------------------|--------|------------------------|
+| **1** | Remove hardcoded admin credentials | **COMPLETED** | Removed `admin@gmail.com`/`123456` fallbacks from `_read_env_file` and `login_view`. Admin is now a real Django superuser bootstrapped via `create_admin_from_env` management command (run in `vercel.json` buildCommand). Zero occurrences remain in production code (grep-verified). |
+| **2** | Fail-fast production startup | **COMPLETED** | `settings.py::validate_production_env()` raises `ImproperlyConfigured` in prod (`DJANGO_DEBUG=False`) when `SECRET_KEY`/`ADMIN_EMAIL`/`ADMIN_PASSWORD` are missing; logs a warning locally. |
+| **3** | IDOR fix (order_success + invoice) | **COMPLETED** | Both views now filter by `request.user` with a 404 for non-owners (no existence leak). Staff can view any order. Invoice endpoint aligned to the same pattern (was 403). |
+| **4** | GST-exclusive tax single source of truth | **COMPLETED** | New `products/utils.py::calculate_gst()`. `Order.subtotal_amount` + `gst_amount` fields (migration 0018). `checkout_view` + `pdf_generator.py` both call the shared function. |
+| **5** | GST backfill for existing orders | **COMPLETED** | Migration 0019 recalculates subtotal/GST/total on every existing order using the GST-exclusive formula. Production Supabase (pooler) backfill **corrected 5 existing orders**; dev DB had 0 legacy orders. |
+| **6** | ALLOWED_HOSTS / SECRET_KEY from env | **COMPLETED** | `ALLOWED_HOSTS` read from env (default: akidsenterprise.com, www.akidsenterprice.com, localhost, 127.0.0.1, *.vercel.app). Strong `SECRET_KEY` generated and added to `.env`. |
+| **7** | CSRF on admin & chat APIs | **COMPLETED** | All `@csrf_exempt` removed. Frontend sends `X-CSRFToken` (main.js chat, login/signup firebase fetch, view_all inquiry). Hidden `{% csrf_token %}` form in `base.html` guarantees the cookie on every page. |
+| **8** | XSS fixes (chat + autocomplete) | **COMPLETED** | `escapeHtml()` applied to search-autocomplete dropdown fields (unreachable route, fixed defensively). Chat escaping hardened. |
+| **9** | Security headers | **COMPLETED** | `SecurityHeadersMiddleware` adds lenient CSP (pdf.js-safe, `worker-src blob:`), `Permissions-Policy`. Settings add HSTS (prod-gated), nosniff, frame options, `SECURE_PROXY_SSL_HEADER`, Referrer-Policy. |
+| **10** | Env-driven DEBUG | **COMPLETED** | `DJANGO_DEBUG` env var, defaults True locally. Production must set `DJANGO_DEBUG=False`. |
+| **11** | Tests for every fix | **COMPLETED** | 22 new tests added across `tests.py`/`test_orders.py`/`test_inquiries.py` (CSRF rejection, IDOR 404, GST math, PDF invoice, startup fail-fast, credential-literal scan). **44/44 pass.** |
+| **12** | Re-audit & reporting | **COMPLETED** | `latest-report.md` renamed to `audit-reports.md` (content preserved). New re-scan report appended with scorecard 97/100. History JSON written. |
+
+#### 2. Modified & Created Files
+- `backend/products/utils.py` (NEW)
+- `backend/products/management/commands/create_admin_from_env.py` (NEW)
+- `backend/products/migrations/0018_order_gst_amount_order_subtotal_amount.py` (NEW)
+- `backend/products/migrations/0019_backfill_order_gst.py` (NEW)
+- `backend/little_fingers/middleware.py`
+- `backend/little_fingers/settings.py`
+- `backend/products/views.py`
+- `backend/products/models.py`
+- `backend/products/pdf_generator.py`
+- `backend/products/tests.py`
+- `backend/products/test_orders.py`
+- `backend/products/test_inquiries.py`
+- `frontend/static/js/main.js`
+- `frontend/templates/base.html`
+- `frontend/templates/products/login.html`
+- `frontend/templates/products/signup.html`
+- `frontend/templates/products/view_all.html`
+- `frontend/templates/products/home.html`
+- `frontend/templates/products/listing.html`
+- `frontend/templates/products/outdoors.html`
+- `frontend/templates/products/shreemsports.html`
+- `frontend/templates/products/search_results.html`
+- `vercel.json`
+- `.env`
+- `docs/audit/audit-reports.md`
+- `docs/audit/history/2026-08-01-rescan.json`
+- `docs/progress.md`
+
+**Test Status**: All 44 unit tests pass cleanly (`DATABASE_URL= python manage.py test products`).

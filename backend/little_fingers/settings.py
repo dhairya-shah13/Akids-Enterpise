@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import warnings
 from pathlib import Path
 from urllib.parse import urlparse, unquote
+
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,17 +23,62 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# ---------------------------------------------------------------------------
+# Environment-driven configuration (fail-fast in production)
+# ---------------------------------------------------------------------------
+
+# DEBUG is read from the DJANGO_DEBUG env var and defaults to True so local
+# development is never blocked. In production (Vercel) DJANGO_DEBUG=False must
+# be set explicitly, and the app fails fast if required env vars are missing.
+DEBUG = os.getenv("DJANGO_DEBUG", "True").strip().lower() in ("1", "true", "yes", "on")
+
+REQUIRED_PROD_ENV_VARS = ("SECRET_KEY", "ADMIN_EMAIL", "ADMIN_PASSWORD")
+
+
+def validate_production_env(debug=None, environ=None):
+    """Fail fast when running in production mode without required env vars.
+
+    Raises ImproperlyConfigured listing every missing variable so a deploy
+    cannot silently start with insecure fallbacks. Never called when debug is
+    truthy (local development logs a warning instead).
+    """
+    if debug is None:
+        debug = DEBUG
+    if debug:
+        return
+    environ = os.environ if environ is None else environ
+    missing = [name for name in REQUIRED_PROD_ENV_VARS if not environ.get(name, "").strip()]
+    if missing:
+        raise ImproperlyConfigured(
+            "Missing required environment variable(s) in production mode "
+            f"(DJANGO_DEBUG=False): {', '.join(missing)}"
+        )
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r0i1trm!9g6y-qu$@qb84w7^yr@2gu_q*sz!xm9%v=o@v-&ooh'
+SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
+if not SECRET_KEY:
+    if DEBUG:
+        warnings.warn(
+            "SECRET_KEY is not set. Using an insecure development fallback key. "
+            "Set SECRET_KEY before deploying to production.",
+            stacklevel=2,
+        )
+        SECRET_KEY = "django-insecure-dev-only-fallback-key-not-for-production"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Fail fast at startup in production (no-op in local dev). Raises listing every
+# missing required variable so a deploy can never start with insecure fallbacks.
+validate_production_env()
 
-ALLOWED_HOSTS = ['*']
-
+# ALLOWED_HOSTS is an explicit allow-list read from env (comma-separated).
+# Defaults include the production domains, localhost for local dev, and the
+# Vercel preview pattern so preview deployments keep working.
+_DEFAULT_ALLOWED_HOSTS = "akidsenterprise.com,www.akidsenterprice.com,localhost,127.0.0.1,.vercel.app"
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", _DEFAULT_ALLOWED_HOSTS).split(",")
+    if host.strip()
+]
 
 # Application definition
 
@@ -48,9 +96,11 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'little_fingers.middleware.SecurityHeadersMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'little_fingers.middleware.CsrfCookieBootstrapMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -158,6 +208,26 @@ MEDIA_ROOT = BASE_DIR.parent / 'frontend' / 'media'
 # Allow same-origin framing of pages/PDFs
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
+# ---------------------------------------------------------------------------
+# Security hardening (SecurityMiddleware). HSTS / HTTPS-only cookie flags are
+# gated on production (DEBUG=False) so local HTTP development keeps working.
+# ---------------------------------------------------------------------------
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+
+# Vercel terminates TLS at the edge and forwards `X-Forwarded-Proto: https`.
+# Telling Django about this header makes request.is_secure() correct so HSTS /
+# secure-cookie settings behave properly and no redirect loop is introduced.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -173,4 +243,3 @@ TEST = {
 
 # Request timing middleware (at end so it only measures the view, not other middleware)
 MIDDLEWARE.append('little_fingers.middleware.RequestTimingMiddleware')
-

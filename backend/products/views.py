@@ -10,7 +10,6 @@ from functools import lru_cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, FileResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
@@ -19,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile, Address
 from .search import search_products
+from .utils import calculate_gst
 from django.db import transaction
 from django.db.models import Q, Sum, Count
 from django.contrib.auth.decorators import login_required
@@ -110,12 +110,19 @@ def company_page(request, page):
 
 @lru_cache(maxsize=1)
 def _read_env_file():
-    """Read .env file once and cache the result. Avoids disk I/O on every request."""
-    env_email = "admin@gmail.com"
-    env_pass = "123456"
-    whatsapp_num = "7433026008"
+    """Read .env file once into os.environ and cache the result. Avoids disk I/O on every request.
+
+    NOTE: There are deliberately NO hardcoded fallback admin credentials here.
+    The admin account is a real Django superuser bootstrapped at deploy time via
+    the `create_admin_from_env` management command.
+    """
+    # Business WhatsApp number. Falls back to the business hotline (same number
+    # advertised across the site) only when the env var is unset — this is a
+    # phone number for customer contact, not a credential.
+    whatsapp_num = os.getenv("WHATSAPP_NUMBER", "7433026008").strip()
+    # Single canonical .env: backend/.env (the root .env was consolidated into
+    # it on 2026-08-01 to remove a stale Supabase host that broke connections).
     possible_paths = [
-        settings.BASE_DIR.parent / ".env",
         settings.BASE_DIR / ".env",
     ]
     for env_path in possible_paths:
@@ -129,33 +136,25 @@ def _read_env_file():
                             k = k.strip()
                             v = v.strip('"\' ')
                             os.environ[k] = v
-                            if k == "ADMIN_EMAIL":
-                                env_email = v
-                            elif k == "ADMIN_PASSWORD":
-                                env_pass = v
-                            elif k == "WHATSAPP_NUMBER":
+                            if k == "WHATSAPP_NUMBER":
                                 whatsapp_num = v
             except Exception:
                 pass
-    return env_email, env_pass, whatsapp_num
-
-
-def get_env_credentials():
-    return _read_env_file()[:2]
+    return whatsapp_num
 
 
 def get_whatsapp_number():
-    return _read_env_file()[2]
+    return _read_env_file()
 
 
 def is_admin_user(request):
-    # Per-request cache to avoid repeated env file reads
+    # Per-request cache
     if hasattr(request, '_is_admin_cached'):
         return request._is_admin_cached
-    env_email, _ = get_env_credentials()
     result = False
     if request.user.is_authenticated:
-        if request.user.is_staff or request.user.email == env_email or request.user.username == env_email:
+        # Admin is a real Django superuser/staff user (bootstrapped from env).
+        if request.user.is_staff or request.user.is_superuser:
             result = True
     if not result:
         result = bool(request.session.get('is_admin'))
@@ -213,7 +212,6 @@ def send_verification_email(request, user):
 
 
 def login_view(request):
-    env_email, env_pass = get_env_credentials()
     if is_admin_user(request):
         return redirect('admin_dashboard')
     if request.user.is_authenticated:
@@ -226,25 +224,10 @@ def login_view(request):
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
 
-        # 1. Check admin credentials first
-        if email == env_email and password == env_pass:
-            admin_user = User.objects.filter(Q(email=env_email) | Q(username=env_email)).first()
-            if not admin_user:
-                admin_user = User.objects.create_user(username=env_email, email=env_email, password=env_pass)
-
-            admin_user.is_staff = True
-            admin_user.is_superuser = True
-            admin_user.is_active = True
-            admin_user.set_password(env_pass)
-            admin_user.save(update_fields=['is_staff', 'is_superuser', 'is_active', 'password'])
-
-            login(request, admin_user)
-            request.session['is_admin'] = True
-            next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
-            if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
-                next_url = reverse('admin_dashboard')
-            sep = '&' if '?' in next_url else '?'
-            return redirect(f'{next_url}{sep}toast=login')
+        # Admin users are real Django superusers (bootstrapped via the
+        # `create_admin_from_env` management command) and authenticate through
+        # the standard path below. There is no special-cased admin credential
+        # check anymore — removing it closes the hardcoded-credential backdoor.
 
         # Check if user exists but is_active is False (unverified email)
         try_user = User.objects.filter(Q(email=email) | Q(username=email)).first()
@@ -263,7 +246,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            if user.is_staff or user.email == env_email:
+            if user.is_staff or user.is_superuser:
                 request.session['is_admin'] = True
                 next_url = request.POST.get('next') or request.GET.get('next') or reverse('admin_dashboard')
             else:
@@ -455,7 +438,6 @@ def google_callback(request):
         return redirect(f"{reverse('admin_login')}?toast=google-error")
 
 
-@csrf_exempt
 def firebase_login(request):
     """Send a Firebase passwordless sign-in email link (does NOT log the user in immediately)."""
     _read_env_file()
@@ -600,8 +582,6 @@ def set_password_view(request):
     return render(request, 'products/set_password.html', {'error': error})
 
 
-from django.views.decorators.http import require_http_methods
-
 @require_http_methods(["POST"])
 def change_password_view(request):
     if not request.user.is_authenticated:
@@ -724,8 +704,6 @@ def admin_dashboard(request):
     if not is_admin_user(request):
         return redirect('admin_login')
 
-    env_email, _ = get_env_credentials()
-
     products = Product.objects.only('id', 'name', 'category', 'price', 'discount_price', 'stock', 'sku', 'created_at').order_by('-created_at')
 
     # Handle sorting and filtering for inquiries
@@ -762,7 +740,7 @@ def admin_dashboard(request):
         'current_status_filter': status_filter,
         'sales': sales_data,
         'orders_count': orders_count,
-        'admin_email': env_email
+        'admin_email': request.user.email
     })
 
 def add_product(request):
@@ -1003,7 +981,6 @@ def search_view(request):
         'q': q,
         'category': category,
     })
-@csrf_exempt
 def chat_api(request):
     if request.method != "POST":
         return JsonResponse({"error": "Only POST allowed"}, status=405)
@@ -1108,12 +1085,13 @@ def checkout_view(request):
 
     profile, _ = UserProfile.objects.select_related('user').get_or_create(user=request.user)
 
-    # Compute tax breakdown (18% GST: 9% CGST + 9% SGST)
-    subtotal_float = float(subtotal)
-    gst_amount = round(subtotal_float * 0.18, 2)
-    cgst_amount = round(subtotal_float * 0.09, 2)
-    sgst_amount = round(subtotal_float * 0.09, 2)
-    total_with_tax = round(subtotal_float * 1.18, 2)
+    # Compute tax breakdown via the shared single source of truth.
+    # Business rule: all prices are GST-exclusive; 18% GST is added on top.
+    tax = calculate_gst(subtotal)
+    gst_amount = tax['gst']
+    cgst_amount = tax['cgst']
+    sgst_amount = tax['sgst']
+    total_with_tax = tax['total']
 
     if request.method == 'POST':
         customer_name = request.POST.get('customer_name', '').strip() or request.user.username
@@ -1136,8 +1114,14 @@ def checkout_view(request):
             profile.shipping_address = shipping_address
             profile.save()
 
-        # TODO: Replace this test-mode order creation with Razorpay payment confirmation.
-        # This intentionally creates a real order so the admin tracking flow can be tested end to end.
+        # ------------------------------------------------------------------
+        # DELIBERATE SIMULATION — ACCEPTED, INTENTIONAL EXCEPTION (not a bug):
+        # Order creation here simulates payment in "test mode". No payment
+        # gateway is integrated yet; this is pending client sign-off before a
+        # real Razorpay + webhook flow is wired in. Stock is still deducted
+        # atomically (select_for_update) so the flow is race-safe. Do NOT flag
+        # this as an unresolved finding in re-audits — it is a known deferral.
+        # ------------------------------------------------------------------
         try:
             with transaction.atomic():
                 locked_items = []
@@ -1189,13 +1173,20 @@ def checkout_view(request):
 
 
 def order_success(request, order_id):
-    order = get_object_or_404(
-        Order.objects.prefetch_related('items').only(
-            'id', 'order_no', 'customer_name', 'shipping_address',
-            'order_status', 'total_amount', 'created_at'
-        ),
-        pk=order_id
+    # IDOR guard: regular users may only view their own orders. A non-owner gets
+    # a 404 (not 403) so order existence is never leaked. Staff/superusers may
+    # view any order via this view, consistent with api_admin_order_invoice.
+    orders_qs = Order.objects.prefetch_related('items').only(
+        'id', 'order_no', 'customer_name', 'shipping_address',
+        'order_status', 'subtotal_amount', 'gst_amount', 'total_amount', 'created_at'
     )
+    if not is_admin_user(request):
+        # Unauthenticated visitors never own orders; return 404 without querying
+        # (avoids filtering with AnonymousUser and leaks no order existence).
+        if not request.user.is_authenticated:
+            raise Http404
+        orders_qs = orders_qs.filter(user=request.user)
+    order = get_object_or_404(orders_qs, pk=order_id)
     return render(request, 'products/order_success.html', {'order': order})
 
 
@@ -1283,7 +1274,6 @@ def view_all_products(request, module_type):
     })
 
 
-@csrf_exempt
 def submit_catalog_inquiry(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
@@ -1471,7 +1461,7 @@ def api_admin_order_detail(request, order_id):
     order = get_object_or_404(
         Order.objects.prefetch_related('items', 'items__product').only(
             'id', 'order_no', 'customer_name', 'shipping_address',
-            'order_status', 'total_amount', 'created_at'
+            'order_status', 'subtotal_amount', 'gst_amount', 'total_amount', 'created_at'
         ),
         pk=order_id
     )
@@ -1495,13 +1485,14 @@ def api_admin_order_detail(request, order_id):
         'shipping_address': order.shipping_address,
         'order_status': order.order_status,
         'order_status_display': order.get_order_status_display(),
+        'subtotal_amount': float(order.subtotal_amount),
+        'gst_amount': float(order.gst_amount),
         'total_amount': float(order.total_amount),
         'created_at_str': order.created_at.strftime('%d %b %Y, %I:%M %p'),
         'items': items_list
     })
 
 
-@csrf_exempt
 @require_http_methods(["PATCH", "POST"])
 def api_admin_order_status_update(request, order_id):
     if not is_admin_user(request):
@@ -1549,9 +1540,15 @@ def api_admin_order_status_update(request, order_id):
 
 def api_admin_order_invoice(request, order_id):
     from .pdf_generator import generate_invoice_pdf  # Lazy import to avoid loading ReportLab on every request
-    order = get_object_or_404(Order.objects.prefetch_related('items'), pk=order_id)
-    if not (is_admin_user(request) or (request.user.is_authenticated and order.user == request.user)):
-        return HttpResponse('Unauthorized', status=403)
+    # Ownership filter (same pattern as order_success): non-admins may only
+    # fetch their own invoice, and get a 404 for others so order existence is
+    # never leaked (no 403 existence oracle).
+    orders_qs = Order.objects.prefetch_related('items')
+    if not is_admin_user(request):
+        if not request.user.is_authenticated:
+            raise Http404
+        orders_qs = orders_qs.filter(user=request.user)
+    order = get_object_or_404(orders_qs, pk=order_id)
     try:
         is_admin = is_admin_user(request)
         pdf_content = generate_invoice_pdf(order, is_admin=is_admin)

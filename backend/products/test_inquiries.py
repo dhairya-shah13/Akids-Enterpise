@@ -78,7 +78,7 @@ class InquiryTestCase(TestCase):
         self.assertIn("required", data['error'])
 
     def test_inquiry_number_generation(self):
-        inq1 = Inquiry.objects.create(name="Customer 1", contact_number="1234567890", module="indoor")
+        inq1 = Inquiry.objects.create(name="Customer 1", contact_number="9876543210", module="indoor")
         inq2 = Inquiry.objects.create(name="Customer 2", contact_number="0987654321", module="outdoor")
 
         self.assertTrue(inq1.inquiry_no.startswith("INQ-"))
@@ -87,7 +87,7 @@ class InquiryTestCase(TestCase):
 
     def test_api_admin_inquiries_search_and_filter(self):
         from django.contrib.auth.models import User
-        admin = User.objects.create_user(username='admin@gmail.com', email='admin@gmail.com', password='123', is_staff=True)
+        admin = User.objects.create_user(username='admin_user', email='admin@example.com', password='pass123', is_staff=True)
         self.client.force_login(admin)
 
         inq1 = Inquiry.objects.create(name="Aarav Sharma", contact_number="11111", email="aarav@test.com", module="indoor", status="NEW")
@@ -151,11 +151,11 @@ class InquiryTestCase(TestCase):
         admin = User.objects.create_user(username='inquiry_admin', password='123', is_staff=True)
         self.client.force_login(admin)
         previous = Inquiry.objects.create(
-            name='Mukesh', contact_number='1234567890', email='mukesh@example.com', module='indoor'
+            name='Mukesh', contact_number='9876543210', email='mukesh@example.com', module='indoor'
         )
         InquiryLineItem.objects.create(inquiry=previous, product_code='LFI-01', quantity=2)
         inquiry = Inquiry.objects.create(
-            name='Mukesh', contact_number='1234567890', email='mukesh@example.com', module='outdoor'
+            name='Mukesh', contact_number='9876543210', email='mukesh@example.com', module='outdoor'
         )
 
         response = self.client.post(

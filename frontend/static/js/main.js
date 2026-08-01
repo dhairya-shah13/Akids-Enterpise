@@ -1,5 +1,21 @@
 /* A kids — Global deferred JavaScript (loaded with defer) */
 
+// ===== CSRF token helper (Django pattern) =====
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 // ===== Global Lazy Loading: Intersection Observer for scroll animations =====
 document.addEventListener('DOMContentLoaded', function() {
     var observer = new IntersectionObserver(function(entries) {
@@ -76,11 +92,14 @@ function initAutocomplete(inputEl) {
         var html = '';
         for (var i = 0; i < results.length; i++) {
             var r = results[i];
-            html += '<a href="' + r.url + '" class="autocomplete-item" data-index="' + i + '">'
-                + '<img src="' + r.image + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+            // Escape every dynamic value injected via innerHTML (defensive XSS
+            // hardening — the /api/search-suggestions/ route is currently
+            // unreachable, but this guards against it ever shipping unescaped).
+            html += '<a href="' + escapeHtml(r.url) + '" class="autocomplete-item" data-index="' + i + '">'
+                + '<img src="' + escapeHtml(r.image) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
                 + '<div class="item-info">'
                 + '<div class="item-name">' + highlightMatch(r.name, query) + '</div>'
-                + '<div class="item-price">\u20B9' + r.price + '</div>'
+                + '<div class="item-price">\u20B9' + escapeHtml(r.price) + '</div>'
                 + '</div></a>';
         }
         dropdown.innerHTML = html;
@@ -197,7 +216,10 @@ async function sendMohanlalMessage(e) {
     try {
         var res = await fetch('/api/chat/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
             body: JSON.stringify({ message: text, history: mohanlalHistory })
         });
         var data = await res.json();

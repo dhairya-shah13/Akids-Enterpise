@@ -1,6 +1,8 @@
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from django.db import transaction
+from .utils import calculate_gst
 
 
 class UserProfile(models.Model):
@@ -171,7 +173,11 @@ class Order(models.Model):
     shipping_address = models.TextField()
     order_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PLACED')
     status_updated_at = models.DateTimeField(auto_now=True)
-    total_amount = models.DecimalField(max_digits=14, decimal_places=2, default=0.00)
+    # Financial fields: subtotal is GST-exclusive, gst_amount is the 18% GST
+    # computed on top, total_amount is the final payable (subtotal + GST).
+    subtotal_amount = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal('0.00'))
+    gst_amount = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal('0.00'))
+    total_amount = models.DecimalField(max_digits=14, decimal_places=2, default=Decimal('0.00'))
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -198,10 +204,21 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def recalculate_total(self):
+        """
+        Recompute financial fields from line items using the GST-exclusive
+        pricing model (single source of truth: products.utils.calculate_gst).
+        subtotal_amount = sum of item subtotals (pre-tax)
+        gst_amount      = 18% GST added on top
+        total_amount    = subtotal + GST (final payable)
+        """
         from django.db.models import Sum
         result = self.items.aggregate(total=Sum('subtotal'))
-        self.total_amount = result['total'] or 0
-        self.save(update_fields=['total_amount'])
+        subtotal = result['total'] or Decimal('0.00')
+        calc = calculate_gst(subtotal)
+        self.subtotal_amount = calc['subtotal']
+        self.gst_amount = calc['gst']
+        self.total_amount = calc['total']
+        self.save(update_fields=['subtotal_amount', 'gst_amount', 'total_amount'])
 
     def __str__(self):
         return self.order_no

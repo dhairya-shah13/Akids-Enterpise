@@ -8,6 +8,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.units import inch
+from .utils import calculate_gst
 
 def generate_invoice_pdf(order, is_admin=False):
     buffer = io.BytesIO()
@@ -232,12 +233,14 @@ def generate_invoice_pdf(order, is_admin=False):
     story.append(Spacer(1, 15))
     
     # --- TOTALS & GST BREAKUP SECTION ---
-    # Inclusive 18% GST Calculations
-    total = Decimal(str(order.total_amount))
-    taxable_amount = total / Decimal('1.18')
-    total_gst = total - taxable_amount
-    cgst = total_gst / 2
-    sgst = total_gst / 2
+    # GST-exclusive pricing model: prices are pre-tax, 18% GST added on top.
+    # Single source of truth: products.utils.calculate_gst (same as checkout).
+    tax = calculate_gst(order.subtotal_amount)
+    taxable_amount = tax['subtotal']
+    total_gst = tax['gst']
+    cgst = tax['cgst']
+    sgst = tax['sgst']
+    total = tax['total']
     
     totals_data = [
         [Paragraph("Taxable Amount (Excl. GST)", body_style), Paragraph(f"Rs.{taxable_amount:,.2f}", body_style)],
