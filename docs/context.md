@@ -100,26 +100,27 @@ A "Universal Deep-Scan" repository audit was performed to evaluate production re
 The application features a robust e-commerce and inquiry workflow:
 - **Shopping Cart & Checkout**: Stock-aware, atomic transactions, 18% GST computation.
 - **Inquiry System**: Batch catalog quotes, WhatsApp integration, WON/LOST closure outcomes.
-- **Admin HQ**: SPA-style dashboard for managing products, orders, and inquiries with visual reports.
+- **Admin HQ**: SPA-style full-width dashboard for managing products, orders (no-scroll 9-column table with `table-fixed` layout), and inquiries with visual reports.
 - **User Profile**: Saved addresses, customizable avatars, 30-day username cooldown.
 - **Security**: Google OAuth 2.0 and Firebase Passwordless Sign-In (Magic Links).
 
 ---
 
-## 📋 Progress Made on Date and Time (2026-08-01)
+## 📋 Progress Made on Date and Time (2026-08-01 12:28)
 
-### Repository Audit & Documentation Reorganization
+### Admin HQ — Full-Width Layout & Orders Table No-Scroll Fix
 
-Performed a deep-scan audit of the entire repository and centralized all documentation.
+Removed the side gaps in the Admin HQ page and fixed the Orders table so all 9 columns are visible without horizontal scrolling.
 
-| Category | Change | Files |
-|----------|--------|-------|
-| **Audit** | Executed Phase 0-13 Deep-Scan Repository Audit | `Audit.md`, Codebase |
-| **Reporting** | Generated Executive Scorecard and Detailed Findings report | `docs/audit/latest-report.md` |
-| **Reorganization** | Moved `context.md` and `Audit.md` to `docs/` | `docs/context.md`, `docs/Audit.md` |
-| **Centralization** | Moved all audit reports and history to `docs/audit/` | `docs/audit/` |
-| **Documentation** | Updated `context.md` with latest architecture and security status | `docs/context.md` |
+| **Layout** | Changed `max-w-7xl` → `max-w-full` on banner and grid containers | `admin_dashboard.html` |
+| **Orders Table** | Removed `overflow-x-auto` and `min-w-[1200px]`, switched to `table-fixed` with %-based column widths | `admin_dashboard.html` |
+| **Compact Styling** | Reduced padding (`p-4` → `px-2 py-3`), shrank fonts, added `truncate` with tooltips on text-heavy columns | `admin_dashboard.html` |
+| **Contact Links** | Wired footer email and phone icon links to `mailto:info@akidsenterprise.com` and `tel:+917433026008` | `base.html` |
+| **Shreem Sports** | Removed search and product list/catalog sections (Coming Soon) | `shreemsports.html` |
+| **Navbar** | Removed brand text and enlarged the `logo.png` image size | `base.html` |
+| **Search Suggestions** | Implemented `/api/search-suggestions/` endpoint and route | `views.py`, `urls.py` |
+| **Documentation** | Updated progress and context docs | `docs/progress.md`, `docs/context.md` |
 
 ---
 
-*Last Updated: 2026-08-01 12:00. Maintainer: AI Agent (Gemini CLI). Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-08-01 12:40. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*

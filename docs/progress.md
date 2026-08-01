@@ -159,3 +159,37 @@ Completed the full remediation pass targeting every audit dimension in `docs/aud
 - `docs/progress.md`
 
 **Test Status**: All 44 unit tests pass cleanly (`DATABASE_URL= python manage.py test products`).
+
+---
+
+## 📋 Progress Made on Date and Time (1 August 2026 12:28)
+
+### Admin HQ — Full-Width Layout & Orders Table No-Scroll Fix
+
+Removed the side gaps (left and right) in the Admin HQ page and fixed the Orders table so all 9 columns are visible without horizontal scrolling.
+
+#### 1. Implementation Breakdown
+
+| # | Feature / Change | Status | Implementation Details |
+|---|------------------|--------|------------------------|
+| **1** | Admin HQ: Remove side gaps (full-width layout) | **COMPLETED** | Changed `max-w-7xl` to `max-w-full` on both the Dashboard Banner wrapper (`<section>` inner div) and the Main Dashboard grid container in `admin_dashboard.html`. Content now stretches edge-to-edge within the `px-margin-desktop` padding. |
+| **2** | Orders Table: Remove horizontal scroll | **COMPLETED** | Removed `overflow-x-auto` from the orders table wrapper div and removed `min-w-[1200px]` from the `<table>` element. These were forcing a scrollable container even when the viewport was wide enough. |
+| **3** | Orders Table: Fixed-layout with percentage widths | **COMPLETED** | Switched table to `table-fixed` layout with percentage-based column widths (7%–19%) totalling 100%. All 9 columns (Order No, Customer, Shipping Address, Products, Total, Status, Actions, Order Date, Bills) now fit within the viewport. |
+| **4** | Orders Table: Compact cell styling | **COMPLETED** | Reduced cell padding from `p-4` to `px-2 py-3`, shrank font sizes to `text-xs`/`text-[11px]`/`text-[10px]`, and added `truncate` on text-heavy columns (address, product summary, customer name) with `title` tooltips for full text on hover. |
+| **5** | Orders Table: Compact Bills column buttons | **COMPLETED** | Reduced Detail/Invoice button padding and icon sizes (`text-[14px]` icons, `text-[10px]` labels, `px-2 py-1` padding) and added `flex-wrap` so they stack gracefully in narrow columns. |
+| **6** | Footer Contact Links | **COMPLETED** | Wired footer email icon to `mailto:info@akidsenterprise.com` and phone icon to `tel:+917433026008` (were previously `#`). |
+| **7** | Shreem Sports: Remove Catalog | **COMPLETED** | Removed search and product list/catalog sections from `shreemsports.html` as the page is coming soon and has no live inventory yet. |
+| **8** | Navbar: Clean logo branding | **COMPLETED** | Removed textual brand name ("A kids") and subtitle ("India's Play Experts") from header navbar in `base.html`, and enlarged the `logo.png` image size to `h-12 sm:h-14` for cleaner, premium look. |
+| **9** | Search suggestions API endpoint | **COMPLETED** | Implemented the missing `/api/search-suggestions/` endpoint in `views.py` returning matching products with names, formatted prices, URLs, and display images; registered the route in `urls.py`. Added unit tests in `tests.py`. |
+
+#### 2. Modified Files
+- `frontend/templates/products/admin_dashboard.html`
+- `frontend/templates/base.html`
+- `frontend/templates/products/shreemsports.html`
+- `backend/products/views.py`
+- `backend/products/urls.py`
+- `backend/products/tests.py`
+- `docs/context.md`
+- `docs/progress.md`
+
+**Test Status**: All 51 unit tests pass cleanly (`DATABASE_URL= python manage.py test products`).

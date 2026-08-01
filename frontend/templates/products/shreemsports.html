@@ -39,53 +39,6 @@
                 <span class="material-symbols-outlined text-tangerine text-5xl animate-bounce">sports_baseball</span>
             </div>
         </section>
-
-
-
-        <!-- Search -->
-        <section class="max-w-2xl mx-auto mb-12 fade-in-section">
-            <form action="{% url 'search' %}" method="GET" class="relative search-wrapper">
-                <input type="hidden" name="category" value="SHREEM_SPORTS">
-                <input type="text" name="q" placeholder="Search sports gear..." required autocomplete="off" aria-label="Search Shreem Sports products" class="w-full bg-white border border-outline-variant/20 rounded-full py-3.5 pr-5 pl-12 focus:ring-2 focus:ring-tangerine outline-none shadow-sm text-on-surface">
-                <button type="submit" class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant opacity-60 hover:text-tangerine transition-colors">
-                    <span class="material-symbols-outlined text-xl">search</span>
-                </button>
-                <div class="autocomplete-dropdown"></div>
-            </form>
-        </section>
-
-        <!-- Admin Catalog -->
-        <div class="pt-12 border-t border-outline-variant/20 relative z-10 fade-in-section">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-3">
-                <div>
-                    <h2 class="font-display-lg text-2xl text-on-surface flex items-center gap-2">✨ Junior Pro Inventory <span class="bg-surface text-on-surface-variant text-xs font-bold px-2.5 py-1 rounded-full border border-outline-variant/20">({{ products|length }})</span></h2>
-                    <p class="font-body-md text-sm text-on-surface-variant mt-1">Newly uploaded sports gear managed directly from the Admin Dashboard</p>
-                </div>
-                <span class="bg-sea/10 text-sea font-bold text-xs px-3 py-1.5 rounded-full border border-sea/20">Supabase Cloud</span>
-            </div>
-
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 skeleton-grid">
-                {% for i in "abcdefgh" %}
-                    {% include "products/skeleton_card.html" %}
-                {% endfor %}
-            </div>
-            <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 stagger-children real-grid" style="display:none">
-                {% for product in products %}
-                    {% include "products/product_card.html" with product=product %}
-                {% empty %}
-                <div class="col-span-full py-16 text-center text-on-surface-variant font-body-lg">
-                    <span class="material-symbols-outlined text-5xl mb-3 block opacity-30">sports_soccer</span>
-                    No products found in this category.
-                </div>
-                {% endfor %}
-            </div>
-
-            <div class="text-center mt-10">
-                <a href="{% url 'search' %}?category=SHREEM_SPORTS" class="bg-tangerine text-white font-label-md px-8 py-3.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all inline-flex items-center gap-2 uppercase tracking-wider text-sm font-bold">
-                    <span class="material-symbols-outlined">grid_view</span> View All Products
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}

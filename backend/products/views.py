@@ -981,6 +981,31 @@ def search_view(request):
         'q': q,
         'category': category,
     })
+
+
+def api_search_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    category = request.GET.get('category', '').strip()
+    
+    if not category or category.lower() == 'all':
+        category = None
+        
+    results = []
+    if len(q) >= 1:
+        products = search_products(q, category)[:5]
+        for prod in products:
+            price_val = prod.discount_price if prod.discount_price is not None else prod.price
+            formatted_price = f"{price_val:,.2f}"
+            results.append({
+                'name': prod.name,
+                'price': formatted_price,
+                'url': reverse('product_detail', args=[prod.id]),
+                'image': prod.display_image
+            })
+            
+    return JsonResponse({'results': results})
+
+
 def chat_api(request):
     if request.method != "POST":
         return JsonResponse({"error": "Only POST allowed"}, status=405)

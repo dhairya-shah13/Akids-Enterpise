@@ -41,7 +41,7 @@
 {% block content %}
 <!-- Dashboard Banner -->
 <section class="bg-surface border-b border-outline-variant/30 py-8 px-margin-desktop shadow-sm">
-    <div class="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-6">
+    <div class="max-w-full mx-auto flex justify-between items-center flex-wrap gap-6">
         <div class="flex items-center gap-6">
             <div class="bg-primary text-on-primary w-16 h-16 rounded-2xl flex items-center justify-center shadow-md border border-primary/20">
                 <span class="material-symbols-outlined text-[40px]">admin_panel_settings</span>
@@ -64,7 +64,7 @@
 
 <!-- Main Dashboard Navigation & Content -->
 <section class="py-12 bg-background min-h-screen px-margin-desktop">
-    <div class="max-w-7xl mx-auto admin-dashboard-container">
+    <div class="max-w-full mx-auto admin-dashboard-container">
         <div class="bg-white border border-outline-variant/30 rounded-3xl p-6 shadow-sm flex flex-col gap-4 admin-sidebar">
             <button type="button" onclick="toggleMobileAdminMenu()" class="w-full flex items-center justify-between lg:pointer-events-none text-left focus:outline-none select-none">
                 <h3 class="font-display-lg text-lg text-on-surface flex items-center gap-2">
@@ -235,19 +235,19 @@
                 </div>
 
                 <!-- Orders Table -->
-                <div class="overflow-x-auto relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
-                    <table class="w-full text-left border-collapse min-w-[1200px]">
+                <div class="relative z-10 bg-white rounded-2xl border border-outline-variant/20 shadow-inner">
+                    <table class="w-full text-left border-collapse table-fixed">
                         <thead>
-                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-xs tracking-wider border-b border-outline-variant/30">
-                                <th class="p-4 rounded-tl-2xl w-[120px]">Order No.</th>
-                                <th class="p-4 w-[160px]">Customer Name</th>
-                                <th class="p-4 w-[220px]">Shipping Address</th>
-                                <th class="p-4 w-[220px]">Product Summary</th>
-                                <th class="p-4 w-[140px]">Total Price</th>
-                                <th class="p-4 text-center w-[130px]">Current Status</th>
-                                <th class="p-4 text-center w-[220px]">Actions</th>
-                                <th class="p-4 w-[170px]">Order Date</th>
-                                <th class="p-4 text-center rounded-tr-2xl w-[160px]">Bills & Details</th>
+                            <tr class="bg-surface text-on-surface-variant font-label-md uppercase text-[10px] tracking-wider border-b border-outline-variant/30">
+                                <th class="px-2 py-3 rounded-tl-2xl" style="width:7%">Order No.</th>
+                                <th class="px-2 py-3" style="width:10%">Customer</th>
+                                <th class="px-2 py-3" style="width:15%">Shipping Address</th>
+                                <th class="px-2 py-3" style="width:10%">Products</th>
+                                <th class="px-2 py-3" style="width:8%">Total</th>
+                                <th class="px-2 py-3 text-center" style="width:9%">Status</th>
+                                <th class="px-2 py-3 text-center" style="width:19%">Actions</th>
+                                <th class="px-2 py-3" style="width:11%">Order Date</th>
+                                <th class="px-2 py-3 text-center rounded-tr-2xl" style="width:11%">Bills</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody" class="text-on-surface font-body-md text-sm">
@@ -1209,21 +1209,21 @@ function closeEditModal() {
             actionsHtml += `</div>`;
 
             tr.innerHTML = `
-                <td class="p-4 font-bold text-primary">${order.order_no}</td>
-                <td class="p-4 font-bold text-sm">${order.customer_name}</td>
-                <td class="p-4 text-xs text-on-surface-variant max-w-[200px] truncate" title="${order.shipping_address}">${order.shipping_address}</td>
-                <td class="p-4 text-xs font-semibold max-w-[220px] truncate" title="${order.items_summary}">${order.items_summary}</td>
-                <td class="p-4 font-bold text-on-surface">Rs. ${order.total_amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                <td class="p-4 text-center">${statusBadgeHtml}</td>
-                <td class="p-4 text-center">${actionsHtml}</td>
-                <td class="p-4 text-xs text-on-surface-variant whitespace-nowrap">${order.created_at_str}</td>
-                <td class="p-4 text-center">
-                    <div class="flex items-center justify-center gap-2">
-                        <button onclick="viewOrderDetails(${order.id})" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-secondary/20" title="View Order Detail">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Detail
+                <td class="px-2 py-3 font-bold text-primary text-xs truncate">${order.order_no}</td>
+                <td class="px-2 py-3 font-bold text-xs truncate" title="${order.customer_name}">${order.customer_name}</td>
+                <td class="px-2 py-3 text-[11px] text-on-surface-variant truncate" title="${order.shipping_address}">${order.shipping_address}</td>
+                <td class="px-2 py-3 text-[11px] font-semibold truncate" title="${order.items_summary}">${order.items_summary}</td>
+                <td class="px-2 py-3 font-bold text-xs text-on-surface">Rs. ${order.total_amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td class="px-2 py-3 text-center">${statusBadgeHtml}</td>
+                <td class="px-2 py-3 text-center">${actionsHtml}</td>
+                <td class="px-2 py-3 text-[11px] text-on-surface-variant">${order.created_at_str}</td>
+                <td class="px-2 py-3 text-center">
+                    <div class="flex items-center justify-center gap-1 flex-wrap">
+                        <button onclick="viewOrderDetails(${order.id})" class="bg-secondary/10 text-secondary hover:bg-secondary hover:text-white transition-colors px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-0.5 border border-secondary/20" title="View Order Detail">
+                            <span class="material-symbols-outlined text-[14px]">visibility</span> Detail
                         </button>
-                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary text-on-primary hover:bg-primary/95 transition-all px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm hover:shadow-md" title="Download Invoice">
-                            <span class="material-symbols-outlined text-[16px]">download</span> Invoice
+                        <a href="/api/admin/orders/${order.id}/invoice/" target="_blank" class="bg-primary text-on-primary hover:bg-primary/95 transition-all px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-0.5 shadow-sm hover:shadow-md" title="Download Invoice">
+                            <span class="material-symbols-outlined text-[14px]">download</span> Invoice
                         </a>
                     </div>
                 </td>

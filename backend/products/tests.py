@@ -364,3 +364,32 @@ class CheckoutGstIntegrationTests(TestCase):
         self.assertEqual(tax['cgst'], Decimal('90.00'))
         self.assertEqual(tax['sgst'], Decimal('90.00'))
 
+
+class SearchSuggestionsTests(TestCase):
+    def test_empty_query_returns_empty_results(self):
+        response = self.client.get(reverse('api_search_suggestions'), {'q': ''})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['results'], [])
+
+    def test_matching_query_returns_suggestions(self):
+        Product.objects.create(name='Everest Slide', price=Decimal('15000.00'), description='Big slide', category='OUTDOORS')
+        response = self.client.get(reverse('api_search_suggestions'), {'q': 'Everest'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data['results']), 1)
+        self.assertEqual(data['results'][0]['name'], 'Everest Slide')
+        self.assertEqual(data['results'][0]['price'], '15,000.00')
+        self.assertIn('Everest Slide', data['results'][0]['name'])
+
+    def test_category_filtering_works(self):
+        Product.objects.create(name='Everest Slide', price=Decimal('15000.00'), description='Big slide', category='OUTDOORS')
+        Product.objects.create(name='Everest Table', price=Decimal('2000.00'), description='Kids table', category='INDOORS')
+        
+        response = self.client.get(reverse('api_search_suggestions'), {'q': 'Everest', 'category': 'INDOORS'})
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data['results']), 1)
+        self.assertEqual(data['results'][0]['name'], 'Everest Table')
+
+

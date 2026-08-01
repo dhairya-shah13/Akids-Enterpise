@@ -50,6 +50,7 @@ urlpatterns = [
     path('admin-panel/inquiries/<int:pk>/status/', views.update_inquiry_status, name='update_inquiry_status'),
     path('admin-panel/inquiries/<int:pk>/delete/', views.delete_inquiry, name='delete_inquiry'),
     path('api/chat/', views.chat_api, name='chat_api'),
+    path('api/search-suggestions/', views.api_search_suggestions, name='api_search_suggestions'),
     
     # Administrative Order REST APIs
     path('api/admin/orders/', views.api_admin_orders, name='api_admin_orders'),
