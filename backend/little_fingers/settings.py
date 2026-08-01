@@ -73,7 +73,7 @@ validate_production_env()
 # ALLOWED_HOSTS is an explicit allow-list read from env (comma-separated).
 # Defaults include the production domains, localhost for local dev, and the
 # Vercel preview pattern so preview deployments keep working.
-_DEFAULT_ALLOWED_HOSTS = "akidsenterprise.com,www.akidsenterprice.com,localhost,127.0.0.1,.vercel.app"
+_DEFAULT_ALLOWED_HOSTS = "akidsenterprise.com,www.akidsenterprise.com,localhost,127.0.0.1,.vercel.app"
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv("ALLOWED_HOSTS", _DEFAULT_ALLOWED_HOSTS).split(",")

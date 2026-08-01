@@ -244,7 +244,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "True").strip().lower() in ("1", "true", "yes"
 SECRET_KEY = os.getenv("SECRET_KEY", "").strip()
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "").split(",") if h.strip()] or DEFAULT_ALLOWED_HOSTS
 ```
-- **Details:** `SECRET_KEY` is now required from env (strong key generated and added to local `.env`; user adds it to Vercel). `ALLOWED_HOSTS` defaults to `akidsenterprise.com`, `www.akidsenterprice.com`, `localhost`, `127.0.0.1`, plus `*.vercel.app` for previews. Production fails fast on a missing `SECRET_KEY`.
+- **Details:** `SECRET_KEY` is now required from env (strong key generated and added to local `.env`; user adds it to Vercel). `ALLOWED_HOSTS` defaults to `akidsenterprise.com`, `www.akidsenterprise.com`, `localhost`, `127.0.0.1`, plus `*.vercel.app` for previews. Production fails fast on a missing `SECRET_KEY`.
 - **Tests:** `test_production_startup_fails_without_secret_key` (pass).
 
 ### [RESOLVED] CSRF Protection Bypass for Admin APIs
