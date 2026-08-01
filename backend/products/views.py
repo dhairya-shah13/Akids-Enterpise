@@ -361,13 +361,27 @@ def logout_view(request):
 
 # --- Third-Party Auth: Google OAuth & Firebase Passwordless ---
 
+def _google_redirect_uri(request):
+    """Build the Google OAuth redirect URI.
+
+    Uses the SITE_URL setting (set in production) so the URI is always
+    canonical and matches what is registered in the Google Console,
+    regardless of which Host header Vercel forwards internally.
+    Falls back to request.build_absolute_uri() for local development.
+    """
+    from django.conf import settings as _settings
+    site_url = getattr(_settings, 'SITE_URL', None)
+    if site_url:
+        return f"{site_url}{reverse('google_callback')}"
+    return request.build_absolute_uri(reverse('google_callback'))
+
 def google_login(request):
     _read_env_file()
     client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
     if not client_id or client_id.startswith("YOUR_"):
         return redirect(f"{reverse('admin_login')}?toast=google-not-configured")
     
-    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    redirect_uri = _google_redirect_uri(request)
     google_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&"
@@ -384,7 +398,7 @@ def google_callback(request):
     
     client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
     client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
-    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    redirect_uri = _google_redirect_uri(request)
     
     token_url = "https://oauth2.googleapis.com/token"
     data = {
@@ -1878,7 +1892,7 @@ def google_login(request):
     if not client_id or client_id.startswith("YOUR_"):
         return redirect(f"{reverse('admin_login')}?toast=google-not-configured")
     
-    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    redirect_uri = _google_redirect_uri(request)
     google_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?"
         f"response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&"
@@ -1895,7 +1909,7 @@ def google_callback(request):
     
     client_id = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "").strip()
     client_secret = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "").strip()
-    redirect_uri = request.build_absolute_uri(reverse('google_callback'))
+    redirect_uri = _google_redirect_uri(request)
     
     token_url = "https://oauth2.googleapis.com/token"
     data = {

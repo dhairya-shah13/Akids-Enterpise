@@ -221,6 +221,26 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 # secure-cookie settings behave properly and no redirect loop is introduced.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# Vercel also forwards X-Forwarded-Host, so Django can use the user-facing
+# domain (e.g. akidsenterprise.com) instead of the internal deployment URL.
+USE_X_FORWARDED_HOST = True
+
+# CSRF_TRUSTED_ORIGINS is required by Django for cross-origin POST requests
+# (e.g. when the site is served via a reverse proxy or CDN).
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://akidsenterprise.com,https://www.akidsenterprise.com,https://akids-enterpise.vercel.app",
+    ).split(",")
+    if origin.strip()
+]
+
+# Canonical site URL used for building absolute URLs (e.g. OAuth redirect URIs)
+# that must be stable regardless of which Host header the proxy forwards.
+# Falls back to request.build_absolute_uri() when not set (local development).
+SITE_URL = os.getenv("SITE_URL", "").strip().rstrip("/") or None
+
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
