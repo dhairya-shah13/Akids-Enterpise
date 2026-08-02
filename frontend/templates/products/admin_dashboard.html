@@ -159,7 +159,7 @@
                                 </td>
                                 <td class="p-4 text-center whitespace-nowrap">
                                     {% csrf_token %}
-                                    <button type="button" onclick="openEditModal({{ product.pk }}, '{{ product.name|escapejs }}', '{{ product.category|escapejs }}', '{{ product.price }}', '{{ product.stock }}', '{{ product.image_url|default:''|escapejs }}', '{{ product.description|escapejs }}')" class="bg-sea/10 text-sea hover:bg-sea hover:text-white transition-colors p-2 rounded-lg inline-flex items-center justify-center mr-1" title="Edit Product">
+                                    <button type="button" onclick='openEditModal({{ product.pk }}, "{{ product.name|escapejs }}", "{{ product.category|escapejs }}", "{{ product.price }}", "{{ product.stock }}", "{{ product.image_url|default:""|escapejs }}", "{{ product.description|escapejs }}", {{ product.colours_json }}, {{ product.get_class_specs_json }}, {{ product.get_dimension_specs_json }})' class="bg-sea/10 text-sea hover:bg-sea hover:text-white transition-colors p-2 rounded-lg inline-flex items-center justify-center mr-1" title="Edit Product">
                                         <span class="material-symbols-outlined text-[20px]">edit</span>
                                     </button>
                                     <button type="button" onclick="confirmDeleteProduct({{ product.pk }}, '{{ product.name|escapejs }}')" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors p-2 rounded-lg inline-flex items-center justify-center" title="Delete Product">
@@ -460,7 +460,7 @@
             </button>
         </div>
 
-        <form method="POST" action="{% url 'add_product' %}" class="flex flex-col gap-6">
+        <form id="addProductForm" method="POST" action="{% url 'add_product' %}" class="flex flex-col gap-6">
             {% csrf_token %}
             <div>
                 <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface">Product Name *</label>
@@ -504,6 +504,84 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Available Colours Section -->
+            <div class="bg-purple-50/50 p-6 rounded-2xl border border-purple-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-purple-700 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">palette</span> Available Colours *
+                </label>
+                <input type="hidden" name="no_colour_active" id="addNoColourActiveInput" value="false">
+                <div id="addColourError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">Please select at least one colour or choose "No Colour".</div>
+                <div class="flex flex-wrap gap-2.5 mb-3" id="addColourSwatches">
+                    {% for colour_name, colour_hex in product_colours %}
+                    <label class="relative cursor-pointer group">
+                        <input type="checkbox" name="colours" value="{{ colour_name }}" class="sr-only add-colour-checkbox" onchange="handleAddColourChange()">
+                        <div class="add-swatch w-10 h-10 rounded-xl border-2 border-outline-variant/30 shadow-sm flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-md"
+                             style="background-color: {{ colour_hex }}; {% if colour_hex == '#FFFFFF' %}border-color: #ccc;{% endif %}"
+                             title="{{ colour_name }}">
+                            <span class="material-symbols-outlined text-[18px] text-white opacity-0 transition-opacity swatch-check" style="{% if colour_hex == '#FFFFFF' or colour_hex == '#FDD835' %}color: #333;{% endif %}">check</span>
+                        </div>
+                        <span class="block text-center text-[8px] font-bold mt-1 text-on-surface-variant leading-tight">{{ colour_name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="button" id="addNoColourBtn" onclick="toggleAddNoColour()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-outline-variant/30 text-xs font-bold text-on-surface-variant hover:bg-background transition-all">
+                    <span class="material-symbols-outlined text-[16px]">block</span> No Colour
+                </button>
+            </div>
+
+            <!-- Class / Age Group Specs Section -->
+            <div class="bg-teal-50/50 p-6 rounded-2xl border border-teal-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-teal-700 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-[18px]">child_care</span> Class / Age Group (Optional)
+                </label>
+                <div id="addClassSpecError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">All fields in each class spec row must be filled in.</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs" id="addClassSpecTable">
+                        <thead>
+                            <tr class="text-left text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20 font-bold">
+                                <th class="pb-2 pr-2 font-bold">Class</th>
+                                <th class="pb-2 pr-2 font-bold">Age Min (Years)</th>
+                                <th class="pb-2 pr-2 font-bold">Age Max (Years)</th>
+                                <th class="pb-2 font-bold w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="addClassSpecBody"></tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addClassSpecRow('add')" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-dashed border-teal-300 text-teal-700 text-xs font-bold hover:bg-teal-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">add</span> Add Class Row
+                </button>
+            </div>
+
+            <!-- Dimensions Section -->
+            <div class="bg-sky-50/50 p-6 rounded-2xl border border-sky-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-sky-700 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-[18px]">straighten</span> Dimensions (Optional)
+                </label>
+                <div id="addDimensionSpecError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">Length is a mandatory field in each non-empty dimension row.</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs min-w-[850px]" id="addDimensionSpecTable">
+                        <thead>
+                            <tr class="text-left text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20 font-bold">
+                                <th class="pb-2 pr-2 font-bold">Group Label (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Component (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Length *</th>
+                                <th class="pb-2 pr-2 font-bold">Width (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Height (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Unit *</th>
+                                <th class="pb-2 pr-2 font-bold">Notes (Optional)</th>
+                                <th class="pb-2 font-bold w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="addDimensionSpecBody"></tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addDimensionSpecRow('add')" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-dashed border-sky-300 text-sky-700 text-xs font-bold hover:bg-sky-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">add</span> Add Dimension Row
+                </button>
+            </div>
+
 
             <div>
                 <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface mt-2">Description *</label>
@@ -574,6 +652,84 @@
                 <input type="url" id="editImageUrlInput" name="image_url" class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-primary transition-shadow">
             </div>
 
+            <!-- Available Colours Section (Edit) -->
+            <div class="bg-purple-50/50 p-6 rounded-2xl border border-purple-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-purple-700 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">palette</span> Available Colours *
+                </label>
+                <input type="hidden" name="no_colour_active" id="editNoColourActiveInput" value="false">
+                <div id="editColourError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">Please select at least one colour or choose "No Colour".</div>
+                <div class="flex flex-wrap gap-2.5 mb-3" id="editColourSwatches">
+                    {% for colour_name, colour_hex in product_colours %}
+                    <label class="relative cursor-pointer group">
+                        <input type="checkbox" name="colours" value="{{ colour_name }}" class="sr-only edit-colour-checkbox" onchange="handleEditColourChange()">
+                        <div class="edit-swatch w-10 h-10 rounded-xl border-2 border-outline-variant/30 shadow-sm flex items-center justify-center transition-all group-hover:scale-110 group-hover:shadow-md"
+                             style="background-color: {{ colour_hex }}; {% if colour_hex == '#FFFFFF' %}border-color: #ccc;{% endif %}"
+                             title="{{ colour_name }}">
+                            <span class="material-symbols-outlined text-[18px] text-white opacity-0 transition-opacity swatch-check" style="{% if colour_hex == '#FFFFFF' or colour_hex == '#FDD835' %}color: #333;{% endif %}">check</span>
+                        </div>
+                        <span class="block text-center text-[8px] font-bold mt-1 text-on-surface-variant leading-tight">{{ colour_name }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="button" id="editNoColourBtn" onclick="toggleEditNoColour()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-outline-variant/30 text-xs font-bold text-on-surface-variant hover:bg-background transition-all">
+                    <span class="material-symbols-outlined text-[16px]">block</span> No Colour
+                </button>
+            </div>
+
+            <!-- Class / Age Group Specs Section (Edit) -->
+            <div class="bg-teal-50/50 p-6 rounded-2xl border border-teal-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-teal-700 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-[18px]">child_care</span> Class / Age Group (Optional)
+                </label>
+                <div id="editClassSpecError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">All fields in each class spec row must be filled in.</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs" id="editClassSpecTable">
+                        <thead>
+                            <tr class="text-left text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20 font-bold">
+                                <th class="pb-2 pr-2 font-bold">Class</th>
+                                <th class="pb-2 pr-2 font-bold">Age Min (Years)</th>
+                                <th class="pb-2 pr-2 font-bold">Age Max (Years)</th>
+                                <th class="pb-2 font-bold w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="editClassSpecBody"></tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addClassSpecRow('edit')" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-dashed border-teal-300 text-teal-700 text-xs font-bold hover:bg-teal-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">add</span> Add Class Row
+                </button>
+            </div>
+
+            <!-- Dimensions Section (Edit) -->
+            <div class="bg-sky-50/50 p-6 rounded-2xl border border-sky-200/30">
+                <label class="font-label-md text-xs mb-3 block uppercase tracking-wider text-sky-700 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-[18px]">straighten</span> Dimensions (Optional)
+                </label>
+                <div id="editDimensionSpecError" class="hidden mb-3 text-xs text-error font-bold bg-error/10 border border-error/20 rounded-lg px-3 py-2">Length is a mandatory field in each non-empty dimension row.</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs min-w-[850px]" id="editDimensionSpecTable">
+                        <thead>
+                            <tr class="text-left text-on-surface-variant uppercase tracking-wider border-b border-outline-variant/20 font-bold">
+                                <th class="pb-2 pr-2 font-bold">Group Label (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Component (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Length *</th>
+                                <th class="pb-2 pr-2 font-bold">Width (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Height (Optional)</th>
+                                <th class="pb-2 pr-2 font-bold">Unit *</th>
+                                <th class="pb-2 pr-2 font-bold">Notes (Optional)</th>
+                                <th class="pb-2 font-bold w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="editDimensionSpecBody"></tbody>
+                    </table>
+                </div>
+                <button type="button" onclick="addDimensionSpecRow('edit')" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-dashed border-sky-300 text-sky-700 text-xs font-bold hover:bg-sky-50 transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">add</span> Add Dimension Row
+                </button>
+            </div>
+
+
             <div>
                 <label class="font-label-md text-xs mb-2 block uppercase tracking-wider text-on-surface mt-2">Description *</label>
                 <textarea id="editDescriptionInput" name="description" rows="3" required class="w-full bg-background border border-outline-variant/30 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-on-surface transition-shadow resize-y"></textarea>
@@ -588,7 +744,275 @@
 </div>
 
 <script>
-function openEditModal(id, name, category, price, stock, imageUrl, description) {
+// --- Class & Dimension Specs and Color Variants Logic ---
+
+function addClassSpecRow(prefix, data = null) {
+    const tbody = document.getElementById(prefix + 'ClassSpecBody');
+    if (!tbody) return;
+    
+    const row = document.createElement('tr');
+    row.className = 'border-b border-outline-variant/15 hover:bg-neutral-50/50 transition-colors';
+    
+    const classVal = data ? data.class_label : '';
+    const ageMinVal = data ? data.age_min : '';
+    const ageMaxVal = data ? data.age_max : '';
+    
+    row.innerHTML = `
+        <td class="py-2 pr-2">
+            <input type="text" name="class_label[]" value="${classVal}" required placeholder="Toddler" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs font-semibold">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="number" name="class_age_min[]" value="${ageMinVal}" required min="0" placeholder="1" class="w-24 bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="number" name="class_age_max[]" value="${ageMaxVal}" required min="0" placeholder="3" class="w-24 bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs">
+        </td>
+        <td class="py-2 text-center">
+            <button type="button" onclick="this.closest('tr').remove()" class="text-error hover:text-error-hover p-1 inline-flex items-center justify-center" title="Delete Row">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+}
+
+function addDimensionSpecRow(prefix, data = null) {
+    const tbody = document.getElementById(prefix + 'DimensionSpecBody');
+    if (!tbody) return;
+    
+    const row = document.createElement('tr');
+    row.className = 'border-b border-outline-variant/15 hover:bg-neutral-50/50 transition-colors';
+    
+    const groupLabelVal = data ? data.group_label : '';
+    const componentVal = data ? data.component : '';
+    const lengthVal = data ? data.length : '';
+    const widthVal = data ? data.width : '';
+    const heightVal = data ? data.height : '';
+    const unitVal = data ? data.unit : 'cm';
+    const notesVal = data ? data.notes : '';
+    
+    row.innerHTML = `
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_group_label[]" value="${groupLabelVal}" placeholder="e.g. PRIMARY" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs font-semibold uppercase">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_component[]" value="${componentVal}" placeholder="e.g. Desk" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs font-semibold">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_length[]" value="${lengthVal}" required placeholder="e.g. 120" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs font-semibold">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_width[]" value="${widthVal}" placeholder="e.g. 60" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs font-semibold">
+        </td>
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_height[]" value="${heightVal}" placeholder="e.g. 75" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs">
+        </td>
+        <td class="py-2 pr-2">
+            <select name="dim_unit[]" class="bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs">
+                <option value="cm" ${unitVal === 'cm' ? 'selected' : ''}>cm</option>
+                <option value="inch" ${unitVal === 'inch' ? 'selected' : ''}>inch</option>
+                <option value="mm" ${unitVal === 'mm' ? 'selected' : ''}>mm</option>
+                <option value="ft" ${unitVal === 'ft' ? 'selected' : ''}>ft</option>
+            </select>
+        </td>
+        <td class="py-2 pr-2">
+            <input type="text" name="dim_notes[]" value="${notesVal}" placeholder="e.g. 60 Ltrs" class="w-full bg-background border border-outline-variant/30 rounded-lg px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs">
+        </td>
+        <td class="py-2 text-center">
+            <button type="button" onclick="this.closest('tr').remove()" class="text-error hover:text-error-hover p-1 inline-flex items-center justify-center" title="Delete Row">
+                <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+        </td>
+    `;
+    tbody.appendChild(row);
+}
+
+function updateColourUI(prefix) {
+    const noColourActiveInput = document.getElementById(prefix + 'NoColourActiveInput');
+    const isNoColour = noColourActiveInput.value === 'true';
+    
+    // Style "No Colour" Button
+    const noColourBtn = document.getElementById(prefix + 'NoColourBtn');
+    if (noColourBtn) {
+        if (isNoColour) {
+            noColourBtn.className = "inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-error bg-error/10 text-error font-bold text-xs shadow-sm";
+        } else {
+            noColourBtn.className = "inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-outline-variant/30 text-xs font-bold text-on-surface-variant hover:bg-background transition-all";
+        }
+    }
+    
+    // Checkboxes and swatches
+    const checkboxes = document.querySelectorAll('.' + prefix + '-colour-checkbox');
+    checkboxes.forEach(cb => {
+        const swatch = cb.nextElementSibling;
+        const checkIcon = swatch.querySelector('.swatch-check');
+        
+        if (isNoColour) {
+            cb.checked = false;
+            cb.disabled = true;
+            swatch.classList.add('opacity-40', 'cursor-not-allowed');
+            swatch.classList.remove('ring-2', 'ring-primary', 'scale-105');
+            checkIcon.classList.add('opacity-0');
+            checkIcon.classList.remove('opacity-100');
+        } else {
+            cb.disabled = false;
+            swatch.classList.remove('opacity-40', 'cursor-not-allowed');
+            if (cb.checked) {
+                swatch.classList.add('ring-2', 'ring-primary', 'scale-105');
+                checkIcon.classList.remove('opacity-0');
+                checkIcon.classList.add('opacity-100');
+            } else {
+                swatch.classList.remove('ring-2', 'ring-primary', 'scale-105');
+                checkIcon.classList.add('opacity-0');
+                checkIcon.classList.remove('opacity-100');
+            }
+        }
+    });
+}
+
+function toggleAddNoColour() {
+    const input = document.getElementById('addNoColourActiveInput');
+    input.value = input.value === 'true' ? 'false' : 'true';
+    updateColourUI('add');
+}
+
+function toggleEditNoColour() {
+    const input = document.getElementById('editNoColourActiveInput');
+    input.value = input.value === 'true' ? 'false' : 'true';
+    updateColourUI('edit');
+}
+
+function handleAddColourChange() {
+    document.getElementById('addNoColourActiveInput').value = 'false';
+    updateColourUI('add');
+}
+
+function handleEditColourChange() {
+    document.getElementById('editNoColourActiveInput').value = 'false';
+    updateColourUI('edit');
+}
+
+function initFormColorsAndSpecs(prefix) {
+    // Reset colors
+    const noColourActiveInput = document.getElementById(prefix + 'NoColourActiveInput');
+    if (noColourActiveInput) noColourActiveInput.value = 'false';
+    
+    const checkboxes = document.querySelectorAll('.' + prefix + '-colour-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false;
+    });
+    
+    updateColourUI(prefix);
+    
+    // Clear class specs
+    const classTbody = document.getElementById(prefix + 'ClassSpecBody');
+    if (classTbody) classTbody.innerHTML = '';
+
+    // Clear dimension specs
+    const dimTbody = document.getElementById(prefix + 'DimensionSpecBody');
+    if (dimTbody) dimTbody.innerHTML = '';
+    
+    // Hide errors
+    const colourErr = document.getElementById(prefix + 'ColourError');
+    if (colourErr) colourErr.classList.add('hidden');
+    const classErr = document.getElementById(prefix + 'ClassSpecError');
+    if (classErr) classErr.classList.add('hidden');
+    const dimErr = document.getElementById(prefix + 'DimensionSpecError');
+    if (dimErr) dimErr.classList.add('hidden');
+}
+
+// Validation logic on submit
+function validateProductForm(prefix) {
+    const noColourActive = document.getElementById(prefix + 'NoColourActiveInput').value === 'true';
+    const checkboxes = document.querySelectorAll('.' + prefix + '-colour-checkbox');
+    let hasSelectedColour = false;
+    checkboxes.forEach(cb => {
+        if (cb.checked) hasSelectedColour = true;
+    });
+    
+    const colourError = document.getElementById(prefix + 'ColourError');
+    if (!noColourActive && !hasSelectedColour) {
+        if (colourError) {
+            colourError.classList.remove('hidden');
+            colourError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+    } else {
+        if (colourError) colourError.classList.add('hidden');
+    }
+    
+    // Validate Class Spec Table
+    const classTbody = document.getElementById(prefix + 'ClassSpecBody');
+    const classRows = classTbody.querySelectorAll('tr');
+    let hasClassError = false;
+    
+    for (let row of classRows) {
+        const classInput = row.querySelector('input[name="class_label[]"]');
+        const minInput = row.querySelector('input[name="class_age_min[]"]');
+        const maxInput = row.querySelector('input[name="class_age_max[]"]');
+        
+        if (!classInput.value.trim() || !minInput.value.trim() || !maxInput.value.trim()) {
+            hasClassError = true;
+            break;
+        }
+        
+        const ageMin = parseInt(minInput.value);
+        const ageMax = parseInt(maxInput.value);
+        
+        if (isNaN(ageMin) || isNaN(ageMax) || ageMin > ageMax || ageMin < 0) {
+            hasClassError = true;
+            break;
+        }
+    }
+    
+    const classError = document.getElementById(prefix + 'ClassSpecError');
+    if (hasClassError) {
+        if (classError) {
+            classError.classList.remove('hidden');
+            classError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+    } else {
+        if (classError) classError.classList.add('hidden');
+    }
+
+    // Validate Dimension Spec Table
+    const dimTbody = document.getElementById(prefix + 'DimensionSpecBody');
+    const dimRows = dimTbody.querySelectorAll('tr');
+    let hasDimError = false;
+    
+    for (let row of dimRows) {
+        const groupInput = row.querySelector('input[name="dim_group_label[]"]');
+        const compInput = row.querySelector('input[name="dim_component[]"]');
+        const lenInput = row.querySelector('input[name="dim_length[]"]');
+        const widInput = row.querySelector('input[name="dim_width[]"]');
+        const heiInput = row.querySelector('input[name="dim_height[]"]');
+        const notesInput = row.querySelector('input[name="dim_notes[]"]');
+        
+        if (groupInput.value.trim() || compInput.value.trim() || lenInput.value.trim() || widInput.value.trim() || heiInput.value.trim() || notesInput.value.trim()) {
+            if (!lenInput.value.trim()) {
+                hasDimError = true;
+                break;
+            }
+        }
+    }
+    
+    const dimError = document.getElementById(prefix + 'DimensionSpecError');
+    if (hasDimError) {
+        if (dimError) {
+            dimError.classList.remove('hidden');
+            dimError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+    } else {
+        if (dimError) dimError.classList.add('hidden');
+    }
+    
+    return true;
+}
+
+function openEditModal(id, name, category, price, stock, imageUrl, description, colours, classSpecs, dimensionSpecs) {
     document.getElementById('editProductForm').action = "/admin-panel/products/" + id + "/edit/";
     document.getElementById('editNameInput').value = name;
     document.getElementById('editCategorySelect').value = category;
@@ -596,8 +1020,41 @@ function openEditModal(id, name, category, price, stock, imageUrl, description) 
     document.getElementById('editStockInput').value = stock;
     document.getElementById('editImageUrlInput').value = imageUrl || '';
     document.getElementById('editDescriptionInput').value = description || '';
+    
+    // Initialize/Reset
+    initFormColorsAndSpecs('edit');
+    
+    // Populate colours
+    if (colours && colours.length > 0) {
+        document.getElementById('editNoColourActiveInput').value = 'false';
+        const checkboxes = document.querySelectorAll('.edit-colour-checkbox');
+        checkboxes.forEach(cb => {
+            if (colours.includes(cb.value)) {
+                cb.checked = true;
+            }
+        });
+    } else {
+        document.getElementById('editNoColourActiveInput').value = 'true';
+    }
+    updateColourUI('edit');
+    
+    // Populate class specs
+    if (classSpecs && classSpecs.length > 0) {
+        classSpecs.forEach(spec => {
+            addClassSpecRow('edit', spec);
+        });
+    }
+    
+    // Populate dimension specs
+    if (dimensionSpecs && dimensionSpecs.length > 0) {
+        dimensionSpecs.forEach(spec => {
+            addDimensionSpecRow('edit', spec);
+        });
+    }
+    
     document.getElementById('editProductModal').classList.remove('hidden');
 }
+
 
 function closeEditModal() {
     document.getElementById('editProductModal').classList.add('hidden');
@@ -1029,6 +1486,7 @@ function closeEditModal() {
     });
 
     function openModal() {
+        initFormColorsAndSpecs('add');
         document.getElementById('addModal').classList.remove('hidden');
         document.getElementById('addModal').classList.add('flex');
     }
@@ -1393,7 +1851,10 @@ function closeEditModal() {
                                 <img src="${item.display_image}" class="max-h-full object-contain">
                             </div>
                         </td>
-                        <td class="p-3 font-semibold text-xs">${item.product_name}</td>
+                        <td class="p-3 font-semibold text-xs">
+                            ${item.product_name}
+                            ${item.colour ? `<span class="ml-1.5 text-[9px] px-2 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider">${item.colour}</span>` : ''}
+                        </td>
                         <td class="p-3 font-semibold text-[10px] uppercase text-on-surface-variant/70">${item.sku || 'N/A'}</td>
                         <td class="p-3 text-center font-bold">${item.quantity}</td>
                         <td class="p-3 text-right">₹${item.unit_price.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
@@ -1954,6 +2415,25 @@ function closeEditModal() {
                 form.appendChild(csrfInput);
                 document.body.appendChild(form);
                 form.submit();
+            });
+        }
+
+        // Attach product form validators
+        const addForm = document.getElementById('addProductForm');
+        if (addForm) {
+            addForm.addEventListener('submit', (e) => {
+                if (!validateProductForm('add')) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        const editForm = document.getElementById('editProductForm');
+        if (editForm) {
+            editForm.addEventListener('submit', (e) => {
+                if (!validateProductForm('edit')) {
+                    e.preventDefault();
+                }
             });
         }
     });

@@ -405,7 +405,8 @@ function showToast(msgOrTitle, typeOrMsg, maybeType) {
         'signup': ['Account created successfully!', 'success'],
         'logout': ['Logged out successfully', 'success'],
         'google-not-configured': ['Google Sign-In is not configured yet.', 'error'],
-        'google-error': ['Google Sign-In failed or was cancelled.', 'error']
+        'google-error': ['Google Sign-In failed or was cancelled.', 'error'],
+        'select-variants-required': ['Please select both a colour and dimensions.', 'error']
     };
     if (t && msgs[t]) {
         showToast(msgs[t][0], msgs[t][1]);

@@ -1,3 +1,45 @@
+## 📋 Progress Made on Date and Time (2 August 2026 08:00)
+
+### Catalogue-Aligned Product Variants, Documentation & Git Push
+
+Completed dimension spec enhancements (group_label, component, notes, CharField conversions), created comprehensive Admin and User manuals, updated project documentation, and pushed all changes to the `main` branch.
+
+#### 1. Implementation Breakdown
+
+| # | Feature / Change | Status | Implementation Details |
+|---|------------------|--------|------------------------|
+| **1** | `ProductDimensionSpec` fields expanded | **COMPLETED** | Added `group_label` (optional, for class grouping), `component` (optional, for multi-piece products), `notes` (optional, for capacity/material notes). Length/Width/Height converted to `CharField(max_length=50)` to support ranges (`59-90`), diameters (`D/Dia 90`), and text values. |
+| **2** | Admin form updated for new fields | **COMPLETED** | Add/Edit Product modals now show Group Label, Component, and Notes columns in the Dimensions table. JS `addDimensionSpecRow()` renders all 7 columns. |
+| **3** | Admin Manual | **COMPLETED** | Created `docs/admin_manual.md` — comprehensive guide covering: Admin HQ overview, product management flowcharts, field-by-field guide for every form field, colour/class/dimension spec instructions, 4 real-world catalogue examples, order management with status transition diagrams, inquiry lifecycle, sales analytics, security, and troubleshooting FAQs. |
+| **4** | User Manual | **COMPLETED** | Created `docs/user_manual.md` — complete customer guide covering: account creation (email/Google/passwordless), browsing, search, product detail + variant selection, cart, checkout, orders/invoices, profile management (avatar, addresses, password), catalogue inquiries, AI chat assistant, and FAQs. |
+| **5** | context.md updated | **COMPLETED** | Updated project structure tree to include `admin_manual.md` and `user_manual.md`. Updated product variants description and progress table with expanded dimension fields and documentation entries. |
+| **6** | progress.md updated | **COMPLETED** | Added this session's progress entry documenting all changes. |
+| **7** | Git push to main | **COMPLETED** | All changes committed and pushed to the `main` branch. |
+
+#### 2. Created & Modified Files
+- `docs/admin_manual.md` (NEW)
+- `docs/user_manual.md` (NEW)
+- `docs/context.md`
+- `docs/progress.md`
+- `backend/products/models.py`
+- `backend/products/views.py`
+- `backend/products/admin.py`
+- `backend/products/tests.py`
+- `backend/products/constants.py` (NEW)
+- `backend/products/pdf_generator.py`
+- `backend/products/migrations/0020–0024` (NEW)
+- `frontend/templates/products/admin_dashboard.html`
+- `frontend/templates/products/product_detail.html`
+- `frontend/templates/products/product_card.html`
+- `frontend/templates/products/cart.html`
+- `frontend/templates/products/checkout.html`
+- `frontend/templates/products/profile.html`
+- `frontend/static/js/main.js`
+
+**Test Status**: All 55 unit tests pass cleanly.
+
+---
+
 ## 📋 Progress Made on Date and Time (31 July 2026)
 
 Completed 20 Client-Requested Changes across Homepage, Data Hygiene, Third-Party Auth, Admin HQ, User Profile, and Security.

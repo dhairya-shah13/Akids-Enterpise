@@ -40,7 +40,15 @@
                             
                             <!-- Product Detail -->
                             <div class="flex-1 min-w-0">
-                                <h4 class="font-bold text-sm text-on-surface truncate">{{ item.product.name }}</h4>
+                                <h4 class="font-bold text-sm text-on-surface truncate">
+                                    {{ item.product.name }}
+                                    {% if item.colour %}
+                                    <span class="ml-1.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider">{{ item.colour }}</span>
+                                    {% endif %}
+                                    {% if item.dimension %}
+                                    <span class="ml-1.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider">{{ item.dimension }}</span>
+                                    {% endif %}
+                                </h4>
                                 <p class="text-on-surface-variant text-xs mt-0.5">Quantity: <span class="font-bold">{{ item.quantity }}</span></p>
                             </div>
                             

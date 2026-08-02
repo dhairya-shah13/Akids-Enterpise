@@ -53,22 +53,25 @@ class AdminProductManagementTests(TestCase):
             'price': '12500',
             'stock': '18',
             'description': 'Safe indoor arch for kids',
-            'image_url': ''
+            'image_url': '',
+            'colours': ['Red']
         })
         self.assertRedirects(response, reverse('admin_dashboard'))
         product = Product.objects.get(name='Test Climbing Arch')
         self.assertEqual(product.stock, 18)
+        self.assertEqual(product.colours, ['Red'])
 
     def test_edit_product_details(self):
         self.client.force_login(self.admin)
-        product = Product.objects.create(name='Old Name', category='INDOORS', price=1000, stock=5, description='Old desc')
+        product = Product.objects.create(name='Old Name', category='INDOORS', price=1000, stock=5, description='Old desc', colours=['Red'])
         response = self.client.post(reverse('edit_product', args=[product.pk]), {
             'name': 'Updated Name',
             'category': 'OUTDOORS',
             'price': '1500',
             'stock': '25',
             'description': 'Updated desc',
-            'image_url': ''
+            'image_url': '',
+            'colours': ['Blue']
         })
         self.assertEqual(response.status_code, 302)
         product.refresh_from_db()
@@ -76,6 +79,7 @@ class AdminProductManagementTests(TestCase):
         self.assertEqual(product.category, 'OUTDOORS')
         self.assertEqual(product.price, 1500)
         self.assertEqual(product.stock, 25)
+        self.assertEqual(product.colours, ['Blue'])
 
 
 class UserAddressTests(TestCase):
@@ -391,5 +395,161 @@ class SearchSuggestionsTests(TestCase):
         data = response.json()
         self.assertEqual(len(data['results']), 1)
         self.assertEqual(data['results'][0]['name'], 'Everest Table')
+
+
+class ProductColoursAndSizeSpecsTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser('adminuser', 'admin@example.com', 'pass123')
+        self.client = Client()
+        self.product = Product.objects.create(
+            name="Testing Arch",
+            category="INDOORS",
+            price=Decimal("5000.00"),
+            stock=10,
+            description="Safe testing arch",
+            colours=["Red", "Blue"]
+        )
+        self.class_spec = self.product.class_specs.create(
+            class_label="Toddler",
+            age_min=1,
+            age_max=3,
+            order=0
+        )
+        self.dimension_spec = self.product.dimension_specs.create(
+            group_label="Toddler",
+            component="Desk",
+            length="50",
+            width="50",
+            height="",
+            unit="cm",
+            notes="Test notes",
+            order=0
+        )
+
+    def test_product_model_colours_and_specs(self):
+        self.assertEqual(self.product.colours, ["Red", "Blue"])
+        self.assertEqual(self.product.colours_with_hex, [("Red", "#E53935"), ("Blue", "#1E88E5")])
+        self.assertEqual(self.product.class_specs.count(), 1)
+        self.assertEqual(self.product.dimension_specs.count(), 1)
+        
+        spec = self.product.class_specs.first()
+        self.assertEqual(spec.class_label, "Toddler")
+        
+        dim = self.product.dimension_specs.first()
+        self.assertEqual(dim.group_label, "Toddler")
+        self.assertEqual(dim.component, "Desk")
+        self.assertEqual(dim.length, "50")
+        self.assertEqual(dim.width, "50")
+        self.assertEqual(dim.height, "")
+        self.assertEqual(dim.notes, "Test notes")
+
+    def test_add_product_with_specs_and_colours_via_admin(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse('add_product'), {
+            'name': 'New Spec Product',
+            'category': 'INDOORS',
+            'price': '8000',
+            'stock': '15',
+            'description': 'Description with details',
+            'image_url': '',
+            'colours': ['Green', 'Yellow'],
+            'class_label[]': ['Infant', 'Toddler'],
+            'class_age_min[]': ['0', '1'],
+            'class_age_max[]': ['1', '3'],
+            'dim_group_label[]': ['Infant', 'Toddler'],
+            'dim_component[]': ['Chair', 'Desk'],
+            'dim_length[]': ['30', '45'],
+            'dim_width[]': ['30', '45'],
+            'dim_height[]': ['', '20'],
+            'dim_unit[]': ['cm', 'inch'],
+            'dim_notes[]': ['Note 1', 'Note 2']
+        })
+        self.assertRedirects(response, reverse('admin_dashboard'))
+        product = Product.objects.get(name='New Spec Product')
+        self.assertEqual(product.colours, ['Green', 'Yellow'])
+        self.assertEqual(product.class_specs.count(), 2)
+        self.assertEqual(product.dimension_specs.count(), 2)
+        
+        classes = list(product.class_specs.all().order_by('order'))
+        self.assertEqual(classes[0].class_label, 'Infant')
+        
+        dims = list(product.dimension_specs.all().order_by('order'))
+        self.assertEqual(dims[0].group_label, 'Infant')
+        self.assertEqual(dims[0].component, 'Chair')
+        self.assertEqual(dims[1].group_label, 'Toddler')
+        self.assertEqual(dims[1].component, 'Desk')
+        self.assertEqual(dims[1].unit, 'inch')
+        self.assertEqual(dims[1].height, '20')
+        self.assertEqual(dims[1].notes, 'Note 2')
+
+    def test_cart_operations_with_colours_and_dimensions(self):
+        # Validation failure redirect when variants are missing
+        response = self.client.post(reverse('add_to_cart', args=[self.product.pk]), {
+            'quantity': 2,
+            'colour': '',
+            'dimension': ''
+        })
+        self.assertRedirects(response, f"{reverse('product_detail', args=[self.product.pk])}?toast=select-variants-required")
+
+        # Add to cart with color Red and dimension Toddler
+        response = self.client.post(reverse('add_to_cart', args=[self.product.pk]), {
+            'quantity': 2,
+            'colour': 'Red',
+            'dimension': 'Toddler'
+        })
+        # Check session key structure
+        session = self.client.session
+        cart = session.get('cart', {})
+        expected_key = f"{self.product.pk}::Red::Toddler"
+        self.assertIn(expected_key, cart)
+        self.assertEqual(cart[expected_key], 2)
+
+        # Update cart
+        response = self.client.post(reverse('update_cart', args=[self.product.pk]), {
+            'quantity': 4,
+            'colour': 'Red',
+            'dimension': 'Toddler'
+        })
+        cart = self.client.session.get('cart', {})
+        self.assertEqual(cart[expected_key], 4)
+
+        # Remove from cart
+        response = self.client.post(reverse('remove_from_cart', args=[self.product.pk]), {
+            'colour': 'Red',
+            'dimension': 'Toddler'
+        })
+        cart = self.client.session.get('cart', {})
+        self.assertNotIn(expected_key, cart)
+
+    def test_order_creation_and_invoice_pdf_with_colour_and_dimension(self):
+        # Login customer
+        customer = User.objects.create_user('customer', 'cust@example.com', 'pass123')
+        self.client.force_login(customer)
+        
+        # Add to cart
+        self.client.post(reverse('add_to_cart', args=[self.product.pk]), {
+            'quantity': 1,
+            'colour': 'Blue',
+            'dimension': 'Toddler'
+        })
+        
+        # Checkout
+        response = self.client.post(reverse('checkout'), {
+            'customer_name': 'customer',
+            'shipping_address': '123 Playground Street'
+        })
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify order & order item
+        order = Order.objects.latest('id')
+        self.assertEqual(order.items.count(), 1)
+        item = order.items.first()
+        self.assertEqual(item.colour, 'Blue')
+        self.assertEqual(item.dimension, 'Toddler')
+        
+        # Generate Invoice and verify colour/dimension is rendered
+        from products.pdf_generator import generate_invoice_pdf
+        pdf_content = generate_invoice_pdf(order)
+        self.assertIsNotNone(pdf_content)
 
 

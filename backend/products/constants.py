@@ -1,0 +1,16 @@
+PRODUCT_COLOURS = [
+    ('Red', '#E53935'),
+    ('Blue', '#1E88E5'),
+    ('Green', '#43A047'),
+    ('Yellow', '#FDD835'),
+    ('Orange', '#FB8C00'),
+    ('Purple', '#8E24AA'),
+    ('Pink', '#EC407A'),
+    ('Black', '#000000'),
+    ('White', '#FFFFFF'),
+    ('Gray', '#9E9E9E'),
+    ('Brown', '#6D4C41'),
+    ('Sky Blue', '#29B6F6'),
+    ('Maroon', '#800000'),
+    ('Teal', '#00897B'),
+]

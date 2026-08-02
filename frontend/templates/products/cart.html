@@ -25,7 +25,15 @@
                     
                     <!-- Product Info -->
                     <div class="flex-1 w-full flex flex-col justify-center">
-                        <h2 class="font-headline-md text-xl mb-1"><a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a></h2>
+                        <h2 class="font-headline-md text-xl mb-1">
+                            <a href="{% url 'product_detail' item.product.pk %}" class="text-on-surface hover:text-primary transition-colors">{{ item.product.name }}</a>
+                            {% if item.colour %}
+                            <span class="ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider">{{ item.colour }}</span>
+                            {% endif %}
+                            {% if item.dimension %}
+                            <span class="ml-2 text-[9px] px-2 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider">{{ item.dimension }}</span>
+                            {% endif %}
+                        </h2>
                         <p class="text-on-surface-variant text-sm mb-4">Category: <span class="font-bold">{{ item.product.category }}</span></p>
                         {% if not item.is_available %}
                         <p class="mb-4 rounded-lg bg-error/10 border border-error/20 px-3 py-2 text-xs font-bold text-error">No longer available — remove this item to continue.</p>
@@ -35,6 +43,8 @@
                             <!-- Quantity Controls -->
                             <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="m-0">
                                 {% csrf_token %}
+                                <input type="hidden" name="colour" value="{{ item.colour|default:'' }}">
+                                <input type="hidden" name="dimension" value="{{ item.dimension|default:'' }}">
                                 <div class="flex items-center bg-background border border-outline-variant/50 rounded-xl overflow-hidden shadow-inner">
                                     <button type="submit" name="quantity" value="{{ item.quantity|add:'-1' }}" class="min-w-[48px] min-h-[48px] px-4 py-2 font-black text-on-surface-variant hover:bg-white hover:text-primary transition-colors" aria-label="Decrease quantity">-</button>
                                     <input type="number" name="quantity_display" value="{{ item.quantity }}" class="w-12 text-center font-bold outline-none border-none bg-transparent text-on-surface" readonly aria-label="Quantity">
@@ -47,6 +57,8 @@
                                 <div class="font-display-lg text-2xl text-on-surface">₹{{ item.total_price }}</div>
                                 <form method="POST" action="{% url 'remove_from_cart' item.product.pk %}" class="m-0">
                                     {% csrf_token %}
+                                    <input type="hidden" name="colour" value="{{ item.colour|default:'' }}">
+                                    <input type="hidden" name="dimension" value="{{ item.dimension|default:'' }}">
                                     <button type="submit" class="bg-error/10 text-error hover:bg-error hover:text-white transition-colors w-12 h-12 min-w-[48px] min-h-[48px] rounded-full flex items-center justify-center shadow-sm" title="Remove item">
                                         <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>

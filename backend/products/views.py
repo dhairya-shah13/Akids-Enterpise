@@ -16,7 +16,8 @@ from django.core.paginator import Paginator
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
-from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile, Address
+from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, InquiryLineItem, UserProfile, Address, ProductClassSpec, ProductDimensionSpec
+from .constants import PRODUCT_COLOURS
 from .search import search_products
 from .utils import calculate_gst
 from django.db import transaction
@@ -628,12 +629,30 @@ def get_cart_data(request):
         return [], 0
     cart_items = []
     subtotal = 0
-    product_ids = [pk for pk in cart.keys() if pk.isdigit()]
+    product_ids = []
+    for key in cart.keys():
+        if '::' in key:
+            pk = key.split('::')[0]
+        else:
+            pk = key
+        if pk.isdigit():
+            product_ids.append(pk)
+            
     product_map = {str(p.id): p for p in Product.objects.filter(pk__in=product_ids).only(
         'id', 'name', 'price', 'discount_price', 'stock', 'category',
         'sku', 'source', 'needs_image', 'image_file', 'image_url'
     )}
-    for pk, quantity in cart.items():
+    for key, quantity in cart.items():
+        if '::' in key:
+            parts = key.split('::')
+            pk = parts[0]
+            colour = parts[1] if len(parts) > 1 and parts[1] else None
+            dimension = parts[2] if len(parts) > 2 and parts[2] else None
+        else:
+            pk = key
+            colour = None
+            dimension = None
+            
         product = product_map.get(pk)
         if product is None:
             continue
@@ -642,6 +661,9 @@ def get_cart_data(request):
         subtotal += total_price
         cart_items.append({
             'product': product,
+            'colour': colour,
+            'dimension': dimension,
+            'key': key,
             'quantity': quantity,
             'total_price': total_price,
             'is_available': product.stock > 0,
@@ -666,9 +688,23 @@ def add_to_cart(request, pk):
     if request.method == 'POST':
         try:
             quantity = int(request.POST.get('quantity', 1))
+            colour = request.POST.get('colour', '').strip()
+            dimension = request.POST.get('dimension', '').strip()
+            
+            product = get_object_or_404(Product, pk=pk)
+            # validation!
+            if product.colours and not colour:
+                return redirect(f"{reverse('product_detail', args=[pk])}?toast=select-variants-required")
+            if product.dimension_specs.exists() and not dimension:
+                return redirect(f"{reverse('product_detail', args=[pk])}?toast=select-variants-required")
+            
             cart = request.session.get('cart', {})
-            current = cart.get(str(pk), 0)
-            cart[str(pk)] = current + quantity
+            if colour or dimension:
+                key = f"{pk}::{colour}::{dimension}"
+            else:
+                key = str(pk)
+            current = cart.get(key, 0)
+            cart[key] = current + quantity
             request.session['cart'] = cart
             request.session.modified = True
         except (ValueError, KeyError):
@@ -690,9 +726,15 @@ def remove_from_cart(request, pk):
     if is_admin_user(request):
         return redirect('admin_dashboard')
     if request.method == 'POST':
+        colour = request.POST.get('colour', '').strip()
+        dimension = request.POST.get('dimension', '').strip()
         cart = request.session.get('cart', {})
-        if str(pk) in cart:
-            del cart[str(pk)]
+        if colour or dimension:
+            key = f"{pk}::{colour}::{dimension}"
+        else:
+            key = str(pk)
+        if key in cart:
+            del cart[key]
             request.session['cart'] = cart
             request.session.modified = True
     return redirect(f"{reverse('cart')}?toast=removed")
@@ -703,22 +745,29 @@ def update_cart(request, pk):
     if request.method == 'POST':
         try:
             quantity = int(request.POST.get('quantity', 1))
+            colour = request.POST.get('colour', '').strip()
+            dimension = request.POST.get('dimension', '').strip()
             cart = request.session.get('cart', {})
-            if quantity <= 0:
-                cart.pop(str(pk), None)
+            if colour or dimension:
+                key = f"{pk}::{colour}::{dimension}"
             else:
-                cart[str(pk)] = quantity
+                key = str(pk)
+            if quantity <= 0:
+                cart.pop(key, None)
+            else:
+                cart[key] = quantity
             request.session['cart'] = cart
             request.session.modified = True
         except (ValueError, KeyError):
             pass
     return redirect(f"{reverse('cart')}?toast=updated")
 
+
 def admin_dashboard(request):
     if not is_admin_user(request):
         return redirect('admin_login')
 
-    products = Product.objects.only('id', 'name', 'category', 'price', 'discount_price', 'stock', 'sku', 'created_at').order_by('-created_at')
+    products = Product.objects.prefetch_related('class_specs', 'dimension_specs').order_by('-created_at')
 
     # Handle sorting and filtering for inquiries
     status_filter = request.GET.get('status', '').strip().upper()
@@ -754,7 +803,8 @@ def admin_dashboard(request):
         'current_status_filter': status_filter,
         'sales': sales_data,
         'orders_count': orders_count,
-        'admin_email': request.user.email
+        'admin_email': request.user.email,
+        'product_colours': PRODUCT_COLOURS,
     })
 
 def add_product(request):
@@ -769,6 +819,75 @@ def add_product(request):
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
         
+        # Colors parsing
+        no_colour_active = request.POST.get('no_colour_active', 'false') == 'true'
+        colours = []
+        if not no_colour_active:
+            colours = request.POST.getlist('colours')
+            if not colours:
+                return redirect(f"{reverse('admin_dashboard')}?toast=colours-empty")
+
+        # Sizing specs tables validation
+        class_labels = request.POST.getlist('class_label[]')
+        class_age_mins = request.POST.getlist('class_age_min[]')
+        class_age_maxs = request.POST.getlist('class_age_max[]')
+        
+        class_specs_to_create = []
+        for i in range(len(class_labels)):
+            lbl = class_labels[i].strip()
+            min_val = class_age_mins[i].strip()
+            max_val = class_age_maxs[i].strip()
+            if any([lbl, min_val, max_val]):
+                if not all([lbl, min_val, max_val]):
+                    return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-incomplete")
+                try:
+                    age_min = int(min_val)
+                    age_max = int(max_val)
+                    if age_min > age_max or age_min < 0:
+                        return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-invalid-values")
+                except (ValueError, TypeError):
+                    return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-invalid-types")
+                
+                class_specs_to_create.append({
+                    'class_label': lbl,
+                    'age_min': age_min,
+                    'age_max': age_max,
+                    'order': i
+                })
+
+        dim_group_labels = request.POST.getlist('dim_group_label[]')
+        dim_components = request.POST.getlist('dim_component[]')
+        dim_lengths = request.POST.getlist('dim_length[]')
+        dim_widths = request.POST.getlist('dim_width[]')
+        dim_heights = request.POST.getlist('dim_height[]')
+        dim_units = request.POST.getlist('dim_unit[]')
+        dim_notes = request.POST.getlist('dim_notes[]')
+        
+        dimension_specs_to_create = []
+        for i in range(len(dim_lengths)):
+            g_val = dim_group_labels[i].strip() if i < len(dim_group_labels) else ''
+            c_val = dim_components[i].strip() if i < len(dim_components) else ''
+            l_val = dim_lengths[i].strip()
+            w_val = dim_widths[i].strip()
+            h_val = dim_heights[i].strip()
+            u_val = dim_units[i].strip() if i < len(dim_units) else 'cm'
+            n_val = dim_notes[i].strip() if i < len(dim_notes) else ''
+            
+            if any([g_val, c_val, l_val, w_val, h_val, n_val]):
+                if not l_val:
+                    return redirect(f"{reverse('admin_dashboard')}?toast=dimension-spec-incomplete")
+                
+                dimension_specs_to_create.append({
+                    'group_label': g_val,
+                    'component': c_val,
+                    'length': l_val,
+                    'width': w_val,
+                    'height': h_val,
+                    'unit': u_val,
+                    'notes': n_val,
+                    'order': i
+                })
+
         # Auto-convert Google Drive sharing links to direct hotlink preview URLs
         if image_url and 'drive.google.com' in image_url:
             import re
@@ -787,7 +906,21 @@ def add_product(request):
                 stock_val = int(stock)
             except ValueError:
                 stock_val = 10
-            Product.objects.create(name=name, category=category, price=price, stock=stock_val, description=description, image_url=image_url)
+                
+            product = Product.objects.create(
+                name=name,
+                category=category,
+                price=price,
+                stock=stock_val,
+                description=description,
+                image_url=image_url,
+                colours=colours
+            )
+            
+            for spec in class_specs_to_create:
+                ProductClassSpec.objects.create(product=product, **spec)
+            for spec in dimension_specs_to_create:
+                ProductDimensionSpec.objects.create(product=product, **spec)
                 
     return redirect('admin_dashboard')
 
@@ -804,6 +937,75 @@ def edit_product(request, pk):
         description = request.POST.get('description', '').strip()
         image_url = request.POST.get('image_url', '').strip()
         
+        # Colors parsing
+        no_colour_active = request.POST.get('no_colour_active', 'false') == 'true'
+        colours = []
+        if not no_colour_active:
+            colours = request.POST.getlist('colours')
+            if not colours:
+                return redirect(f"{reverse('admin_dashboard')}?toast=colours-empty")
+
+        # Sizing specs tables validation
+        class_labels = request.POST.getlist('class_label[]')
+        class_age_mins = request.POST.getlist('class_age_min[]')
+        class_age_maxs = request.POST.getlist('class_age_max[]')
+        
+        class_specs_to_create = []
+        for i in range(len(class_labels)):
+            lbl = class_labels[i].strip()
+            min_val = class_age_mins[i].strip()
+            max_val = class_age_maxs[i].strip()
+            if any([lbl, min_val, max_val]):
+                if not all([lbl, min_val, max_val]):
+                    return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-incomplete")
+                try:
+                    age_min = int(min_val)
+                    age_max = int(max_val)
+                    if age_min > age_max or age_min < 0:
+                        return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-invalid-values")
+                except (ValueError, TypeError):
+                    return redirect(f"{reverse('admin_dashboard')}?toast=class-spec-invalid-types")
+                
+                class_specs_to_create.append({
+                    'class_label': lbl,
+                    'age_min': age_min,
+                    'age_max': age_max,
+                    'order': i
+                })
+
+        dim_group_labels = request.POST.getlist('dim_group_label[]')
+        dim_components = request.POST.getlist('dim_component[]')
+        dim_lengths = request.POST.getlist('dim_length[]')
+        dim_widths = request.POST.getlist('dim_width[]')
+        dim_heights = request.POST.getlist('dim_height[]')
+        dim_units = request.POST.getlist('dim_unit[]')
+        dim_notes = request.POST.getlist('dim_notes[]')
+        
+        dimension_specs_to_create = []
+        for i in range(len(dim_lengths)):
+            g_val = dim_group_labels[i].strip() if i < len(dim_group_labels) else ''
+            c_val = dim_components[i].strip() if i < len(dim_components) else ''
+            l_val = dim_lengths[i].strip()
+            w_val = dim_widths[i].strip()
+            h_val = dim_heights[i].strip()
+            u_val = dim_units[i].strip() if i < len(dim_units) else 'cm'
+            n_val = dim_notes[i].strip() if i < len(dim_notes) else ''
+            
+            if any([g_val, c_val, l_val, w_val, h_val, n_val]):
+                if not l_val:
+                    return redirect(f"{reverse('admin_dashboard')}?toast=dimension-spec-incomplete")
+                
+                dimension_specs_to_create.append({
+                    'group_label': g_val,
+                    'component': c_val,
+                    'length': l_val,
+                    'width': w_val,
+                    'height': h_val,
+                    'unit': u_val,
+                    'notes': n_val,
+                    'order': i
+                })
+
         if image_url and 'drive.google.com' in image_url:
             import re
             d_match = re.search(r'/file/d/([^/]+)', image_url)
@@ -825,8 +1027,20 @@ def edit_product(request, pk):
             product.description = description
             if image_url:
                 product.image_url = image_url
+            product.colours = colours
             product.save()
+            
+            # Recreate specs
+            product.class_specs.all().delete()
+            for spec in class_specs_to_create:
+                ProductClassSpec.objects.create(product=product, **spec)
+            
+            product.dimension_specs.all().delete()
+            for spec in dimension_specs_to_create:
+                ProductDimensionSpec.objects.create(product=product, **spec)
+                
             return redirect(f"{reverse('admin_dashboard')}?toast=saved")
+
 
     return redirect('admin_dashboard')
 
@@ -901,6 +1115,41 @@ def product_detail(request, pk):
         )
         cache.set(cache_key, related_products, 300)
 
+    # Compile unique dimension options
+    unique_dimensions = []
+    specs = product.dimension_specs.all().order_by('order')
+    has_groups = specs.exclude(group_label='').exists()
+    
+    if has_groups:
+        seen_groups = set()
+        for s in specs:
+            g = s.group_label.strip()
+            if g and g not in seen_groups:
+                seen_groups.add(g)
+                unique_dimensions.append({
+                    'label': g,
+                    'value': g
+                })
+    else:
+        for s in specs:
+            parts = []
+            if s.component:
+                parts.append(f"{s.component}:")
+            parts.append(s.length)
+            if s.width:
+                parts.append(f"x {s.width}")
+            if s.height:
+                parts.append(f"x {s.height}")
+            parts.append(s.unit)
+            if s.notes:
+                parts.append(f"({s.notes})")
+            
+            label = " ".join(parts)
+            unique_dimensions.append({
+                'label': label,
+                'value': label
+            })
+
     return render(request, 'products/product_detail.html', {
         'product': product,
         'selected_variant': product,
@@ -908,6 +1157,8 @@ def product_detail(request, pk):
         'related_products': related_products,
         'back_url': back_url,
         'back_label': back_label,
+        'unique_dimensions': unique_dimensions,
+        'has_groups': has_groups,
     })
 
 # --- SEO: Sitemap & Robots ---
@@ -1168,7 +1419,7 @@ def checkout_view(request):
                     product = Product.objects.select_for_update().get(pk=item['product'].pk)
                     if product.stock < item['quantity']:
                         raise ValueError(f"{product.name} no longer has enough stock.")
-                    locked_items.append((product, item['quantity']))
+                    locked_items.append((product, item['quantity'], item['colour'], item.get('dimension')))
 
                 order = Order.objects.create(
                     user=request.user,
@@ -1176,7 +1427,7 @@ def checkout_view(request):
                     shipping_address=shipping_address,
                     order_status='PLACED',
                 )
-                for product, quantity in locked_items:
+                for product, quantity, colour, dimension in locked_items:
                     unit_price = product.discount_price or product.price
                     OrderItem.objects.create(
                         order=order,
@@ -1184,6 +1435,8 @@ def checkout_view(request):
                         product_name=product.name,
                         quantity=quantity,
                         unit_price=unit_price,
+                        colour=colour,
+                        dimension=dimension,
                     )
                     product.stock -= quantity
                     product.save(update_fields=['stock'])
@@ -1510,6 +1763,8 @@ def api_admin_order_detail(request, order_id):
         display_image = item.product.display_image if item.product else "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=600&q=80"
         items_list.append({
             'product_name': item.product_name,
+            'colour': item.colour,
+            'dimension': item.dimension,
             'sku': item.product.sku if item.product else '',
             'quantity': item.quantity,
             'unit_price': float(item.unit_price),

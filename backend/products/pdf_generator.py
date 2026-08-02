@@ -200,9 +200,17 @@ def generate_invoice_pdf(order, is_admin=False):
     
     # Add order items
     for idx, item in enumerate(order.items.all(), 1):
+        name_text = item.product_name
+        details = []
+        if item.colour:
+            details.append(item.colour)
+        if hasattr(item, 'dimension') and item.dimension:
+            details.append(item.dimension)
+        if details:
+            name_text += f" ({', '.join(details)})"
         table_data.append([
             Paragraph(str(idx), body_style),
-            Paragraph(item.product_name, body_style),
+            Paragraph(name_text, body_style),
             Paragraph(str(item.quantity), body_style),
             Paragraph(f"Rs.{item.unit_price:,.2f}", body_style),
             Paragraph(f"Rs.{item.subtotal:,.2f}", body_style),

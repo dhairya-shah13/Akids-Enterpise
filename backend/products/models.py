@@ -60,6 +60,7 @@ class Product(models.Model):
     stock = models.IntegerField(default=10)
     source = models.CharField(max_length=20, choices=[('admin', 'Admin'), ('catalogue', 'Catalogue')], default='admin')
     needs_image = models.BooleanField(default=False)
+    colours = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -90,6 +91,47 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def colours_json(self):
+        import json
+        return json.dumps(self.colours or [])
+
+    @property
+    def colours_with_hex(self):
+        from .constants import PRODUCT_COLOURS
+        color_map = dict(PRODUCT_COLOURS)
+        return [(c, color_map.get(c, '#CCCCCC')) for c in (self.colours or [])]
+
+    def get_class_specs_json(self):
+        import json
+        specs = self.class_specs.all().order_by('order')
+        data = []
+        for s in specs:
+            data.append({
+                'id': s.id,
+                'class_label': s.class_label,
+                'age_min': s.age_min,
+                'age_max': s.age_max,
+            })
+        return json.dumps(data)
+
+    def get_dimension_specs_json(self):
+        import json
+        specs = self.dimension_specs.all().order_by('order')
+        data = []
+        for s in specs:
+            data.append({
+                'id': s.id,
+                'group_label': s.group_label,
+                'component': s.component,
+                'length': s.length,
+                'width': s.width,
+                'height': s.height,
+                'unit': s.unit,
+                'notes': s.notes,
+            })
+        return json.dumps(data)
 
 
 class Inquiry(models.Model):
@@ -231,6 +273,8 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=14, decimal_places=2)
     subtotal = models.DecimalField(max_digits=14, decimal_places=2)
+    colour = models.CharField(max_length=50, blank=True, null=True)
+    dimension = models.CharField(max_length=100, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.subtotal = self.quantity * self.unit_price
@@ -245,6 +289,43 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_name} x {self.quantity}"
+
+
+class ProductClassSpec(models.Model):
+    product = models.ForeignKey(Product, related_name="class_specs", on_delete=models.CASCADE)
+    class_label = models.CharField(max_length=50)
+    age_min = models.PositiveIntegerField()
+    age_max = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.class_label}"
+
+
+class ProductDimensionSpec(models.Model):
+    product = models.ForeignKey(Product, related_name="dimension_specs", on_delete=models.CASCADE)
+    group_label = models.CharField(max_length=50, blank=True, default="")
+    component = models.CharField(max_length=100, blank=True, default="")
+    length = models.CharField(max_length=50)
+    width = models.CharField(max_length=50, blank=True, default="")
+    height = models.CharField(max_length=50, blank=True, default="")
+    unit = models.CharField(max_length=10, choices=[("cm", "cm"), ("inch", "inch"), ("mm", "mm"), ("ft", "ft")], default="cm")
+    notes = models.CharField(max_length=100, blank=True, default="")
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        comp_str = f"[{self.component}] " if self.component else ""
+        height_str = f" x {self.height}" if self.height else ""
+        width_str = f" x {self.width}" if self.width else ""
+        group_str = f" ({self.group_label})" if self.group_label else ""
+        notes_str = f" ({self.notes})" if self.notes else ""
+        return f"{self.product.name} - {comp_str}{self.length}{width_str}{height_str} {self.unit}{group_str}{notes_str}"
 
 
 STATUS_TRANSITIONS = {

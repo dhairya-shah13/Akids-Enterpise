@@ -87,7 +87,48 @@
                     </div>
                 </div>
                 {% endif %}
-                
+                {% if product.colours_with_hex %}
+                <div class="mb-8">
+                    <h3 class="font-label-md text-xs uppercase tracking-wider text-on-surface-variant mb-3 flex items-center gap-2 font-bold">
+                        <span class="material-symbols-outlined text-[18px]">palette</span> Select Colour * <span id="selectedColourLabel" class="text-primary font-extrabold ml-1 uppercase"></span>
+                    </h3>
+                    <div class="flex flex-wrap gap-3.5" id="colourSelector">
+                        {% for name, hex in product.colours_with_hex %}
+                        <button type="button" onclick="selectColour('{{ name|escapejs }}', '{{ hex }}', this)" 
+                                class="colour-btn w-12 h-12 rounded-2xl border-2 border-outline-variant/30 shadow-sm flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                                style="background-color: {{ hex }}; {% if hex == '#FFFFFF' %}border-color: #ccc;{% endif %}"
+                                title="{{ name }}">
+                            <span class="material-symbols-outlined text-[20px] text-white opacity-0 transition-opacity check-icon" style="{% if hex == '#FFFFFF' or hex == '#FDD835' %}color: #333;{% endif %}">check</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div id="colourError" class="hidden text-error font-bold text-xs mt-3 bg-error/10 border border-error/20 rounded-xl px-4 py-2 flex items-center gap-1.5 max-w-sm">
+                        <span class="material-symbols-outlined text-[16px]">error</span> Please select a colour before continuing.
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Available Dimensions Selector -->
+                {% if product.dimension_specs.exists %}
+                <div class="mb-8">
+                    <h3 class="font-label-md text-xs uppercase tracking-wider text-on-surface-variant mb-3 flex items-center gap-2 font-bold">
+                        <span class="material-symbols-outlined text-[18px]">straighten</span> Select Dimensions * <span id="selectedDimensionLabel" class="text-primary font-extrabold ml-1 uppercase"></span>
+                    </h3>
+                    <div class="flex flex-wrap gap-3.5" id="dimensionSelector">
+                        {% for dim in unique_dimensions %}
+                        <button type="button" onclick="selectDimension('{{ dim.value|escapejs }}', this)" 
+                                class="dimension-btn border-2 border-outline-variant/40 hover:border-primary/60 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all hover:scale-105 active:scale-95 bg-white text-on-surface flex items-center gap-1">
+                            {{ dim.label }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div id="dimensionError" class="hidden text-error font-bold text-xs mt-3 bg-error/10 border border-error/20 rounded-xl px-4 py-2 flex items-center gap-1.5 max-w-sm">
+                        <span class="material-symbols-outlined text-[16px]">error</span> Please select a dimension before continuing.
+                    </div>
+                </div>
+                {% endif %}
+
+
                 <!-- SKU & Stock Info (shows selected variant info) -->
                 <div class="flex gap-6 mb-6 text-on-surface-variant font-bold text-sm flex-wrap">
                     <span id="variantSku" class="bg-surface border border-outline-variant px-3 py-1 rounded-md">
@@ -110,12 +151,81 @@
                 </p>
             </div>
 
+            <!-- Age Group Specifications Card -->
+            {% if product.class_specs.exists %}
+            <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
+                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-primary text-xl">child_care</span> Age Group Specifications
+                </h2>
+                <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
+                                <th class="px-4 py-3">Class</th>
+                                <th class="px-4 py-3 text-right">Age Group</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for spec in product.class_specs.all %}
+                            <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors">
+                                <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.class_label }}</td>
+                                <td class="px-4 py-3 text-right text-on-surface-variant">{{ spec.age_min }} - {{ spec.age_max }} years</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Dimensions Card -->
+            {% if product.dimension_specs.exists %}
+            <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
+                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
+                    <span class="material-symbols-outlined text-primary text-xl">straighten</span> Product Dimensions
+                </h2>
+                <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
+                    <table class="w-full text-left text-xs sm:text-sm border-collapse" id="storefrontDimensionsTable">
+                        <thead>
+                            <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
+                                {% if has_groups %}
+                                <th class="px-4 py-3">Group</th>
+                                {% endif %}
+                                <th class="px-4 py-3">Component</th>
+                                <th class="px-4 py-3">Length</th>
+                                <th class="px-4 py-3">Width</th>
+                                <th class="px-4 py-3">Height</th>
+                                <th class="px-4 py-3 text-right">Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for spec in product.dimension_specs.all %}
+                            <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors dimension-row" data-group="{{ spec.group_label|escapejs }}">
+                                {% if has_groups %}
+                                <td class="px-4 py-3 font-semibold text-neutral-500">{{ spec.group_label|default:"-" }}</td>
+                                {% endif %}
+                                <td class="px-4 py-3 font-semibold text-teal-700">{% if spec.component %}{{ spec.component }}{% else %}-{% endif %}</td>
+                                <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.length }}</td>
+                                <td class="px-4 py-3 font-semibold text-on-surface">{% if spec.width %}{{ spec.width }}{% else %}-{% endif %}</td>
+                                <td class="px-4 py-3 text-on-surface-variant">{% if spec.height %}{{ spec.height }}{% else %}-{% endif %}</td>
+                                <td class="px-4 py-3 text-right font-medium text-neutral-700">{{ spec.unit }} {% if spec.notes %}({{ spec.notes }}){% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+
             {% if not request.user.is_staff and not request.session.is_admin %}
             <!-- Purchase Actions -->
             <div class="flex flex-col gap-4">
                 <!-- Add to Cart Flow -->
-                <form method="POST" action="{% url 'add_to_cart' product.pk %}?next=stay" class="m-0 flex flex-col sm:flex-row gap-4 w-full">
+                <form id="addToCartForm" method="POST" action="{% url 'add_to_cart' product.pk %}?next=stay" class="m-0 flex flex-col sm:flex-row gap-4 w-full">
                     {% csrf_token %}
+                    <input type="hidden" name="colour" id="addToCartColourInput" value="">
+                    <input type="hidden" name="dimension" id="addToCartDimensionInput" value="">
                     <div class="flex items-center bg-white border-2 border-outline-variant/50 rounded-2xl overflow-hidden w-full sm:w-auto shrink-0 shadow-inner">
                         <button type="button" onclick="const q=document.getElementById('cartQty'); if(parseInt(q.value)>1) { q.value--; document.getElementById('cartQtyHidden').value = q.value; }" class="px-5 py-4 font-black text-xl text-on-surface-variant hover:bg-background hover:text-primary transition-colors flex-1 sm:flex-none">-</button>
                         <input type="number" id="cartQty" name="quantity_display" value="1" min="1" class="w-16 text-center font-display-lg text-xl outline-none border-none focus:ring-0 p-0 text-on-surface" readonly aria-label="Quantity">
@@ -129,14 +239,17 @@
                 </form>
 
                 <!-- Buy Now -->
-                <form method="POST" action="{% url 'add_to_cart' product.pk %}?next=checkout" class="m-0 w-full">
+                <form id="buyNowForm" method="POST" action="{% url 'add_to_cart' product.pk %}?next=checkout" class="m-0 w-full">
                     {% csrf_token %}
+                    <input type="hidden" name="colour" id="buyNowColourInput" value="">
+                    <input type="hidden" name="dimension" id="buyNowDimensionInput" value="">
                     <input type="hidden" name="quantity" value="1" id="buyNowQty">
                     <button type="submit" class="w-full bg-primary text-on-primary font-label-md text-lg flex items-center justify-center gap-2 rounded-2xl py-4 shadow-sm hover:shadow-md transition-all hover:scale-105 shadow-xl shadow-primary/20 uppercase font-bold" {% if product.stock <= 0 %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
                         <span class="material-symbols-outlined font-bold">shopping_cart_checkout</span> Buy Now
                     </button>
                 </form>
             </div>
+
             {% endif %}
 
             <div class="flex flex-wrap gap-4 mt-2">
@@ -167,4 +280,151 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedColour = null;
+    const hasColours = {% if product.colours %}true{% else %}false{% endif %};
+    let selectedDimension = null;
+    const hasDimensions = {% if product.dimension_specs.exists %}true{% else %}false{% endif %};
+
+    function selectColour(name, hex, button) {
+        selectedColour = name;
+        document.getElementById('selectedColourLabel').innerText = `- ${name}`;
+        
+        // Hide error
+        const err = document.getElementById('colourError');
+        if (err) err.classList.add('hidden');
+        
+        // Update inputs
+        const addColInput = document.getElementById('addToCartColourInput');
+        if (addColInput) addColInput.value = name;
+        const buyColInput = document.getElementById('buyNowColourInput');
+        if (buyColInput) buyColInput.value = name;
+        
+        // Highlight active button
+        const buttons = document.querySelectorAll('.colour-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-primary', 'scale-105');
+            const check = btn.querySelector('.check-icon');
+            if (check) check.classList.add('opacity-0');
+        });
+        
+        button.classList.add('ring-4', 'ring-primary', 'scale-105');
+        const check = button.querySelector('.check-icon');
+        if (check) check.classList.remove('opacity-0');
+    }
+
+    const hasGroups = {% if has_groups %}true{% else %}false{% endif %};
+    function selectDimension(dimStr, button) {
+        selectedDimension = dimStr;
+        document.getElementById('selectedDimensionLabel').innerText = `- ${dimStr}`;
+        
+        // Hide error
+        const err = document.getElementById('dimensionError');
+        if (err) err.classList.add('hidden');
+        
+        // Update inputs
+        const addDimInput = document.getElementById('addToCartDimensionInput');
+        if (addDimInput) addDimInput.value = dimStr;
+        const buyDimInput = document.getElementById('buyNowDimensionInput');
+        if (buyDimInput) buyDimInput.value = dimStr;
+        
+        // Highlight active button
+        const buttons = document.querySelectorAll('.dimension-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('ring-4', 'ring-primary', 'scale-105', 'border-primary');
+            btn.classList.add('border-outline-variant/40');
+        });
+        
+        button.classList.add('ring-4', 'ring-primary', 'scale-105', 'border-primary');
+        button.classList.remove('border-outline-variant/40');
+        
+        // Filter table rows by selected group
+        if (hasGroups) {
+            const rows = document.querySelectorAll('.dimension-row');
+            rows.forEach(row => {
+                if (row.getAttribute('data-group') === dimStr) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+    }
+
+    // Attach listeners
+    window.addEventListener('DOMContentLoaded', () => {
+        const addToCartForm = document.getElementById('addToCartForm');
+        const buyNowForm = document.getElementById('buyNowForm');
+        
+        // Update Buy Now quantity when quantity changes
+        const qtyDisplay = document.getElementById('cartQty');
+        if (qtyDisplay) {
+            qtyDisplay.addEventListener('change', () => {
+                const buyNowQty = document.getElementById('buyNowQty');
+                if (buyNowQty) buyNowQty.value = qtyDisplay.value;
+            });
+            // Also override the button click handlers to sync buyNowQty
+            const plusBtn = qtyDisplay.nextElementSibling;
+            const minusBtn = qtyDisplay.previousElementSibling;
+            
+            if (plusBtn) {
+                const originalClick = plusBtn.onclick;
+                plusBtn.onclick = (e) => {
+                    originalClick(e);
+                    const buyNowQty = document.getElementById('buyNowQty');
+                    if (buyNowQty) buyNowQty.value = qtyDisplay.value;
+                };
+            }
+            if (minusBtn) {
+                const originalClick = minusBtn.onclick;
+                minusBtn.onclick = (e) => {
+                    originalClick(e);
+                    const buyNowQty = document.getElementById('buyNowQty');
+                    if (buyNowQty) buyNowQty.value = qtyDisplay.value;
+                };
+            }
+        }
+        
+        const validate = (e) => {
+            let isValid = true;
+            if (hasColours && !selectedColour) {
+                const err = document.getElementById('colourError');
+                if (err) {
+                    err.classList.remove('hidden');
+                    err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                isValid = false;
+            }
+            if (hasDimensions && !selectedDimension) {
+                const err = document.getElementById('dimensionError');
+                if (err) {
+                    err.classList.remove('hidden');
+                    if (isValid) {
+                        err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+                isValid = false;
+            }
+            if (!isValid) {
+                e.preventDefault();
+            }
+        };
+        
+        if (addToCartForm) addToCartForm.addEventListener('submit', validate);
+        if (buyNowForm) buyNowForm.addEventListener('submit', validate);
+
+        // Auto-select first options on page load for better UX and filtering
+        if (hasColours) {
+            const firstColourBtn = document.querySelector('.colour-btn');
+            if (firstColourBtn) firstColourBtn.click();
+        }
+        if (hasDimensions) {
+            const firstDimensionBtn = document.querySelector('.dimension-btn');
+            if (firstDimensionBtn) firstDimensionBtn.click();
+        }
+    });
+</script>
 {% endblock %}

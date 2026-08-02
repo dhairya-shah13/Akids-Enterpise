@@ -16,26 +16,33 @@ Akids-Enterpise/
 ├── tailwind.config.js          # Tailwind CSS theme configuration (Antigravity color palette)
 ├── uv.lock                     # UV package manager lockfile
 ├── pyproject.toml              # Python project metadata
+├── homepage1.html              # Standalone homepage design preview (not routed in the app)
 │
 ├── docs/                       # Project Documentation
 │   ├── context.md              # THIS FILE (Moved from root)
+│   ├── admin_manual.md         # Admin HQ Manual (flowcharts, field guides, examples)
+│   ├── user_manual.md          # Customer/User Manual (storefront, cart, checkout)
 │   ├── Audit.md                # Universal Deep-Scan Audit Instructions
 │   ├── CREDENTIALS_SETUP.md    # Guide for setting up Google/Firebase credentials
 │   ├── progress.md             # High-level project progress tracking
 │   └── audit/                  # Generated Audit Reports
-│       ├── latest-report.md    # Most recent deep-scan audit report
+│       ├── audit-reports.md    # Running audit history (oldest first)
 │       └── history/            # Historical audit scorecards (.json)
 │
 ├── backend/                    # Django backend
 │   ├── manage.py               # Django management script
 │   ├── little_fingers/         # Django project settings package
 │   └── products/               # Products Django app (models, views, logic)
+│       ├── constants.py        # PRODUCT_COLOURS palette (name → hex)
+│       ├── utils.py            # calculate_gst() — shared GST math (single source of truth)
+│       ├── search.py           # Search engine & suggestions
+│       ├── pdf_generator.py    # ReportLab invoice PDFs (18% GST breakup)
+│       ├── models.py           # Product, Inquiry, Order, OrderItem, Specs, UserProfile, Address
+│       └── management/commands/create_admin_from_env.py
 │
 ├── frontend/                   # Django templates & static assets
 │   ├── static/                 # CSS (Tailwind + Theme), JS (main.js), Images, Catalogues
 │   └── templates/              # Django templates (base, home, listing, detail, admin, etc.)
-│
-└── ponytail/                   # Ponytail AI agent framework (installed)
 ```
 
 ---
@@ -98,29 +105,42 @@ A "Universal Deep-Scan" repository audit was performed to evaluate production re
 ## 🌐 URL Routing & Feature Logic
 
 The application features a robust e-commerce and inquiry workflow:
-- **Shopping Cart & Checkout**: Stock-aware, atomic transactions, 18% GST computation.
+- **Shopping Cart & Checkout**: Stock-aware, atomic transactions, 18% GST computation. Cart entries are variant-keyed as `<product_pk>::<colour>::<dimension>` when a product has colours and/or dimension specs; colour/dimension badges flow through cart → checkout → order → invoice PDF.
+- **Product Variants**: Products can define colour swatches (14-name palette from `constants.py`), class/age-group specs, and dimension specs (with group_label, component, length, width, height as text fields, unit, notes). Storefront pickers on the product detail page enforce selection before add-to-cart; the order item snapshots the chosen colour & dimension.
 - **Inquiry System**: Batch catalog quotes, WhatsApp integration, WON/LOST closure outcomes.
-- **Admin HQ**: SPA-style full-width dashboard for managing products, orders (no-scroll 9-column table with `table-fixed` layout), and inquiries with visual reports.
+- **Admin HQ**: SPA-style full-width dashboard for managing products (including colour + spec editors), orders (no-scroll 9-column table with `table-fixed` layout), and inquiries with visual reports.
 - **User Profile**: Saved addresses, customizable avatars, 30-day username cooldown.
 - **Security**: Google OAuth 2.0 and Firebase Passwordless Sign-In (Magic Links).
 
 ---
 
-## 📋 Progress Made on Date and Time (2026-08-01 12:28)
+## 📋 Progress Made on Date and Time (2026-08-02 08:00)
 
-### Admin HQ — Full-Width Layout & Orders Table No-Scroll Fix
+### Product Colours, Class/Age Specs & Dimension Variants (Catalogue-Aligned)
 
-Removed the side gaps in the Admin HQ page and fixed the Orders table so all 9 columns are visible without horizontal scrolling.
+Implemented full product-variant support — **colours**, **class/age-group specs**, and **dimension specs** — wired end-to-end from admin product entry → storefront pickers → cart/checkout → orders → invoice PDF. Dimension fields are `CharField` (text) to support ranges (`59-90`), diameters (`D/Dia 90`), and adjustable heights.
 
-| **Layout** | Changed `max-w-7xl` → `max-w-full` on banner and grid containers | `admin_dashboard.html` |
-| **Orders Table** | Removed `overflow-x-auto` and `min-w-[1200px]`, switched to `table-fixed` with %-based column widths | `admin_dashboard.html` |
-| **Compact Styling** | Reduced padding (`p-4` → `px-2 py-3`), shrank fonts, added `truncate` with tooltips on text-heavy columns | `admin_dashboard.html` |
-| **Contact Links** | Wired footer email and phone icon links to `mailto:info@akidsenterprise.com` and `tel:+917433026008` | `base.html` |
-| **Shreem Sports** | Removed search and product list/catalog sections (Coming Soon) | `shreemsports.html` |
-| **Navbar** | Removed brand text and enlarged the `logo.png` image size | `base.html` |
-| **Search Suggestions** | Implemented `/api/search-suggestions/` endpoint and route | `views.py`, `urls.py` |
-| **Documentation** | Updated progress and context docs | `docs/progress.md`, `docs/context.md` |
+| # | Feature / Change | Status | Implementation Details |
+|---|------------------|--------|------------------------|
+| **1** | `Product.colours` JSONField | **COMPLETED** | Stores an ordered list of colour names. Model helpers: `colours_with_hex` (name → hex via `PRODUCT_COLOURS`), `colours_json`, `get_class_specs_json()`, `get_dimension_specs_json()`. |
+| **2** | `ProductClassSpec` model | **COMPLETED** | `class_label`, `age_min`, `age_max`, `order`; FK `product.class_specs`. Powers the Age Group table on storefront + product cards. |
+| **3** | `ProductDimensionSpec` model | **COMPLETED** | `group_label` (optional), `component` (optional), `length` (CharField, required), `width` (CharField, optional), `height` (CharField, optional), `unit` (cm/inch/mm/ft), `notes` (optional), `order`; FK `product.dimension_specs`. |
+| **4** | Order item variant snapshot | **COMPLETED** | `OrderItem.colour` + `OrderItem.dimension` CharFields capture the chosen variant at purchase time. |
+| **5** | Colour palette constants | **COMPLETED** | New `constants.py` with 14 colours → hex. |
+| **6** | Admin add/edit product | **COMPLETED** | Swatch picker with "No Colour" toggle, dynamic Class/Age rows, dynamic Dimension rows (with Group Label, Component, Notes columns); validation toasts; specs recreated (delete + insert) on edit. |
+| **7** | Product detail pickers | **COMPLETED** | Colour swatch selector + dimension selector with component labels, Age Group & Dimensions detail cards. |
+| **8** | Product card mini-specs | **COMPLETED** | Static colour swatch dots + compact Class/Age and Dimension tables with component labels. |
+| **9** | Cart / checkout / profile badges | **COMPLETED** | Colour & dimension chips; cart keys `pk::colour::dimension`. |
+| **10** | Invoice PDF variants | **COMPLETED** | Invoice item names render as `Name (Colour, Dimension)`. |
+| **11** | Add-to-cart validation | **COMPLETED** | Redirect with `?toast=select-variants-required` when variants missing. |
+| **12** | Tests | **COMPLETED** | 55 unit tests pass covering model fields, admin add with specs, cart variant operations, order + invoice. |
+| **13** | Admin Manual | **COMPLETED** | `docs/admin_manual.md` — complete Admin HQ guide with flowcharts, field-by-field instructions, real-world catalogue examples, order/inquiry workflows. |
+| **14** | User Manual | **COMPLETED** | `docs/user_manual.md` — complete customer storefront guide covering browsing, variants, cart, checkout, profile, inquiries. |
+
+**Migrations**: `0020` (OrderItem.colour, Product.colours), `0021` (OrderItem.dimension, ProductClassSpec, ProductDimensionSpec), `0022` (component), `0023` (CharField conversion for L/W/H), `0024` (group_label, notes).
+
+**Test Status**: All **55 unit tests pass** cleanly; `makemigrations --check` is clean.
 
 ---
 
-*Last Updated: 2026-08-01 12:40. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-08-02. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*

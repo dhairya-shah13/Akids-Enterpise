@@ -428,7 +428,15 @@
                                             <div class="w-8 h-8 rounded-lg bg-white border border-outline-variant/20 flex items-center justify-center shrink-0 text-sea font-bold text-xs shadow-inner">
                                                 {{ item.quantity }}x
                                             </div>
-                                            <span class="font-bold text-on-surface truncate">{{ item.product_name }}</span>
+                                            <span class="font-bold text-on-surface truncate">
+                                                {{ item.product_name }}
+                                                {% if item.colour %}
+                                                <span class="ml-1.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider inline-block align-middle">{{ item.colour }}</span>
+                                                {% endif %}
+                                                {% if item.dimension %}
+                                                <span class="ml-1.5 text-[8px] px-1.5 py-0.5 rounded-full font-bold bg-neutral-100 text-neutral-700 border border-neutral-200 uppercase tracking-wider inline-block align-middle">{{ item.dimension }}</span>
+                                                {% endif %}
+                                            </span>
                                         </div>
                                         <div class="text-right font-semibold text-on-surface shrink-0">
                                             ₹{{ item.subtotal }}
