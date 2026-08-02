@@ -114,6 +114,22 @@ The application features a robust e-commerce and inquiry workflow:
 
 ---
 
+## 📋 Progress Made on Date and Time (2026-08-02 14:28)
+
+### Product Detail Page — Specs Layout Optimization
+
+Reordered the product detail page sections so **Age Group Specifications** and **Product Dimensions** appear before the **Description** card. Both spec tables are now displayed **side by side** in a responsive 2-column grid (`md:grid-cols-2`) to reduce vertical space. On mobile they stack vertically.
+
+| # | Change | Details |
+|---|--------|---------|
+| 1 | Section reorder | Age Group Specs → Product Dimensions → Description (previously Description was first) |
+| 2 | Side-by-side layout | Both spec cards wrapped in `grid grid-cols-1 md:grid-cols-2 gap-6` container |
+| 3 | Compact padding | Reduced card padding from `p-8` to `p-6`, heading sizes from `text-xl` to `text-lg` |
+
+**File Modified**: `frontend/templates/products/product_detail.html`
+
+---
+
 ## 📋 Progress Made on Date and Time (2026-08-02 08:00)
 
 ### Product Colours, Class/Age Specs & Dimension Variants (Catalogue-Aligned)
@@ -143,4 +159,4 @@ Implemented full product-variant support — **colours**, **class/age-group spec
 
 ---
 
-*Last Updated: 2026-08-02. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*
+*Last Updated: 2026-08-02 14:28. Maintainer: AI Agent. Please update this document whenever model schemas, workflows, or views undergo changes.*

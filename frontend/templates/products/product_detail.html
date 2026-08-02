@@ -140,6 +140,77 @@
                 </div>
             </div>
 
+            <!-- Specs Row: Age Group + Dimensions side by side -->
+            {% if product.class_specs.exists or product.dimension_specs.exists %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <!-- Age Group Specifications Card -->
+                {% if product.class_specs.exists %}
+                <div class="bg-white border border-outline-variant/30 p-6 rounded-xl shadow-sm">
+                    <h2 class="font-headline-md text-lg mb-3 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
+                        <span class="material-symbols-outlined text-primary text-xl">child_care</span> Age Group Specifications
+                    </h2>
+                    <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
+                        <table class="w-full text-left text-xs sm:text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
+                                    <th class="px-4 py-3">Class</th>
+                                    <th class="px-4 py-3 text-right">Age Group</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for spec in product.class_specs.all %}
+                                <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors">
+                                    <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.class_label }}</td>
+                                    <td class="px-4 py-3 text-right text-on-surface-variant">{{ spec.age_min }} - {{ spec.age_max }} years</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Dimensions Card -->
+                {% if product.dimension_specs.exists %}
+                <div class="bg-white border border-outline-variant/30 p-6 rounded-xl shadow-sm">
+                    <h2 class="font-headline-md text-lg mb-3 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
+                        <span class="material-symbols-outlined text-primary text-xl">straighten</span> Product Dimensions
+                    </h2>
+                    <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
+                        <table class="w-full text-left text-xs sm:text-sm border-collapse" id="storefrontDimensionsTable">
+                            <thead>
+                                <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
+                                    {% if has_groups %}
+                                    <th class="px-4 py-3">Group</th>
+                                    {% endif %}
+                                    <th class="px-4 py-3">Component</th>
+                                    <th class="px-4 py-3">Length</th>
+                                    <th class="px-4 py-3">Width</th>
+                                    <th class="px-4 py-3">Height</th>
+                                    <th class="px-4 py-3 text-right">Unit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for spec in product.dimension_specs.all %}
+                                <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors dimension-row" data-group="{{ spec.group_label|escapejs }}">
+                                    {% if has_groups %}
+                                    <td class="px-4 py-3 font-semibold text-neutral-500">{{ spec.group_label|default:"-" }}</td>
+                                    {% endif %}
+                                    <td class="px-4 py-3 font-semibold text-teal-700">{% if spec.component %}{{ spec.component }}{% else %}-{% endif %}</td>
+                                    <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.length }}</td>
+                                    <td class="px-4 py-3 font-semibold text-on-surface">{% if spec.width %}{{ spec.width }}{% else %}-{% endif %}</td>
+                                    <td class="px-4 py-3 text-on-surface-variant">{% if spec.height %}{{ spec.height }}{% else %}-{% endif %}</td>
+                                    <td class="px-4 py-3 text-right font-medium text-neutral-700">{{ spec.unit }} {% if spec.notes %}({{ spec.notes }}){% endif %}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <!-- Description Card -->
             <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
                 <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3">Description</h2>
@@ -150,72 +221,6 @@
                     Designed with the utmost care for early development, this piece encourages collaborative play, motor skill building, and imaginative exploration. Every edge is perfectly rounded, and the materials used are fully certified for child safety.
                 </p>
             </div>
-
-            <!-- Age Group Specifications Card -->
-            {% if product.class_specs.exists %}
-            <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
-                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
-                    <span class="material-symbols-outlined text-primary text-xl">child_care</span> Age Group Specifications
-                </h2>
-                <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
-                    <table class="w-full text-left text-xs sm:text-sm border-collapse">
-                        <thead>
-                            <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
-                                <th class="px-4 py-3">Class</th>
-                                <th class="px-4 py-3 text-right">Age Group</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for spec in product.class_specs.all %}
-                            <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors">
-                                <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.class_label }}</td>
-                                <td class="px-4 py-3 text-right text-on-surface-variant">{{ spec.age_min }} - {{ spec.age_max }} years</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Dimensions Card -->
-            {% if product.dimension_specs.exists %}
-            <div class="bg-white border border-outline-variant/30 p-8 rounded-xl shadow-sm">
-                <h2 class="font-headline-md text-xl mb-4 text-on-surface border-b border-outline-variant/30 pb-3 flex items-center gap-2 font-bold">
-                    <span class="material-symbols-outlined text-primary text-xl">straighten</span> Product Dimensions
-                </h2>
-                <div class="overflow-x-auto rounded-xl border border-outline-variant/20 bg-background/50">
-                    <table class="w-full text-left text-xs sm:text-sm border-collapse" id="storefrontDimensionsTable">
-                        <thead>
-                            <tr class="bg-neutral-100/80 text-on-surface-variant/80 border-b border-outline-variant/20 font-bold">
-                                {% if has_groups %}
-                                <th class="px-4 py-3">Group</th>
-                                {% endif %}
-                                <th class="px-4 py-3">Component</th>
-                                <th class="px-4 py-3">Length</th>
-                                <th class="px-4 py-3">Width</th>
-                                <th class="px-4 py-3">Height</th>
-                                <th class="px-4 py-3 text-right">Unit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for spec in product.dimension_specs.all %}
-                            <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-neutral-100/35 transition-colors dimension-row" data-group="{{ spec.group_label|escapejs }}">
-                                {% if has_groups %}
-                                <td class="px-4 py-3 font-semibold text-neutral-500">{{ spec.group_label|default:"-" }}</td>
-                                {% endif %}
-                                <td class="px-4 py-3 font-semibold text-teal-700">{% if spec.component %}{{ spec.component }}{% else %}-{% endif %}</td>
-                                <td class="px-4 py-3 font-semibold text-on-surface">{{ spec.length }}</td>
-                                <td class="px-4 py-3 font-semibold text-on-surface">{% if spec.width %}{{ spec.width }}{% else %}-{% endif %}</td>
-                                <td class="px-4 py-3 text-on-surface-variant">{% if spec.height %}{{ spec.height }}{% else %}-{% endif %}</td>
-                                <td class="px-4 py-3 text-right font-medium text-neutral-700">{{ spec.unit }} {% if spec.notes %}({{ spec.notes }}){% endif %}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% endif %}
 
 
             {% if not request.user.is_staff and not request.session.is_admin %}
