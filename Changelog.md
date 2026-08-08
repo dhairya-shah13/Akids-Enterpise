@@ -1,5 +1,12 @@
 # Changelog
 
+## [BingSiteAuth.xml XML Verification Route] — 2026-08-08, 15:05
+**Type:** Technical
+**Page(s):** /BingSiteAuth.xml
+**Summary:** Configured `/BingSiteAuth.xml` route across Vercel Edge CDN (`vercel.json`), static assets (`frontend/static/BingSiteAuth.xml`), and Django view (`backend/products/views.py` & `urls.py`) to serve Bing Webmaster verification XML payload cleanly without 404 errors.
+**Keyword(s) targeted:** N/A
+**Files touched:** frontend/static/BingSiteAuth.xml, vercel.json, backend/products/views.py, backend/products/urls.py
+
 ## [Bing Webmaster Tools Verification] — 2026-08-08, 15:01
 **Type:** Technical
 **Page(s):** All (site-wide via base.html)

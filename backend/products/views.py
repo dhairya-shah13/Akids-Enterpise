@@ -1225,6 +1225,20 @@ def robots_txt(request):
     return HttpResponse(content, content_type="text/plain; charset=utf-8")
 
 
+@require_safe
+def bing_site_auth(request):
+    """Serve BingSiteAuth.xml at domain root."""
+    from django.conf import settings
+    auth_path = settings.BASE_DIR.parent / 'frontend' / 'static' / 'BingSiteAuth.xml'
+    if not auth_path.exists():
+        auth_path = settings.BASE_DIR.parent / 'BingSiteAuth.xml'
+    if auth_path.exists():
+        content = auth_path.read_text(encoding='utf-8')
+    else:
+        content = '<?xml version="1.0"?>\n<users>\n\t<user>724911A214A55EE0A000561E989A291E</user>\n</users>'
+    return HttpResponse(content, content_type="application/xml; charset=utf-8")
+
+
 def search_view(request):
     q = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()

@@ -24,6 +24,10 @@
       "dest": "frontend/static/robots.txt"
     },
     {
+      "src": "/BingSiteAuth.xml",
+      "dest": "frontend/static/BingSiteAuth.xml"
+    },
+    {
       "src": "/(.*)",
       "dest": "backend/little_fingers/wsgi.py"
     }

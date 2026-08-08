@@ -70,7 +70,8 @@ urlpatterns = [
     path('api/admin/inquiries/<int:pk>/close/', views.api_admin_inquiry_close, name='api_admin_inquiry_close'),
     path('profile/', views.profile_view, name='profile'),
 
-    # SEO: Sitemap & Robots
+    # SEO: Sitemap & Robots & Auth
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
+    path('BingSiteAuth.xml', views.bing_site_auth, name='bing_site_auth'),
 ]
