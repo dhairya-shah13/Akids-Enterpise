@@ -1,5 +1,12 @@
 # Changelog
 
+## [Google Search Console Verification] — 2026-08-08, 13:52
+**Type:** Technical
+**Page(s):** All (site-wide via base.html)
+**Summary:** Added Google Search Console site verification meta tag to enable domain ownership verification for akidsenterprise.com.
+**Keyword(s) targeted:** N/A
+**Files touched:** frontend/templates/base.html
+
 ## [SEO/AEO/GEO Optimization & Naming Alignment] — 2026-08-08, 13:10
 **Type:** Technical | Schema | Robots | Sitemap
 **Page(s):** /, /robots.txt, /sitemap.xml, /indoors/, /outdoors/, /shreemsports/, /about/, /safety-standards/, /testimonials/, /contact/, /privacy-policy/, /terms-of-service/, /product/<id>/
