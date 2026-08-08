@@ -1173,9 +1173,10 @@ class ProductSitemap(Sitemap):
     """Generates <urlset> for all products."""
     changefreq = "weekly"
     priority = 0.7
+    protocol = 'https'
 
     def items(self):
-        return Product.objects.all().only('id', 'name', 'created_at').iterator()
+        return Product.objects.all().only('id', 'name', 'created_at').order_by('id')
 
     def lastmod(self, obj):
         return obj.created_at
@@ -1188,6 +1189,7 @@ class ProductSitemap(Sitemap):
 class StaticViewSitemap(Sitemap):
     """Sitemap entries for static pages that don't depend on a model."""
     changefreq = "monthly"
+    protocol = 'https'
 
     def items(self):
         return [

@@ -1,5 +1,25 @@
 # Changelog
 
+## [Fix Broken Sitemap Generation] — 2026-08-08, 14:45
+**Type:** Technical
+**Page(s):** /sitemap.xml
+**Summary:** Fixed Server Error (500) on `/sitemap.xml` caused by `ProductSitemap.items()` returning a generator via `.iterator()`, which Django's sitemap paginator cannot measure with `len()`. Replaced with an ordered QuerySet and enforced HTTPS protocol on all sitemap URLs.
+**Keyword(s) targeted:** N/A
+**Files touched:** backend/products/views.py
+
+### What changed
+- Removed `.iterator()` from `ProductSitemap.items()` and replaced with `.order_by('id')` to return a standard QuerySet.
+- Added `protocol = 'https'` to both `ProductSitemap` and `StaticViewSitemap` to ensure all sitemap URLs use HTTPS.
+
+### Why
+The sitemap endpoint was returning a 500 error in production, blocking Google Search Console submission.
+
+### Bug fixed
+`/sitemap.xml` returned `TypeError: object of type 'generator' has no len()` and a 500 Server Error.
+
+### Root cause
+`ProductSitemap.items()` used `.iterator()` which returns a generator. Django's `Paginator` calls `len()` on the items list, which is unsupported on generators.
+
 ## [Google Search Console Verification] — 2026-08-08, 13:52
 **Type:** Technical
 **Page(s):** All (site-wide via base.html)
