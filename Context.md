@@ -54,6 +54,9 @@
 - [Resolved] Lack of unique meta descriptions on category listing and company static pages.
 - [Resolved] Missing product-specific JSON-LD structured data on `/product/<id>/` pages.
 - [Resolved] Conflicting brand name usage (`Little Fingers` vs `A kids India`) in templates.
+- [Resolved] Server Error (500) on `/sitemap.xml` fixed by returning QuerySet rather than generator iterator and setting HTTPS protocol.
+- [Resolved] Created physical asset `frontend/static/robots.txt` and routed via `vercel.json` edge CDN and Django `robots_txt` view.
+- [Resolved] Injected `BreadcrumbList` JSON-LD schema across company pages and product detail templates.
 
 ## Entity Profile
 - **Verified external profiles**:

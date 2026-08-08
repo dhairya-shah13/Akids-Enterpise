@@ -1,5 +1,22 @@
 # Changelog
 
+## [Physical robots.txt Asset & Breadcrumb JSON-LD Schema] — 2026-08-08, 14:55
+**Type:** Technical | Schema | Robots | Audit
+**Page(s):** /robots.txt, site-wide
+**Summary:** Created physical `frontend/static/robots.txt` asset per Section 8 of SEO.md, added Vercel edge route in vercel.json, bound Django's `robots_txt` view to serve the static asset, injected `BreadcrumbList` JSON-LD schema across template graphs, and published audit report at docs/audit-report-2026-08-08.md.
+**Keyword(s) targeted:** N/A
+**Files touched:** frontend/static/robots.txt, vercel.json, backend/products/views.py, frontend/templates/products/company_page.html, frontend/templates/products/product_detail.html, docs/audit-report-2026-08-08.md, Context.md
+
+### What changed
+- Created physical asset `frontend/static/robots.txt` with explicit search engine & AI crawler permissions (`Googlebot`, `Bingbot`, `GPTBot`, `ChatGPT-User`, `Google-Extended`, `PerplexityBot`, `ClaudeBot`, `anthropic-ai`).
+- Added edge CDN route `/robots.txt` -> `frontend/static/robots.txt` in `vercel.json`.
+- Updated `robots_txt` view in `backend/products/views.py` to read directly from `frontend/static/robots.txt`.
+- Injected `BreadcrumbList` JSON-LD schema into `company_page.html` and `product_detail.html`.
+- Generated `docs/audit-report-2026-08-08.md` and updated `Context.md`.
+
+### Why
+To execute the complete `SEO.md` (RankSynth) specification and satisfy repository governance rules in `RULES.md`.
+
 ## [Fix Broken Sitemap Generation] — 2026-08-08, 14:45
 **Type:** Technical
 **Page(s):** /sitemap.xml

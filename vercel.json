@@ -20,6 +20,10 @@
       "dest": "frontend/static/$1"
     },
     {
+      "src": "/robots.txt",
+      "dest": "frontend/static/robots.txt"
+    },
+    {
       "src": "/(.*)",
       "dest": "backend/little_fingers/wsgi.py"
     }

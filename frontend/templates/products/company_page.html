@@ -9,6 +9,29 @@
 {% block twitter_title %}{{ title }} | A kids India{% endblock %}
 {% block twitter_description %}{{ meta_description }}{% endblock %}
 
+{% block extra_head %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://akidsenterprise.com/"
+        },
+        {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "{{ title|escapejs }}",
+            "item": "https://akidsenterprise.com{{ request.path }}"
+        }
+    ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <section class="bg-gradient-to-br from-butter/30 via-background to-sea/10 py-16 md:py-24">
     <div class="max-w-4xl mx-auto px-margin-desktop">

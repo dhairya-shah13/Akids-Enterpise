@@ -37,6 +37,29 @@
                     "url": "https://akidsenterprise.com"
                 }
             }
+        },
+        {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Home",
+                    "item": "https://akidsenterprise.com/"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "{{ back_label|escapejs }}",
+                    "item": "https://akidsenterprise.com{{ back_url }}"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 3,
+                    "name": "{{ product.name|escapejs }}",
+                    "item": "https://akidsenterprise.com{{ request.path }}"
+                }
+            ]
         }
     ]
 }

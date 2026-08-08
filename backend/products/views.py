@@ -1215,52 +1215,14 @@ class StaticViewSitemap(Sitemap):
 
 @require_safe
 def robots_txt(request):
-    """Serve robots.txt at domain root."""
-    lines = [
-        "User-agent: *",
-        "Allow: /",
-        "",
-        "# Disallow admin and auth-only/low-value paths",
-        "Disallow: /admin/",
-        "Disallow: /admin-panel/",
-        "Disallow: /login/",
-        "Disallow: /logout/",
-        "Disallow: /cart/",
-        "Disallow: /checkout/",
-        "Disallow: /profile/",
-        "Disallow: /search-results/",
-        "Disallow: /*?*session=",
-        "",
-        "# Core search engines",
-        "User-agent: Googlebot",
-        "Allow: /",
-        "",
-        "User-agent: Bingbot",
-        "Allow: /",
-        "",
-        "# AI answer/training crawlers — explicitly permitted for informational content",
-        "User-agent: GPTBot",
-        "Allow: /",
-        "",
-        "User-agent: ChatGPT-User",
-        "Allow: /",
-        "",
-        "User-agent: Google-Extended",
-        "Allow: /",
-        "",
-        "User-agent: PerplexityBot",
-        "Allow: /",
-        "",
-        "User-agent: ClaudeBot",
-        "Allow: /",
-        "",
-        "User-agent: anthropic-ai",
-        "Allow: /",
-        "",
-        "# Sitemap",
-        "Sitemap: https://akidsenterprise.com/sitemap.xml",
-    ]
-    return HttpResponse("\n".join(lines), content_type="text/plain; charset=utf-8")
+    """Serve robots.txt at domain root from static asset."""
+    from django.conf import settings
+    robots_path = settings.BASE_DIR.parent / 'frontend' / 'static' / 'robots.txt'
+    if robots_path.exists():
+        content = robots_path.read_text(encoding='utf-8')
+    else:
+        content = "User-agent: *\nAllow: /\nSitemap: https://akidsenterprise.com/sitemap.xml\n"
+    return HttpResponse(content, content_type="text/plain; charset=utf-8")
 
 
 def search_view(request):
