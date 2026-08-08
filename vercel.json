@@ -28,6 +28,10 @@
       "dest": "frontend/static/BingSiteAuth.xml"
     },
     {
+      "src": "/a8e4c91f7b2d6e03c5f9a1b8d7e4c620.txt",
+      "dest": "frontend/static/a8e4c91f7b2d6e03c5f9a1b8d7e4c620.txt"
+    },
+    {
       "src": "/(.*)",
       "dest": "backend/little_fingers/wsgi.py"
     }
