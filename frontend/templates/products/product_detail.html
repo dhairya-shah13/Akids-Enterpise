@@ -1,6 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}{{ product.name }} | Little Fingers{% endblock %}
+{% block title %}{{ product.name }} — Kindergarten & Playground Equipment | A kids India{% endblock %}
+{% block meta_description %}Buy {{ product.name }} online in India. {{ product.description|striptags|truncatewords:20 }}{% endblock %}
+
+{% block og_title %}{{ product.name }} — Kindergarten & Playground Equipment | A kids India{% endblock %}
+{% block og_description %}Buy {{ product.name }} online in India. {{ product.description|striptags|truncatewords:20 }}{% endblock %}
+{% block og_image %}{{ selected_variant.display_image }}{% endblock %}
+
+{% block twitter_title %}{{ product.name }} — Kindergarten & Playground Equipment | A kids India{% endblock %}
+{% block twitter_description %}Buy {{ product.name }} online in India. {{ product.description|striptags|truncatewords:20 }}{% endblock %}
+{% block twitter_image %}{{ selected_variant.display_image }}{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "Product",
+            "@id": "https://akidsenterprise.com{{ request.path }}#product",
+            "name": "{{ product.name|escapejs }}",
+            "description": "{{ product.description|striptags|escapejs }}",
+            "image": [
+                "https://akidsenterprise.com{{ selected_variant.display_image }}"
+            ],
+            "sku": "{{ product.sku|escapejs }}",
+            "offers": {
+                "@type": "Offer",
+                "price": "{{ product.price }}",
+                "priceCurrency": "INR",
+                "itemCondition": "https://schema.org/NewCondition",
+                "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+                "seller": {
+                    "@type": "Organization",
+                    "name": "A kids India",
+                    "url": "https://akidsenterprise.com"
+                }
+            }
+        }
+    ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="py-12 max-w-7xl mx-auto px-margin-desktop">

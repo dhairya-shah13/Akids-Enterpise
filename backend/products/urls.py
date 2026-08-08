@@ -10,7 +10,7 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='products/home.html'), name='home'),
+    # path('', TemplateView.as_view(template_name='products/home.html'), name='home'),
     path('search/', views.search_view, name='search'),
     path('', views.home_view, name='home'),
     path('indoors/', views.indoors_view, name='indoors'),
