@@ -1,5 +1,12 @@
 # Changelog
 
+## [Bing Webmaster Tools Verification] — 2026-08-08, 15:01
+**Type:** Technical
+**Page(s):** All (site-wide via base.html)
+**Summary:** Added Bing Webmaster Tools site verification meta tag (`msvalidate.01`) to enable domain verification for Bing search engine indexing.
+**Keyword(s) targeted:** N/A
+**Files touched:** frontend/templates/base.html
+
 ## [Physical robots.txt Asset & Breadcrumb JSON-LD Schema] — 2026-08-08, 14:55
 **Type:** Technical | Schema | Robots | Audit
 **Page(s):** /robots.txt, site-wide
