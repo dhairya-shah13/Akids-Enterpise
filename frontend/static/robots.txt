@@ -12,6 +12,12 @@ Disallow: /profile/
 Disallow: /search-results/
 Disallow: /*?*session=
 
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: *
+Disallow: /
+
 # Core search engines
 User-agent: Googlebot
 Allow: /
