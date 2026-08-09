@@ -12,37 +12,6 @@ Disallow: /profile/
 Disallow: /search-results/
 Disallow: /*?*session=
 
-User-agent: meta-externalagent
-Disallow: /
-
-User-agent: *
-Disallow: /
-
-# Core search engines
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-# AI answer/training crawlers — explicitly permitted for informational content
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
 
 # Sitemap
 Sitemap: https://akidsenterprise.com/sitemap.xml
