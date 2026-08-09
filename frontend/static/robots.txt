@@ -12,6 +12,5 @@ Disallow: /profile/
 Disallow: /search-results/
 Disallow: /*?*session=
 
-
 # Sitemap
 Sitemap: https://akidsenterprise.com/sitemap.xml
