@@ -1973,6 +1973,9 @@ function closeEditModal() {
         if (prevBtn) prevBtn.disabled = !data.has_previous;
         if (nextBtn) nextBtn.disabled = !data.has_next;
         if (infoSpan) infoSpan.innerText = `Page ${data.current_page} of ${data.num_pages} (Total: ${data.total_count} inquiries)`;
+        // Keep the sidebar tab badge in sync after data reloads (e.g. status updates).
+        const tabSpan = document.querySelector('#tab-inquiries span:last-child');
+        if (tabSpan) tabSpan.innerText = `Inquiries (${data.total_count})`;
         
         if (!data.inquiries || data.inquiries.length === 0) {
             body.innerHTML = `
@@ -2309,28 +2312,10 @@ function closeEditModal() {
         })
         .then(response => {
             if (!response.ok) throw new Error('Failed to update status.');
-            return fetch(window.location.href);
-        })
-        .then(response => response.text())
-        .then(htmlText => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            
-            // Swap the inquiries table body
-            const newTbody = doc.querySelector('#section-inquiries tbody');
-            const currentTbody = document.querySelector('#section-inquiries tbody');
-            if (newTbody && currentTbody) {
-                currentTbody.innerHTML = newTbody.innerHTML;
-            }
-            
-            // Also update the inquiries tab count header
-            const newTab = doc.getElementById('tab-inquiries');
-            const currentTab = document.getElementById('tab-inquiries');
-            if (newTab && currentTab) {
-                currentTab.innerHTML = newTab.innerHTML;
-            }
-            
             showToast('Success', 'Inquiry status updated successfully!', 'success');
+            // Reload just the table via the existing API endpoints instead of
+            // re-fetching and re-rendering the entire dashboard page.
+            if (typeof loadInquiries === 'function') loadInquiries();
         })
         .catch(error => {
             showToast('Error', error.message, 'error');

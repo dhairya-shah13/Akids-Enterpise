@@ -49,6 +49,10 @@
   - Pillar: `/shreemsports/` (Sports Carriage)
   - Clusters: `/product/<id>/` (Sports products)
 
+## Audit Findings
+- [CLEANED 2026-08-09] Owner-approved deletions (Category A/B, exception: admin_manual/user_manual kept): `homepage1.html`, root `logo.png`, `catalogues/` root PDFs (incl. `new Outdoor & Soft Play Components March 2026-.pdf`), `backend/products/management/commands/import_catalogue.py`, `docs/Audit.md`, `docs/context.md`, `docs/progress.md`, `docs/audit/audit-reports.md`, `docs/audit-report-2026-08-08.md`, `docs/audit/history/*.json`, `docs/CREDENTIALS_SETUP.md`, `ponytail/` gitlink, `implementationplan.md`. All byte-identical duplicates verified by md5; zero dangling references (only stale string: `views.py:546` error message still mentions deleted docs/CREDENTIALS_SETUP.md — cosmetic). 63 tests pass.
+- [IMPLEMENTED 2026-08-09] `implementationplan.md` (repo root) WS-1..WS-5 approved and applied: edge 404 routes for probes + PDF edge routes (C1/H4), conditional csrftoken middleware + /api/csrf/ + s-maxage edge caching for anonymous GETs (C2/H5), view_all PII leak removed (C3), rate limits on login/signup/firebase/resend/change-password/chat/inquiry + DNS memoization (H1–H3/H6). No request loops or cron jobs found. Pending post-deploy verification on Vercel: x-vercel-cache HIT, edge-level 404s, PDF edge serving (requires deploy; local headers verified). Known: rate limits are per-instance (locmem) — Vercel Firewall rules recommended as global layer; pre-existing `/shreem_sports/view-all-products/` returns 404 (view accepts indoor/outdoor only); duplicate google_login/google_callback definitions in views.py are pre-existing dead code.
+
 ## Open Audit Findings
 - [Resolved] Duplicate home route mapping on URL `/` bypassed `views.home_view` by calling static `TemplateView.as_view` directly.
 - [Resolved] Lack of unique meta descriptions on category listing and company static pages.

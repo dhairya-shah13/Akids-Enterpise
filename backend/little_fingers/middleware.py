@@ -7,7 +7,7 @@ logger = logging.getLogger('request_timing')
 
 
 class CsrfCookieBootstrapMiddleware:
-    """Ensures the `csrftoken` cookie is set on every response.
+    """Ensures the `csrftoken` cookie is set for clients that do not already have it.
 
     The hidden {% csrf_token %} form in base.html only sets the cookie when the
     template is actually rendered. Pages served from the cache (@cache_page on
@@ -16,6 +16,17 @@ class CsrfCookieBootstrapMiddleware:
     AJAX call that reads getCookie('csrftoken') (chat, catalog inquiry) would
     403. Calling get_token(request) here marks CSRF_COOKIE_NEEDS_UPDATE so
     CsrfViewMiddleware sets the cookie on the outgoing response.
+
+    The cookie is only forced when the client request does NOT already carry a
+    csrftoken cookie. Forcing it on every response put a Set-Cookie header on
+    every response, which prevented Vercel from edge-caching any HTML/JSON
+    (Vercel does not cache responses containing Set-Cookie) — the root cause of
+    runaway function invocations and origin transfer (implementationplan C2).
+    Returning users/bots now get responses without Set-Cookie, so those
+    responses become edge-cacheable. Brand-new visitors still receive the cookie
+    on their first uncached page load; the lazy /api/csrf/ endpoint (main.js
+    ensureCsrf) covers the case where a first-time visitor lands directly on an
+    edge-cached page and then submits a chat/inquiry POST.
 
     MUST be listed after django.middleware.csrf.CsrfViewMiddleware in MIDDLEWARE
     so its process_response runs before the cookie is written.
@@ -26,12 +37,13 @@ class CsrfCookieBootstrapMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        try:
-            get_token(request)
-        except Exception:
-            # Never break a page because the CSRF cookie could not be set.
-            # Log it so a broken CSRF configuration is never invisible.
-            logger.warning("CsrfCookieBootstrapMiddleware: could not set CSRF token", exc_info=True)
+        if 'csrftoken' not in request.COOKIES:
+            try:
+                get_token(request)
+            except Exception:
+                # Never break a page because the CSRF cookie could not be set.
+                # Log it so a broken CSRF configuration is never invisible.
+                logger.warning("CsrfCookieBootstrapMiddleware: could not set CSRF token", exc_info=True)
         return response
 
 

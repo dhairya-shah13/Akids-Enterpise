@@ -18,7 +18,7 @@ Before diving into generic phases, spend one sentence in Phase 0 naming this sys
 
 ## OPERATING RULES (non-negotiable)
 
-1. **Evidence only.** Every finding cites a real file you opened, with an exact excerpt. No finding may rest on inference about code you haven't opened.
+1. **Evidence only.** Every finding cites a real file you opened, with an exact excerpt. No finding may rest on inference about code you haven't opened. Where automated tooling exists in the environment (dependency/CVE scanners, secret scanners such as gitleaks/trufflehog, SAST tools such as semgrep), the agent must run it and treat its output as additional evidence, not a substitute for manual review.
 2. **No early stopping.** Continue until every file in the Critical-Path List (built in Phase 0) has been opened at least once, and every phase below has a recorded pass / fail / N/A note.
 3. **Honest coverage.** Coverage % = (files actually opened ÷ total relevant files) × 100 — calculated, not asserted. If the repo is too large to fully read in one pass, say so explicitly and report the real number, not 100%.
 4. **Confidence gate.** Score every finding's confidence 1–10. Only findings ≥9 go into the main Findings section. Findings at 6–8 are *not* discarded — they go into "Areas Requiring Manual Review" in the Final Assessment. Below 6, drop it.
@@ -49,7 +49,7 @@ Determine, before anything else:
 - **Prior audit history:** Check for `.audit/history/*.json`, a CHANGELOG, or any "known fixes / security patch" notes in project docs (README, context files, CONTRIBUTING). If found, extract a short **Known Prior Fixes** list — specific, previously-fixed issues to explicitly re-verify (see Operating Rule 7). If nothing is found, state that explicitly and skip this list rather than inventing one.
 - **Build the Critical-Path List**: entry points, auth/middleware, models/schema, controllers/routes, payment or tenant/ownership-scoping code, background jobs, file/data-import pipelines, infra/config files. Coverage % is measured against this list.
 
-Output Phase 0 as a short architecture/dependency map — including the core trust promise and any Known Prior Fixes list — before continuing to Phase 1.
+Output Phase 0 as a short architecture/dependency map — including the core trust promise and any Known Prior Fixes list — before continuing to Phase 1. If a project-level RULES.md (or equivalent agent-operating-rules file) is present in the repository, findings from this audit that are selected for remediation must be handed off as an Implementation Plan under that document's approval process — this document produces findings, it does not authorize fixes.
 
 ---
 
@@ -126,7 +126,7 @@ Every finding is tagged with the dimension(s) it affects and a severity. Each di
 
 Before starting: check for `.audit/history/*.json`. If found, load the most recent file as the prior scorecard and extract the Known Prior Fixes list (Phase 0).
 
-After finishing: write the new scorecard to `.audit/history/<date>.json` and overwrite `.audit/latest-report.md` with the full report. Example record:
+After finishing: write the new scorecard to `.audit/history/<date>.json` and overwrite `.audit/latest-report.md` with the full report. In addition, append a `### [Category: Audit] — {short summary}` subsection to the shared `Changelog.md` (see RULES.md §8.1) — under the current run's `## [YYYY-MM-DD HH:MM]` heading if one already exists for this session, or a new one if not — summarizing the audit's overall score, critical/high finding count, and a link/reference to `.audit/latest-report.md`. Update the `## Audit` subsection of the shared `Context.md` with the current scorecard and open findings count. Example record:
 
 ```json
 {"date":"2026-08-05","commit":"<sha if available>","scores":{"Authentication & AuthZ":40,"Tenant / Ownership Isolation":30,"...":"..."},"overall":39}

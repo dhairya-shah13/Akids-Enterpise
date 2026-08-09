@@ -16,6 +16,18 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// ===== CSRF lazy bootstrap for edge-cached pages =====
+async function ensureCsrf() {
+    if (getCookie('csrftoken')) return;
+    // Public GET pages are now edge-cached by Vercel, which does not replay
+    // Set-Cookie headers on cached responses, so a brand-new visitor can land
+    // on a cached page without a csrftoken cookie. Fetch it once before the
+    // first state-changing AJAX call (chat, catalog inquiry).
+    try {
+        await fetch('/api/csrf/', { method: 'GET', credentials: 'same-origin' });
+    } catch (e) { /* best-effort; the POST will surface a clear error */ }
+}
+
 // ===== Global Lazy Loading: Intersection Observer for scroll animations =====
 document.addEventListener('DOMContentLoaded', function() {
     var observer = new IntersectionObserver(function(entries) {
@@ -198,6 +210,7 @@ async function sendMohanlalMessage(e) {
     var sendBtn = document.getElementById('mohanlalSendBtn');
     var text = input.value.trim();
     if (!text) return;
+    await ensureCsrf();
     input.value = ''; input.disabled = true; sendBtn.disabled = true;
 
     var userDiv = document.createElement('div');

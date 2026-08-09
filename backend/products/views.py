@@ -6,7 +6,7 @@ import logging
 import socket
 from decimal import Decimal
 from pathlib import Path
-from functools import lru_cache
+from functools import lru_cache, wraps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse, FileResponse
@@ -20,6 +20,7 @@ from .models import Product, Inquiry, Order, OrderItem, STATUS_TRANSITIONS, Inqu
 from .constants import PRODUCT_COLOURS
 from .search import search_products
 from .utils import calculate_gst
+from .ratelimit import is_rate_limited
 from django.db import transaction
 from django.db.models import Q, Sum, Count
 from django.contrib.auth.decorators import login_required
@@ -27,9 +28,11 @@ from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, Http404
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import cache_page, cache_control
 from django.core.cache import cache
 from django.utils import timezone
+from django.utils.cache import patch_cache_control
+from django.middleware.csrf import get_token
 from django.contrib.sitemaps import Sitemap
 from django.views.decorators.http import require_safe
 
@@ -111,7 +114,8 @@ COMPANY_PAGES = {
 }
 
 
-@cache_page(60 * 30)  # Cache for 30 minutes
+@cache_page(60 * 5)  # Django-level cache for 5 minutes (reduced from 30; see implementationplan WS-2)
+@cache_control(public=True, s_maxage=300, stale_while_revalidate=1800)
 def company_page(request, page):
     return render(request, 'products/company_page.html', COMPANY_PAGES[page])
 
@@ -169,6 +173,49 @@ def is_admin_user(request):
     return result
 
 
+def public_cache_control(s_maxage, stale_while_revalidate):
+    """Edge-cache a public GET page for anonymous visitors only.
+
+    Applies `Cache-Control: public, s-maxage=..., stale-while-revalidate=...`
+    (Vercel caches such responses at the edge) for anonymous GET requests, and
+    forces `Cache-Control: private, no-store` for authenticated/admin requests
+    so personalized session state is never stored in a shared cache.
+
+    Django's SessionMiddleware adds `Vary: Cookie` to these responses (because
+    this helper reads request.user), which makes Vercel key the edge cache by
+    cookie: cookie-less crawlers — the bulk of bot traffic — share a single
+    anonymous entry, while cookie-bearing users always get fresh origin
+    responses with their own personalized navbar.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            response = view_func(request, *args, **kwargs)
+            if (request.method == 'GET' and response.status_code == 200
+                    and not request.user.is_authenticated and not is_admin_user(request)):
+                patch_cache_control(response, public=True, s_maxage=s_maxage,
+                                    stale_while_revalidate=stale_while_revalidate)
+            else:
+                response['Cache-Control'] = 'private, no-store'
+            return response
+        return wrapper
+    return decorator
+
+
+@lru_cache(maxsize=256)
+def _email_domain_resolves(domain):
+    """Memoized DNS existence check for an email domain (bounded cache).
+
+    Signup is rate-limited; memoizing the DNS probe keeps repeat attempts for
+    the same domain cheap instead of issuing a DNS lookup per attempt.
+    """
+    try:
+        socket.gethostbyname(domain)
+        return True
+    except Exception:
+        return False
+
+
 def validate_email_and_domain(email):
     """Validate email syntax and check whether the domain host exists."""
     if not email:
@@ -183,9 +230,7 @@ def validate_email_and_domain(email):
         return False, "Invalid email address format."
     
     domain = parts[1].lower().strip()
-    try:
-        socket.gethostbyname(domain)
-    except Exception:
+    if not _email_domain_resolves(domain):
         return False, f"The email domain (@{domain}) does not exist or cannot receive emails."
     
     return True, None
@@ -228,6 +273,13 @@ def login_view(request):
     unverified_email = None
 
     if request.method == 'POST':
+        # Application-level rate limit (defense-in-depth; Vercel Firewall is primary)
+        if is_rate_limited(request, 'login', 10, 60):
+            return render(request, 'products/login.html', {
+                'error': 'Too many login attempts. Please wait a minute and try again.',
+                'next': request.GET.get('next', '')
+            })
+
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
 
@@ -280,36 +332,42 @@ def signup_view(request):
         password = request.POST.get('password', '').strip()
         username = request.POST.get('username', '').strip()
 
-        # 1. Format and Domain Validation
-        valid_email, domain_err = validate_email_and_domain(email)
-        if not valid_email:
-            error = domain_err
-        # 2. Single query to check both email and username
-        elif User.objects.filter(Q(email=email) | Q(username=username)).exists():
-            if User.objects.filter(email=email).exists():
-                error = "A user with that email already exists."
-            else:
-                error = "That username is already taken."
-        elif email and password and username:
-            if len(password) < 6:
-                error = "Password must be at least 6 characters long."
-            else:
-                # Create user with is_active = False (unverified)
-                user = User.objects.create_user(username=username, email=email, password=password)
-                user.is_active = False
-                user.save()
-                UserProfile.objects.get_or_create(user=user)
-
-                # Send verification email
-                verify_url, firebase_sent = send_verification_email(request, user)
-                
-                return render(request, 'products/verify_email_pending.html', {
-                    'email': email,
-                    'verify_url': verify_url,
-                    'firebase_sent': firebase_sent
-                })
+        # 0. Application-level rate limit FIRST (defense-in-depth; Vercel Firewall
+        #    is primary). Checked before validation/DNS so limited clients do not
+        #    burn DNS lookups or any other work.
+        if is_rate_limited(request, 'signup', 5, 300):
+            error = "Too many signup attempts from this address. Please try again in a few minutes."
         else:
-            error = "Please fill in all fields."
+            # 1. Format and Domain Validation
+            valid_email, domain_err = validate_email_and_domain(email)
+            if not valid_email:
+                error = domain_err
+            # 2. Single query to check both email and username
+            elif User.objects.filter(Q(email=email) | Q(username=username)).exists():
+                if User.objects.filter(email=email).exists():
+                    error = "A user with that email already exists."
+                else:
+                    error = "That username is already taken."
+            elif email and password and username:
+                if len(password) < 6:
+                    error = "Password must be at least 6 characters long."
+                else:
+                    # Create user with is_active = False (unverified)
+                    user = User.objects.create_user(username=username, email=email, password=password)
+                    user.is_active = False
+                    user.save()
+                    UserProfile.objects.get_or_create(user=user)
+
+                    # Send verification email
+                    verify_url, firebase_sent = send_verification_email(request, user)
+                    
+                    return render(request, 'products/verify_email_pending.html', {
+                        'email': email,
+                        'verify_url': verify_url,
+                        'firebase_sent': firebase_sent
+                    })
+            else:
+                error = "Please fill in all fields."
 
     return render(request, 'products/signup.html', {'error': error, 'next': request.GET.get('next', '')})
 
@@ -343,6 +401,11 @@ def verify_email_confirm(request):
 
 def resend_verification(request):
     if request.method == 'POST':
+        # Application-level rate limit (defense-in-depth; Vercel Firewall is primary)
+        if is_rate_limited(request, 'resend_verification', 3, 300):
+            return render(request, 'products/login.html', {
+                'error': 'Too many resend attempts. Please wait a few minutes and try again.'
+            })
         email = request.POST.get('email', '').strip()
         user = User.objects.filter(email=email, is_active=False).first()
         if user:
@@ -464,6 +527,11 @@ def firebase_login(request):
     _read_env_file()
     if request.method != 'POST':
         return JsonResponse({'error': 'POST required'}, status=405)
+
+    # Application-level rate limit (defense-in-depth; Vercel Firewall is primary)
+    if is_rate_limited(request, 'firebase_login', 5, 300):
+        return JsonResponse({'error': 'Too many attempts. Please try again later.'}, status=429)
+
     try:
         data = json.loads(request.body.decode('utf-8'))
         email = data.get('email', '').strip()
@@ -607,6 +675,9 @@ def set_password_view(request):
 def change_password_view(request):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Authentication required.'}, status=401)
+
+    if is_rate_limited(request, 'change_password', 10, 60):
+        return JsonResponse({'error': 'Too many attempts. Please try again later.'}, status=429)
 
     current_password = request.POST.get('current_password', '').strip()
     new_password = request.POST.get('new_password', '').strip()
@@ -1058,6 +1129,8 @@ def delete_product(request, pk):
         Product.objects.filter(pk=pk).delete()
     return redirect('admin_dashboard')
 
+
+@public_cache_control(s_maxage=60, stale_while_revalidate=300)
 def home_view(request):
     featured_products = Product.objects.filter(stock__gt=0).only(
         'id', 'name', 'category', 'price', 'discount_price', 'stock',
@@ -1065,6 +1138,7 @@ def home_view(request):
     ).order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
+@public_cache_control(s_maxage=120, stale_while_revalidate=600)
 def category_listing(request, cat_code, template_name):
     q = request.GET.get('q', '').strip()
     if q:
@@ -1089,6 +1163,7 @@ def outdoors_view(request):
 def shreemsports_view(request):
     return category_listing(request, 'SHREEM_SPORTS', 'products/shreemsports.html')
 
+@public_cache_control(s_maxage=120, stale_while_revalidate=600)
 def product_detail(request, pk):
     try:
         product = Product.objects.get(pk=pk)
@@ -1239,6 +1314,20 @@ def bing_site_auth(request):
     return HttpResponse(content, content_type="application/xml; charset=utf-8")
 
 
+@require_safe
+def api_csrf(request):
+    """Return a fresh csrftoken cookie for clients that lack one.
+
+    Public GET pages are now edge-cached, and Vercel does not replay Set-Cookie
+    on cached responses, so a brand-new visitor can land on a cached page
+    without a csrftoken cookie. main.js calls this lazily before the first
+    chat/inquiry POST when getCookie('csrftoken') is empty.
+    """
+    token = get_token(request)
+    return JsonResponse({'status': 'ok', 'csrftoken': token})
+
+
+@public_cache_control(s_maxage=60, stale_while_revalidate=300)
 def search_view(request):
     q = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -1259,6 +1348,8 @@ def search_view(request):
     })
 
 
+@cache_page(60 * 5)  # Django-level cache (locmem) — no user-specific data in this response
+@cache_control(public=True, s_maxage=300, stale_while_revalidate=900)
 def api_search_suggestions(request):
     q = request.GET.get('q', '').strip()
     category = request.GET.get('category', '').strip()
@@ -1295,6 +1386,12 @@ def chat_api(request):
         
     if not user_message:
         return JsonResponse({"error": "Empty message"}, status=400)
+
+    # Application-level rate limit (defense-in-depth; Vercel Firewall is primary).
+    # This endpoint calls an external LLM API with a long timeout — unlimited
+    # anonymous access would burn both function CPU and external API credits.
+    if is_rate_limited(request, 'chat_api', 10, 60):
+        return JsonResponse({"error": "Too many requests. Please wait a moment before sending another message."}, status=429)
 
     api_key = os.getenv("GROQ_API_KEY", "")
     
@@ -1504,9 +1601,12 @@ def serve_catalogue_pdf(request, module_type):
     if module_type not in ('indoor', 'outdoor'):
         raise Http404
 
+    # Serve from the static catalogue copies (byte-identical to the root
+    # catalogues/ files — verified by md5) so the Vercel edge route and the
+    # function fallback use one canonical source.
     pdf_paths = {
-        'indoor': 'catalogues/Indoor Catalogue March 2026-.pdf',
-        'outdoor': 'catalogues/Outdoor Catalogue March 2026-.pdf',
+        'indoor': 'frontend/static/catalogues/indoor-catalogue-march-2026.pdf',
+        'outdoor': 'frontend/static/catalogues/outdoor-catalogue-march-2026.pdf',
     }
     rel_path = pdf_paths[module_type]
 
@@ -1525,9 +1625,12 @@ def serve_catalogue_pdf(request, module_type):
     else:
         disposition = 'inline'
     response['Content-Disposition'] = f'{disposition}; filename="catalogue-{module_type}.pdf"'
+    # Cacheable: Vercel's edge route serves these from static before the
+    # function is invoked; this header also covers the Django fallback path.
+    response['Cache-Control'] = 'public, max-age=86400, immutable'
     return response
 
-@cache_page(60 * 5)  # Cache for 5 minutes
+@public_cache_control(s_maxage=300, stale_while_revalidate=1800)
 def view_all_products(request, module_type):
     module_type = module_type.lower()
     if module_type not in ['indoor', 'outdoor']:
@@ -1540,15 +1643,23 @@ def view_all_products(request, module_type):
         'outdoor': 'OUTDOORS'
     }
     db_category = category_map[module_type]
-    
-    products = Product.objects.filter(category=db_category).only('sku', 'name').order_by('sku')
-    product_codes = []
-    for p in products:
-        if p.sku:
-            product_codes.append({
-                'code': p.sku,
-                'name': p.name
-            })
+
+    # Cache the (static) product-code list for 5 minutes. The page itself must
+    # NOT be @cache_page'd: it renders logged-in users' name/email/phone as
+    # inquiry-form prefill, and a URL-keyed full-page cache would leak that PII
+    # to other visitors (was @cache_page(60*5) — see implementationplan C3).
+    cache_key = f'view_all_product_codes_{module_type}'
+    product_codes = cache.get(cache_key)
+    if product_codes is None:
+        products = Product.objects.filter(category=db_category).only('sku', 'name').order_by('sku')
+        product_codes = []
+        for p in products:
+            if p.sku:
+                product_codes.append({
+                    'code': p.sku,
+                    'name': p.name
+                })
+        cache.set(cache_key, product_codes, 300)
             
     module_labels = {
         'indoor': 'Indoor',
@@ -1580,7 +1691,11 @@ def view_all_products(request, module_type):
 def submit_catalog_inquiry(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Only POST requests allowed.'}, status=405)
-        
+
+    # Application-level rate limit (defense-in-depth; Vercel Firewall is primary)
+    if is_rate_limited(request, 'submit_inquiry', 10, 300):
+        return JsonResponse({'success': False, 'error': 'Too many inquiries from this address. Please try again later.'}, status=429)
+
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:

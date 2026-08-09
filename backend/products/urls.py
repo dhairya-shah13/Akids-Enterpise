@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic import TemplateView
 from django.contrib.sitemaps.views import sitemap
+from django.views.decorators.cache import cache_page, cache_control
 from . import views
 from .views import ProductSitemap, StaticViewSitemap
 
@@ -51,6 +52,7 @@ urlpatterns = [
     path('admin-panel/inquiries/<int:pk>/delete/', views.delete_inquiry, name='delete_inquiry'),
     path('api/chat/', views.chat_api, name='chat_api'),
     path('api/search-suggestions/', views.api_search_suggestions, name='api_search_suggestions'),
+    path('api/csrf/', views.api_csrf, name='api_csrf'),
     
     # Administrative Order REST APIs
     path('api/admin/orders/', views.api_admin_orders, name='api_admin_orders'),
@@ -71,7 +73,12 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
 
     # SEO: Sitemap & Robots & Auth
-    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap.xml',
+         cache_control(public=True, s_maxage=3600, stale_while_revalidate=3600)(
+             cache_page(60 * 60)(sitemap)
+         ),
+         {'sitemaps': sitemaps},
+         name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', views.robots_txt, name='robots_txt'),
     path('BingSiteAuth.xml', views.bing_site_auth, name='bing_site_auth'),
 ]

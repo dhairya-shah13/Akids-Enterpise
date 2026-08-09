@@ -34,7 +34,7 @@ agent must first produce an **Implementation Plan** covering:
    - Any new dependencies being introduced and why
 
 2.2 The agent must **not** write, edit, or delete any code until the Implementation
-Plan has been explicitly approved by the project owner.
+Plan has been explicitly approved by the project owner — unless the project owner has pre-authorized a specific, narrow class of change in writing (e.g., "dependency patch-level bumps," "typo/lint-only fixes") for unattended/autonomous runs. Pre-authorization must name the exact change class; it is never a blanket exemption from this section.
 
 2.3 This applies every time — no skipping the plan step for "small" changes, quick
 fixes, or repeated similar tasks. Each run gets its own plan and its own approval.
@@ -166,37 +166,45 @@ These two documents are a fixed requirement of this ruleset and must be maintain
 regardless of repository type, size, or existing conventions. This is the one
 documentation requirement that does **not** flex to repository conventions.
 
-**Context.md** — A living, detailed reference of the project's current state, kept
-accurate at all times. Must include, at minimum:
+**Context.md** — A single, living, detailed reference of the project's current state, shared across every operating document active on this project (dev, SEO, UI/motion, audit) — never a separate context file per category. Must include, at minimum:
    - Current folder / file structure
    - Full feature list (implemented, in-progress, planned)
    - Architecture overview (stack, key libraries, data flow, external services)
    - Key conventions and patterns used in the codebase
    - Anything a new developer or a new agent would need to get oriented without
      asking questions
+   - A dedicated subsection per active category (e.g. `## SEO`, `## UI/Motion`, `## Audit Findings`) so each operating document's state lives in one place without overwriting another's section
 
-**Changelog.md** — A running log of every change made, in reverse-chronological
-order. Each entry must follow this format:
+**Changelog.md** — A running log of every change made, in reverse-chronological order, grouped under one heading per work session/run so a single date-time timestamp is never split across multiple entries. This file is shared across every operating document active on this project (this RULES.md, plus SEO.md, Audit.md, UISKILL.md, or equivalent, where present) — every category of change lands in the same file under the same timestamp, never in a separate per-category file. Each run's entry must follow this format:
 
 ```
-## [Change Title] — DATE, TIME
+## [YYYY-MM-DD HH:MM]
 
-### What changed
-Detailed description of every change made in this run.
+### [Category: Dev] — Short Title
+What changed: Detailed description of every change made in this run.
+Why: The reasoning/requirement behind the change.
+Bug fixed (if applicable): What the bug was.
+Root cause (if applicable): What actually caused the bug.
 
-### Why
-The reasoning/requirement behind the change.
+### [Category: SEO] — Short Title
+What changed: ...
+Why: ...
 
-### Bug fixed (if applicable)
-What the bug was.
+### [Category: UI] — Short Title
+What changed: ...
+Why: ...
 
-### Root cause (if applicable)
-What actually caused the bug.
+### [Category: Audit] — Short Title
+What changed: ...
+Why: ...
 ```
+
+If a single run only produces one category of change, the heading still carries the timestamp with a single tagged subsection underneath — never omit the category tag, even when only one category is present in that run.
 
 **Update rule — non-negotiable:** `Context.md` and `Changelog.md` must both be
 updated after **every** prompt execution / run in which the agent makes changes to
-the project, without fail — structural changes, new features, removed features,
+the project, without fail, regardless of which operating document (this one, SEO.md,
+Audit.md, UISKILL.md) drove the change — structural changes, new features, removed features,
 dependency changes, bug fixes, and configuration changes all count. No batching
 multiple sessions into one vague entry, and no skipping the update because a change
 seemed small. If a given run truly changes nothing about the project, the agent must
@@ -1249,6 +1257,7 @@ adapt applicable rules accordingly. For example:
 | Data/ML | reproducibility, data integrity, model/version tracking |
 | Monorepo | package boundaries, dependency graph, affected-project testing |
 | Documentation | link validation, consistency, generated content |
+| Marketing / SEO / Content site | on-page, technical-SEO, and content-generation rules defer to the project's SEO operating manual (SEO.md) if present; that document's seo-context.md/seo-changelog.md are used instead of this document's Section 8.1 files for content/marketing-only changes |
 | SDK | contract compatibility, generated clients, API versioning |
 
 The rules in this document are universally applicable but conditionally activated

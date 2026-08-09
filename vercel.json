@@ -32,6 +32,93 @@
       "dest": "frontend/static/a8e4c91f7b2d6e03c5f9a1b8d7e4c620.txt"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "frontend/static/images/favicon.png"
+    },
+    {
+      "src": "/catalogue/pdf/(indoor|outdoor)/",
+      "headers": {
+        "Cache-Control": "public, max-age=86400, immutable"
+      },
+      "dest": "frontend/static/catalogues/$1-catalogue-march-2026.pdf"
+    },
+    {
+      "src": "/wp-admin/(.*)",
+      "status": 404
+    },
+    {
+      "src": "/wp-login\\.php",
+      "status": 404
+    },
+    {
+      "src": "/xmlrpc\\.php",
+      "status": 404
+    },
+    {
+      "src": "/wp-json(.*)",
+      "status": 404
+    },
+    {
+      "src": "/wordpress(.*)",
+      "status": 404
+    },
+    {
+      "src": "/\\.env(.*)",
+      "status": 404
+    },
+    {
+      "src": "/\\.git(.*)",
+      "status": 404
+    },
+    {
+      "src": "/\\.gitignore",
+      "status": 404
+    },
+    {
+      "src": "/\\.vercelignore",
+      "status": 404
+    },
+    {
+      "src": "/\\.claude(.*)",
+      "status": 404
+    },
+    {
+      "src": "/ponytail(.*)",
+      "status": 404
+    },
+    {
+      "src": "/config(.*)",
+      "status": 404
+    },
+    {
+      "src": "/phpmyadmin(.*)",
+      "status": 404
+    },
+    {
+      "src": "/etc(.*)",
+      "status": 404
+    },
+    {
+      "src": "/server-status",
+      "status": 404
+    },
+    {
+      "src": "/actuator(.*)",
+      "status": 404
+    },
+    {
+      "src": "/backend(.*)",
+      "status": 404
+    },
+    {
+      "src": "/homepage1\\.html",
+      "status": 404
+    },
+    {
+      "src": "/logo\\.png",
+      "status": 404
+    },
+    {
       "src": "/(.*)",
       "dest": "backend/little_fingers/wsgi.py"
     }

@@ -553,3 +553,107 @@ class ProductColoursAndSizeSpecsTests(TestCase):
         self.assertIsNotNone(pdf_content)
 
 
+# ---------------------------------------------------------------------------
+# WS-2 / WS-3 — Edge-cache CSRF fallback, rate limiting, and view_all PII guard
+# ---------------------------------------------------------------------------
+
+class CsrfFallbackEndpointTests(TestCase):
+    """WS-2 — /api/csrf/ provides the lazy csrftoken cookie for edge-cached pages."""
+
+    def test_api_csrf_sets_cookie_for_fresh_client(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        response = csrf_client.get(reverse('api_csrf'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('csrftoken', csrf_client.cookies)
+        self.assertTrue(csrf_client.cookies['csrftoken'].value)
+
+
+class RateLimitTests(TestCase):
+    """WS-3 — application-level per-IP rate limits kick in after the threshold."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+
+    def test_login_post_rate_limited_after_threshold(self):
+        url = reverse('admin_login')
+        for _ in range(10):
+            response = self.client.post(url, {'email': 'nobody@example.com', 'password': 'x'})
+            self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, {'email': 'nobody@example.com', 'password': 'x'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Too many login attempts')
+
+    def test_chat_api_rate_limited_after_threshold(self):
+        with mock.patch('products.views.requests.post') as mocked_post:
+            mocked_post.return_value.status_code = 200
+            mocked_post.return_value.json.return_value = {'choices': [{'message': {'content': 'Hi'}}]}
+            for _ in range(10):
+                response = self.client.post(reverse('chat_api'), data='{"message": "hi"}', content_type='application/json')
+                self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse('chat_api'), data='{"message": "hi"}', content_type='application/json')
+        self.assertEqual(response.status_code, 429)
+
+    def test_submit_inquiry_rate_limited_after_threshold(self):
+        payload = '{"name": "A", "phone_number": "9876543210", "email": "a@b.com", "module": "indoor", "line_items": [{"product_code": "X", "quantity": 1}]}'
+        for _ in range(10):
+            response = self.client.post(reverse('submit_catalog_inquiry'), data=payload, content_type='application/json')
+            self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse('submit_catalog_inquiry'), data=payload, content_type='application/json')
+        self.assertEqual(response.status_code, 429)
+
+    def test_signup_post_rate_limited_after_threshold(self):
+        url = reverse('signup')
+        for _ in range(5):
+            response = self.client.post(url, {'email': '', 'password': '', 'username': ''})
+            self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, {'email': '', 'password': '', 'username': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Too many signup attempts')
+
+    def test_signup_valid_post_still_works(self):
+        """Regression guard: the WS-3 rate-limit branch must not break signup."""
+        with mock.patch('products.views._email_domain_resolves', return_value=True), \
+                mock.patch('products.views.requests.post') as mocked_post:
+            mocked_post.return_value.status_code = 200
+            mocked_post.return_value.json.return_value = {}
+            response = self.client.post(reverse('signup'), {
+                'email': 'fresh@example.com',
+                'password': 'secret123',
+                'username': 'freshuser',
+            })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'products/verify_email_pending.html')
+        user = User.objects.get(email='fresh@example.com')
+        self.assertFalse(user.is_active)
+
+
+class ViewAllProductsPiiGuardTests(TestCase):
+    """WS-2/C3 — view_all_products must never serve logged-in user PII from a shared cache."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.user = User.objects.create_user('leaky', 'leaky@example.com', 'pass123')
+        Product.objects.create(name='Test Slide', category='INDOORS', price=Decimal('1000.00'),
+                               description='d', stock=5, sku='TS-01')
+
+    def test_logged_in_view_all_is_private_and_contains_own_prefill(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('view_all_products', args=['indoor']))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'leaky@example.com')
+        self.assertEqual(response['Cache-Control'], 'private, no-store')
+
+    def test_anonymous_view_all_is_publicly_cacheable_and_has_no_user_email(self):
+        User.objects.create_user('other', 'other-secret@example.com', 'pass123')
+        # Prime any Django-level cache with a logged-in render, then check the
+        # anonymous render never contains that user's email.
+        self.client.force_login(self.user)
+        self.client.get(reverse('view_all_products', args=['indoor']))
+        self.client.logout()
+        response = self.client.get(reverse('view_all_products', args=['indoor']))
+        self.assertNotContains(response, 'other-secret@example.com')
+        self.assertIn('s-maxage=300', response['Cache-Control'])
+
+

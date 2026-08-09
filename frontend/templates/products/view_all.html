@@ -417,8 +417,11 @@
     }
 
     // Form AJAX Submission
-    function handleInquirySubmit(event) {
+    async function handleInquirySubmit(event) {
         event.preventDefault();
+        // Edge-cached pages may not have set a csrftoken cookie yet — fetch it
+        // lazily before the first state-changing AJAX call (see main.js).
+        await ensureCsrf();
         
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
