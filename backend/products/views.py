@@ -2339,4 +2339,7 @@ def google_callback(request):
         return redirect(f"{reverse('admin_login')}?toast=google-error")
 
 
-
+def custom_404(request, exception=None):
+    response = render(request, '404.html', status=404)
+    response['Cache-Control'] = 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800'
+    return response

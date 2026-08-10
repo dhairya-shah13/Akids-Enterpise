@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026-08-10 10:34]
+
+### [Category: Dev] — Added Edge Caching for 404 responses to stop Vercel Abuse
+What changed: Added `custom_404` handler in `backend/products/views.py` and registered it in `backend/little_fingers/urls.py` via `handler404 = 'products.views.custom_404'`. The custom handler returns a 404 response with `Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800` headers.
+Why: To prevent bots from exhausting Vercel free limits (1.7M function invocations). By setting edge caching headers on 404s, Vercel caches the bogus URL responses at the edge instead of routing every missing file request to the Python backend.
+Bug fixed: Vercel usage spike / Function Invocations exhaustion.
+Root cause: Django's default 404 handler does not set `Cache-Control` edge caching headers, causing every missing route to invoke a serverless function.
+
 ## [2026-08-09 23:31]
 
 ### [Category: Dev] — Safe project cleanup: deleted approved Category A/B files

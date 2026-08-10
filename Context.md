@@ -54,6 +54,7 @@
 - [IMPLEMENTED 2026-08-09] `implementationplan.md` (repo root) WS-1..WS-5 approved and applied: edge 404 routes for probes + PDF edge routes (C1/H4), conditional csrftoken middleware + /api/csrf/ + s-maxage edge caching for anonymous GETs (C2/H5), view_all PII leak removed (C3), rate limits on login/signup/firebase/resend/change-password/chat/inquiry + DNS memoization (H1–H3/H6). No request loops or cron jobs found. Pending post-deploy verification on Vercel: x-vercel-cache HIT, edge-level 404s, PDF edge serving (requires deploy; local headers verified). Known: rate limits are per-instance (locmem) — Vercel Firewall rules recommended as global layer; pre-existing `/shreem_sports/view-all-products/` returns 404 (view accepts indoor/outdoor only); duplicate google_login/google_callback definitions in views.py are pre-existing dead code.
 
 ## Open Audit Findings
+- [Resolved] Vercel function limits exhausted by bot traffic (1.7M invocations). Implemented custom_404 handler in views.py with s-maxage caching to serve bot 404s from the edge network.
 - [Resolved] Duplicate home route mapping on URL `/` bypassed `views.home_view` by calling static `TemplateView.as_view` directly.
 - [Resolved] Lack of unique meta descriptions on category listing and company static pages.
 - [Resolved] Missing product-specific JSON-LD structured data on `/product/<id>/` pages.
