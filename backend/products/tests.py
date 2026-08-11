@@ -5,12 +5,13 @@ from unittest import mock
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 from products.models import Product, UserProfile, Address, Order, OrderItem
+from products.ratelimit import client_ip
 from little_fingers import settings as project_settings
 
 
@@ -566,6 +567,49 @@ class CsrfFallbackEndpointTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('csrftoken', csrf_client.cookies)
         self.assertTrue(csrf_client.cookies['csrftoken'].value)
+
+
+class ClientIpResolutionTests(TestCase):
+    """IMPLEMENTATIONPLAN.md §7 — client_ip() prefers CF-Connecting-IP.
+
+    Cloudflare APPENDS to X-Forwarded-For (never overwrites), so the first XFF
+    hop is client-spoofable; CF-Connecting-IP is authoritative because
+    Cloudflare strips/overwrites any client-supplied value. The fallback path
+    must preserve the pre-Cloudflare behaviour for direct-origin traffic.
+    """
+
+    def _request(self, **meta_headers):
+        factory = RequestFactory()
+        request = factory.get('/login/')
+        for key, value in meta_headers.items():
+            request.META[key] = value
+        return request
+
+    def test_cf_connecting_ip_is_preferred_over_spoofed_xff(self):
+        # First XFF hop is attacker-controlled; CF-Connecting-IP wins.
+        request = self._request(
+            HTTP_CF_CONNECTING_IP='203.0.113.9',
+            HTTP_X_FORWARDED_FOR='1.2.3.4, 203.0.113.5',
+        )
+        self.assertEqual(client_ip(request), '203.0.113.9')
+
+    def test_xff_first_hop_used_when_no_cf_header(self):
+        # Direct-origin traffic (e.g. via vercel.app) has no CF header —
+        # behaviour is unchanged from before Cloudflare.
+        request = self._request(HTTP_X_FORWARDED_FOR='198.51.100.7, 10.0.0.1')
+        self.assertEqual(client_ip(request), '198.51.100.7')
+
+    def test_empty_cf_connecting_ip_falls_through_to_xff(self):
+        # An empty header value must not be treated as a client IP.
+        request = self._request(
+            HTTP_CF_CONNECTING_IP='',
+            HTTP_X_FORWARDED_FOR='198.51.100.7',
+        )
+        self.assertEqual(client_ip(request), '198.51.100.7')
+
+    def test_remote_addr_fallback_when_no_proxy_headers(self):
+        request = self._request(REMOTE_ADDR='192.0.2.1')
+        self.assertEqual(client_ip(request), '192.0.2.1')
 
 
 class RateLimitTests(TestCase):

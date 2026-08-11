@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-08-11 10:22]
+
+### [Category: Dev] — Approved Cloudflare plan: implemented the sole code change (§7) + owner runbook
+What changed: Owner approved IMPLEMENTATIONPLAN.md ("Proceed with the plan"). Implemented the plan's only repository change, §7: `backend/products/ratelimit.py` `client_ip()` now prefers `HTTP_CF_CONNECTING_IP` (Cloudflare overwrites any client-supplied value, so it is authoritative) and falls back to the existing first-XFF-hop → REMOTE_ADDR behaviour for direct-origin traffic; module docstring updated to explain the Cloudflare XFF-append trust model. Added `ClientIpResolutionTests` (3 tests: CF-Connecting-IP beats spoofed XFF; XFF first hop when no CF header; REMOTE_ADDR fallback) in `backend/products/tests.py` (+`RequestFactory` import). Ran full suite against Supabase test DB with `--keepdb`: **66/66 tests pass** (63 existing + 3 new; run needed `--keepdb --noinput` because a top-level `TEST` setting in settings.py is not honoured by Django and the local run had a stale `test_postgres`). Appended **§13 OWNER RUNBOOK** to IMPLEMENTATIONPLAN.md: step-by-step Hostinger + Cloudflare instructions (zone creation, DNS record table incl. DKIM from Hostinger panel, SSL Full (strict), WAF Free Managed Ruleset + probe-block custom rule, Bot Fight Mode, 1 consolidated rate-limit rule, 4 cache rules, nameserver handover, post-switch curl checks, rollback table). No other code/DNS/Cloudflare changes applied (Cloudflare + Hostinger steps are owner-executed via the runbook).
+Why: Owner approved the Cloudflare integration plan and asked for step-by-step instructions for the Hostinger/Cloudflare dashboards.
+Bug fixed (if applicable): None (no reported bug; hardening change only).
+Root cause (if applicable): n/a.
+
+## [2026-08-11 10:01]
+
+### [Category: Dev] — Cloudflare outer-perimeter audit + implementation plan (IMPLEMENTATIONPLAN.md)
+What changed: Audit-only pass (no code/DNS/config changes applied). Verified live DNS via public queries (NS = Hostinger `nebula/aurora.dns-parking.com`; apex A `216.198.79.1` = Vercel edge serving 308→www; www CNAME → `f9d97632cce184a4.vercel-dns-017.com`; MX `mx1/mx2.hostinger.com`; SPF `hostinger + firebasemail`; DMARC `p=none`; DKIM selector not found at common selectors; `akids-enterpise.vercel.app` serves the full site = live direct-origin bypass). Mapped every route to a protection class (static/cacheable, public HTML, auth/sensitive, high-abuse POST). Researched Cloudflare Free-plan limits (1 rate-limiting rule, 10 cache rules, Bot Fight Mode basic, Free Managed Ruleset only, ~1–2 custom rules used) and Vercel Hobby constraints (no Firewall custom rules / no Attack Challenge Mode → no origin IP-lock). Created `IMPLEMENTATIONPLAN.md` covering: Cloudflare zone + NS handover from Hostinger, SSL/TLS Full (strict) + Always Use HTTPS, Free Managed Ruleset + 1 probe-block custom rule, Bot Fight Mode ON, one consolidated `60 req/min` Managed Challenge rate-limit rule for the 7 POST endpoints (login/signup/firebase-login/resend-verification/change-password/chat/inquiry), 4 cache rules (auth bypass / /static/* / /catalogue/pdf/* / public HTML respect-origin s-maxage), DNS record table (MX/SPF/DMARC/DKIM/TXT DNS-only), Vercel Hobby limitations §6, one justified minimal code change §7 (`ratelimit.client_ip()` prefers `CF-Connecting-IP` since Cloudflare appends to XFF making the first hop spoofable; + unit test), validation matrix, failure modes, and a Cloudflare-only rollback procedure. Pending owner approval — awaiting the phrase "Proceed with implementation plan".
+Why: Owner requested a Cloudflare integration audit and implementation plan only, per RULES.md §2 (no implementation before an approved plan).
+Bug fixed (if applicable): n/a (no code changed).
+Root cause (if applicable): n/a.
+
 ## [2026-08-10 10:34]
 
 ### [Category: Dev] — Added Edge Caching for 404 responses to stop Vercel Abuse

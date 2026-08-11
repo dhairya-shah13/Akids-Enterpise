@@ -2,18 +2,33 @@
 
 Defense-in-depth: the cache backend in settings is locmem (per serverless
 instance), so these limits are per-instance rather than global. The primary
-edge-wide defense is Vercel Firewall rate limiting / challenge rules; this
-module is the application-level backstop that works even before firewall rules
-apply.
+edge-wide defense is Cloudflare rate limiting + Vercel Firewall; this module
+is the application-level backstop.
 
-The client IP is taken from the first hop of X-Forwarded-For (set by Vercel)
-so requests behind the proxy share the real client IP.
+Client IP resolution (IMPLEMENTATIONPLAN.md §7):
+- `CF-Connecting-IP` is preferred when present. Cloudflare overwrites any
+  client-supplied value of this header, so it is authoritative for proxied
+  traffic.
+- Fall back to the first hop of X-Forwarded-For (Vercel's format) for
+  direct-origin traffic. Note Cloudflare APPENDS to X-Forwarded-For rather
+  than overwriting it, so the first hop is client-spoofable when a request
+  does not carry CF-Connecting-IP.
 """
 
 from django.core.cache import cache
 
 
 def client_ip(request):
+    # Trust model: CF-Connecting-IP is only authoritative because traffic is
+    # assumed to arrive via Cloudflare, which overwrites any client-supplied
+    # value. It is NOT a hard guarantee on direct-origin traffic (e.g. the
+    # vercel.app domain, reachable on Vercel Hobby) where a client can send a
+    # fake header — acceptable, since Cloudflare's own rate limiting keys on
+    # its view of the IP regardless. Fall back to the first X-Forwarded-For
+    # hop (Vercel's format) for direct-origin traffic.
+    cf = request.META.get('HTTP_CF_CONNECTING_IP', '').strip()
+    if cf:
+        return cf
     xff = request.META.get('HTTP_X_FORWARDED_FOR', '')
     if xff:
         return xff.split(',')[0].strip()
