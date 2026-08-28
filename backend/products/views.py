@@ -1132,7 +1132,7 @@ def delete_product(request, pk):
 
 @public_cache_control(s_maxage=60, stale_while_revalidate=300)
 def home_view(request):
-    featured_products = Product.objects.filter(stock__gt=0).only(
+    featured_products = Product.objects.filter(stock__gt=0).prefetch_related('class_specs', 'dimension_specs').only(
         'id', 'name', 'category', 'price', 'discount_price', 'stock',
         'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
     ).order_by('-created_at')[:6]
@@ -1144,7 +1144,7 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code).only(
+        products = Product.objects.filter(category=cat_code).prefetch_related('class_specs', 'dimension_specs').only(
             'id', 'name', 'category', 'price', 'discount_price', 'stock',
             'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
         ).order_by('-created_at')[:8]
@@ -1166,7 +1166,7 @@ def shreemsports_view(request):
 @public_cache_control(s_maxage=120, stale_while_revalidate=600)
 def product_detail(request, pk):
     try:
-        product = Product.objects.get(pk=pk)
+        product = Product.objects.prefetch_related('class_specs', 'dimension_specs').get(pk=pk)
     except Product.DoesNotExist:
         return render(request, '404.html', status=404)
 
@@ -1190,6 +1190,7 @@ def product_detail(request, pk):
             Product.objects.filter(category=product.category)
             .exclude(pk=product.pk)
             .exclude(stock__lte=0)
+            .prefetch_related('class_specs', 'dimension_specs')
             .only('id', 'name', 'category', 'price', 'discount_price', 'stock',
                   'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at')
             .order_by('-created_at')[:3]
@@ -1429,14 +1430,14 @@ def chat_api(request):
     }
 
     try:
-        resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=15)
+        resp = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=8)
         if resp.status_code == 200:
             res_json = resp.json()
             bot_reply = res_json["choices"][0]["message"]["content"]
             return JsonResponse({"reply": bot_reply})
         else:
             payload["model"] = "llama-3.1-8b-instant"
-            resp2 = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=15)
+            resp2 = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=8)
             if resp2.status_code == 200:
                 res_json = resp2.json()
                 bot_reply = res_json["choices"][0]["message"]["content"]

@@ -341,6 +341,26 @@ class ChatApiCsrfTests(TestCase):
             )
         self.assertEqual(response.status_code, 200)
 
+    def test_chat_api_timeout_returns_mascot_fallback(self):
+        """When requests.post times out or raises an exception, the chat API must fail
+        gracefully and return the mascot fallback message."""
+        csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.get(reverse('about'))
+        token = csrf_client.cookies['csrftoken'].value
+
+        with mock.patch.dict(os.environ, {'GROQ_API_KEY': 'dummy-groq-key'}), \
+                mock.patch('products.views.requests.post', side_effect=Exception("Connection timed out")):
+            response = csrf_client.post(
+                reverse('chat_api'),
+                data='{"message": "hi"}',
+                content_type='application/json',
+                HTTP_X_CSRFTOKEN=token,
+            )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn("Mohanlal", data['reply'])
+        self.assertIn("connection glitch", data['reply'])
+
 
 class CheckoutGstIntegrationTests(TestCase):
     """§2.4 — Checkout stores GST-exclusive subtotal + GST separately."""

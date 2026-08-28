@@ -13,13 +13,13 @@ def search_products(q, category=None):
               'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at')
 
     if not q:
-        queryset = Product.objects.all().only(*fields)
+        queryset = Product.objects.all().prefetch_related('class_specs', 'dimension_specs').only(*fields)
     else:
         queryset = Product.objects.filter(
             Q(name__icontains=q) |
             Q(description__icontains=q) |
             Q(sku__icontains=q)
-        ).only(*fields)
+        ).prefetch_related('class_specs', 'dimension_specs').only(*fields)
 
     if category:
         queryset = queryset.filter(category=category)
