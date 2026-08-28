@@ -252,14 +252,14 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Test database settings (avoid "database already exists" errors)
-TEST = {
-    'DATABASES': {
+import sys
+if 'test' in sys.argv:
+    DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': ':memory:',
         }
     }
-}
 
 # Request timing middleware (at end so it only measures the view, not other middleware)
 MIDDLEWARE.append('little_fingers.middleware.RequestTimingMiddleware')

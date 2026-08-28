@@ -144,7 +144,6 @@ def generate_invoice_pdf(order, is_admin=False):
     <b>Date:</b> {order.created_at.strftime('%d-%b-%Y')}<br/>
     <b>Order No:</b> {order.order_no}<br/>
     <b>Status:</b> {order.get_order_status_display()}<br/>
-    <b>Payment Status:</b> PAID (Razorpay)<br/>
     """
     
     meta_p = Paragraph(meta_text, meta_style)

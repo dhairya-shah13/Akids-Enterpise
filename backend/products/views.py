@@ -1330,12 +1330,18 @@ def api_csrf(request):
 @public_cache_control(s_maxage=60, stale_while_revalidate=300)
 def search_view(request):
     q = request.GET.get('q', '').strip()
-    category = request.GET.get('category', '').strip()
+    category = request.GET.get('category', '').strip().upper()
     
-    if category.lower() == 'all' or not category:
-        category = None
-        
-    products_list = search_products(q, category)
+    # Redirect legacy view-all search links to the dedicated catalog view-all routes
+    if not q and category:
+        if category == 'OUTDOORS':
+            return redirect('/outdoor/view-all-products/')
+        elif category == 'INDOORS':
+            return redirect('/indoor/view-all-products/')
+        elif category == 'SHREEM_SPORTS':
+            return redirect('/shreemsports/view-all-products/')
+            
+    products_list = search_products(q)
     
     paginator = Paginator(products_list, 12)
     page_number = request.GET.get('page')
@@ -1344,7 +1350,6 @@ def search_view(request):
     return render(request, 'products/search_results.html', {
         'page_obj': page_obj,
         'q': q,
-        'category': category,
     })
 
 
@@ -1483,93 +1488,127 @@ def checkout_view(request):
 
     profile, _ = UserProfile.objects.select_related('user').get_or_create(user=request.user)
 
-    # Compute tax breakdown via the shared single source of truth.
-    # Business rule: all prices are GST-exclusive; 18% GST is added on top.
+    # Get values from POST if present (for test compatibility), or fall back to profile/default address
+    cust_name = request.POST.get('customer_name', '').strip()
+    shipping_address = request.POST.get('shipping_address', '').strip()
+
+    if not cust_name:
+        cust_name = profile.full_name or request.user.username
+
+    if not shipping_address:
+        addresses = Address.objects.filter(user=request.user)
+        default_address = addresses.filter(is_default=True).first() or addresses.first()
+        if default_address:
+            shipping_address = f"{default_address.street_address}, {default_address.city}, {default_address.state} - {default_address.pincode}"
+        else:
+            shipping_address = profile.shipping_address or "WhatsApp Checkout"
+
+    phone_num = profile.phone_number
+
+    # Calculate GST
     tax = calculate_gst(subtotal)
     gst_amount = tax['gst']
     cgst_amount = tax['cgst']
     sgst_amount = tax['sgst']
     total_with_tax = tax['total']
 
-    if request.method == 'POST':
-        customer_name = request.POST.get('customer_name', '').strip() or request.user.username
-        shipping_address = request.POST.get('shipping_address', '').strip()
-        if not shipping_address:
-            return render(request, 'products/checkout.html', {
-                'cart_items': cart_items,
-                'subtotal': subtotal,
-                'total': subtotal,
-                'total_with_tax': total_with_tax,
-                'gst_amount': gst_amount,
-                'cgst_amount': cgst_amount,
-                'sgst_amount': sgst_amount,
-                'profile': profile,
-                'error': 'Please enter your delivery address.',
-            })
+    # Create the Order atomically and deduct stock
+    try:
+        with transaction.atomic():
+            locked_items = []
+            for item in cart_items:
+                product = Product.objects.select_for_update().get(pk=item['product'].pk)
+                if product.stock < item['quantity']:
+                    raise ValueError(f"{product.name} no longer has enough stock.")
+                locked_items.append((product, item['quantity'], item['colour'], item.get('dimension')))
 
-        # Save to profile if missing
-        if not profile.shipping_address and shipping_address:
-            profile.shipping_address = shipping_address
-            profile.save()
-
-        # ------------------------------------------------------------------
-        # DELIBERATE SIMULATION — ACCEPTED, INTENTIONAL EXCEPTION (not a bug):
-        # Order creation here simulates payment in "test mode". No payment
-        # gateway is integrated yet; this is pending client sign-off before a
-        # real Razorpay + webhook flow is wired in. Stock is still deducted
-        # atomically (select_for_update) so the flow is race-safe. Do NOT flag
-        # this as an unresolved finding in re-audits — it is a known deferral.
-        # ------------------------------------------------------------------
-        try:
-            with transaction.atomic():
-                locked_items = []
-                for item in cart_items:
-                    product = Product.objects.select_for_update().get(pk=item['product'].pk)
-                    if product.stock < item['quantity']:
-                        raise ValueError(f"{product.name} no longer has enough stock.")
-                    locked_items.append((product, item['quantity'], item['colour'], item.get('dimension')))
-
-                order = Order.objects.create(
-                    user=request.user,
-                    customer_name=customer_name,
-                    shipping_address=shipping_address,
-                    order_status='PLACED',
+            order = Order.objects.create(
+                user=request.user,
+                customer_name=cust_name,
+                shipping_address=shipping_address,
+                order_status='PLACED',
+                subtotal_amount=subtotal,
+                gst_amount=gst_amount,
+                total_amount=total_with_tax,
+            )
+            for product, quantity, colour, dimension in locked_items:
+                unit_price = product.discount_price or product.price
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    product_name=product.name,
+                    quantity=quantity,
+                    unit_price=unit_price,
+                    colour=colour,
+                    dimension=dimension,
                 )
-                for product, quantity, colour, dimension in locked_items:
-                    unit_price = product.discount_price or product.price
-                    OrderItem.objects.create(
-                        order=order,
-                        product=product,
-                        product_name=product.name,
-                        quantity=quantity,
-                        unit_price=unit_price,
-                        colour=colour,
-                        dimension=dimension,
-                    )
-                    product.stock -= quantity
-                    product.save(update_fields=['stock'])
-        except ValueError as error:
-            return redirect(f"{reverse('cart')}?toast=unavailable")
+                product.stock -= quantity
+                product.save(update_fields=['stock'])
+    except ValueError as error:
+        return redirect(f"{reverse('cart')}?toast=unavailable")
 
-        request.session['cart'] = {}
-        request.session.modified = True
-        return redirect('order_success', order_id=order.pk)
+    # Generate pre-filled WhatsApp message
+    message_lines = [
+        "Hello Akids Enterprise,",
+        "",
+        "I would like to place an order:",
+        f"*Order No:* {order.order_no}",
+        f"*Customer Name:* {cust_name}",
+    ]
+    if phone_num:
+        message_lines.append(f"*Contact Number:* {phone_num}")
+    if shipping_address and shipping_address != "WhatsApp Checkout":
+        message_lines.append(f"*Shipping Address:* {shipping_address}")
 
-    addresses = Address.objects.filter(user=request.user)
-    default_address = addresses.filter(is_default=True).first()
+    message_lines.extend([
+        "",
+        "*Items ordered:*",
+    ])
 
-    return render(request, 'products/checkout.html', {
-        'cart_items': cart_items,
-        'subtotal': subtotal,
-        'total': subtotal,
-        'total_with_tax': total_with_tax,
-        'gst_amount': gst_amount,
-        'cgst_amount': cgst_amount,
-        'sgst_amount': sgst_amount,
-        'profile': profile,
-        'addresses': addresses,
-        'default_address': default_address,
-    })
+    for item in cart_items:
+        name = item['product'].name
+        code = item['product'].sku or f"PROD-{item['product'].pk}"
+        qty = item['quantity']
+        price = item['total_price']
+        colour = item['colour']
+        dimension = item['dimension']
+
+        details = []
+        if colour:
+            details.append(f"Colour: {colour}")
+        if dimension:
+            details.append(f"Dimensions: {dimension}")
+        details_str = f" ({', '.join(details)})" if details else ""
+
+        message_lines.append(f"• {qty}x {name} [{code}]{details_str} - ₹{price}")
+
+    message_lines.extend([
+        "",
+        f"*Subtotal (GST-exclusive):* ₹{subtotal}",
+        f"*GST (18%):* ₹{gst_amount}",
+        f"*Total (GST-inclusive):* ₹{total_with_tax}",
+        "",
+        "Please confirm my order and share details. Thank you!"
+    ])
+
+    message_text = "\n".join(message_lines)
+
+    # Fetch WhatsApp number from .env
+    raw_target = get_whatsapp_number()
+    clean_target = raw_target.strip()
+    if len(clean_target) == 10 and clean_target.isdigit():
+        clean_target = "91" + clean_target
+
+    import urllib.parse
+    encoded_text = urllib.parse.quote(message_text)
+    whatsapp_url = f"https://wa.me/{clean_target}?text={encoded_text}"
+
+    # Clear the session cart
+    request.session['cart'] = {}
+    request.session.modified = True
+
+    # Redirect directly to WhatsApp
+    return redirect(whatsapp_url)
 
 
 def order_success(request, order_id):

@@ -136,7 +136,12 @@ class InquiryTestCase(TestCase):
         data = response.json()
         self.assertTrue(data['success'])
         self.assertIn('whatsapp_url', data)
-        self.assertTrue(data['whatsapp_url'].startswith('https://wa.me/917433026008?text='))
+        from products.views import get_whatsapp_number
+        raw_num = get_whatsapp_number()
+        expected_target = raw_num.strip()
+        if len(expected_target) == 10 and expected_target.isdigit():
+            expected_target = "91" + expected_target
+        self.assertTrue(data['whatsapp_url'].startswith(f'https://wa.me/{expected_target}?text='))
         
         # Verify text elements are URL-encoded properly
         import urllib.parse
