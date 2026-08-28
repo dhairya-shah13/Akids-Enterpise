@@ -1132,10 +1132,7 @@ def delete_product(request, pk):
 
 @public_cache_control(s_maxage=60, stale_while_revalidate=300)
 def home_view(request):
-    featured_products = Product.objects.filter(stock__gt=0).prefetch_related('class_specs', 'dimension_specs').only(
-        'id', 'name', 'category', 'price', 'discount_price', 'stock',
-        'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
-    ).order_by('-created_at')[:6]
+    featured_products = Product.objects.filter(stock__gt=0).prefetch_related('class_specs', 'dimension_specs').order_by('-created_at')[:6]
     return render(request, 'products/home.html', {'featured_products': featured_products})
 
 @public_cache_control(s_maxage=120, stale_while_revalidate=600)
@@ -1144,10 +1141,7 @@ def category_listing(request, cat_code, template_name):
     if q:
         products = search_products(q, category=cat_code)
     else:
-        products = Product.objects.filter(category=cat_code).prefetch_related('class_specs', 'dimension_specs').only(
-            'id', 'name', 'category', 'price', 'discount_price', 'stock',
-            'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at'
-        ).order_by('-created_at')[:8]
+        products = Product.objects.filter(category=cat_code).prefetch_related('class_specs', 'dimension_specs').order_by('-created_at')[:8]
     return render(request, template_name, {
         'products': products,
         'category_code': cat_code
@@ -1191,8 +1185,6 @@ def product_detail(request, pk):
             .exclude(pk=product.pk)
             .exclude(stock__lte=0)
             .prefetch_related('class_specs', 'dimension_specs')
-            .only('id', 'name', 'category', 'price', 'discount_price', 'stock',
-                  'sku', 'source', 'needs_image', 'image_file', 'image_url', 'created_at')
             .order_by('-created_at')[:3]
         )
         cache.set(cache_key, related_products, 300)
