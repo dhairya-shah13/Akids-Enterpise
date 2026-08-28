@@ -74,6 +74,9 @@ cd backend
 python manage.py test
 ```
 
+> [!NOTE]
+> Testing automatically uses an in-memory SQLite database (`:memory:`) to bypass connection limits and database creation restrictions present on remote production database poolers (e.g. Supabase).
+
 ---
 
 ## SEO & Accessibility (RankSynth Protocol)

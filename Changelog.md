@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-08-28 15:40]
+
+### [Category: Dev] — WhatsApp Checkout Integration & Category Search Cleanup
+What changed:
+- Bypassed and scratched the mock payment simulation flow and address form template (deleted legacy `checkout.html` template).
+- Updated `checkout_view` in `backend/products/views.py` to create the `Order` record atomically (saving the lead and deducting stock) and redirect the customer's browser directly to WhatsApp with a pre-filled message detailing order items, quantities, variant details, and financial GST totals.
+- Fetched the contact number dynamically from the `.env` configuration file via `get_whatsapp_number()`.
+- Updated `search_view` in `backend/products/views.py` to automatically redirect legacy empty search category queries (e.g. `/search/?category=OUTDOORS` and `/search/?category=INDOORS`) to their respective view-all routes (`/outdoor/view-all-products/` and `/indoor/view-all-products/`).
+- Removed category filtering from general search.
+- Cleaned up templates (`listing.html` and `outdoors.html`) to link the "View All Products" buttons directly to `/indoor/view-all-products/` and `/outdoor/view-all-products/` and removed legacy hidden category inputs.
+- Resolved database creation errors in local testing by updating test DB settings in `settings.py` to dynamically use in-memory SQLite for tests, and updated `test_whatsapp_integration` in `test_inquiries.py` to test the dynamic WhatsApp number.
+Why: Owner requested scratching the simulated payment page in favor of direct WhatsApp handover, using the dynamically loaded contact number from `.env`, and cleaning up legacy search category routes.
+Bug fixed (if applicable): None (restructuring and cleanup).
+
 ## [2026-08-11 10:22]
 
 ### [Category: Dev] — Approved Cloudflare plan: implemented the sole code change (§7) + owner runbook
